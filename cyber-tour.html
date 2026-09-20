@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#111821" />
+  <title>역곡지구 하우스토리 | 사이버 단지 산책</title>
+  <link rel="stylesheet" href="assets/css/cyber-tour.css" />
+</head>
+<body>
+  <main class="tour-app" id="tourApp">
+    <section class="hero scene is-active" id="heroScene" aria-label="단지 조감도 인트로">
+      <div class="hero-media" aria-hidden="true">
+        <img src="assets/images/cyber-tour/aerial.jpg" alt="" />
+      </div>
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-vignette" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <div class="eyebrow">CYBER WALK</div>
+        <h1>역곡지구 하우스토리</h1>
+        <p>우리가 살아갈 단지를<br />미리 둘러봅니다.</p>
+        <button class="enter-button" id="enterTour" type="button">
+          <span>단지 둘러보기</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true">
+        <span class="mouse-dot"></span>
+        <span>EXPLORE</span>
+      </div>
+    </section>
+
+    <section class="map-scene scene" id="mapScene" aria-label="단지 배치도 탐색">
+      <header class="topbar">
+        <button class="glass-button icon-button" id="backToHero" type="button" aria-label="인트로로 돌아가기">←</button>
+        <div class="topbar-title">
+          <strong>단지 산책</strong>
+          <span>원하는 장소를 선택해보세요.</span>
+        </div>
+        <button class="glass-button" id="resetMap" type="button">전체지도</button>
+      </header>
+
+      <div class="map-viewport" id="mapViewport">
+        <div class="map-stage" id="mapStage">
+          <img class="site-map" src="assets/images/cyber-tour/site-map.jpg" alt="역곡지구 하우스토리 단지 배치도" />
+
+          <button class="map-point" style="--x:73%; --y:58%" data-index="0" data-name="주출입구" data-label="ENTRANCE" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">주출입구</span>
+          </button>
+
+          <button class="map-point" style="--x:50%; --y:49%" data-index="1" data-name="중앙정원" data-label="CENTRAL GARDEN" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">중앙정원</span>
+          </button>
+
+          <button class="map-point" style="--x:39%; --y:38%" data-index="2" data-name="어린이놀이터" data-label="PLAYGROUND" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">어린이놀이터</span>
+          </button>
+
+          <button class="map-point" style="--x:60%; --y:50%" data-index="3" data-name="커뮤니티" data-label="COMMUNITY" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">커뮤니티</span>
+          </button>
+
+          <button class="map-point" style="--x:36%; --y:67%" data-index="4" data-name="남측정원" data-label="SOUTH GARDEN" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">남측정원</span>
+          </button>
+
+          <button class="map-point" style="--x:37%; --y:23%" data-index="5" data-name="북측정원" data-label="NORTH GARDEN" type="button">
+            <span class="point-ring"></span><span class="point-core"></span><span class="point-label">북측정원</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="location-card" id="locationCard" aria-live="polite">
+        <div class="location-meta">
+          <span class="location-kicker" id="locationKicker">EXPLORE MAP</span>
+          <h2 id="locationName">단지 전체보기</h2>
+          <p id="locationDescription">배치도의 포인트를 눌러 단지 곳곳을 살펴보세요.</p>
+        </div>
+        <div class="location-actions">
+          <button class="round-button" id="prevPoint" type="button" aria-label="이전 장소">←</button>
+          <span class="counter" id="pointCounter">0 / 6</span>
+          <button class="round-button" id="nextPoint" type="button" aria-label="다음 장소">→</button>
+        </div>
+      </div>
+
+      <div class="map-hint" id="mapHint">포인트를 누르면 해당 위치로 이동합니다.</div>
+    </section>
+  </main>
+
+  <script src="assets/js/cyber-tour.js"></script>
+</body>
+</html>
