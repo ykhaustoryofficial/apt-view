@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>HAUSTORY 360° Building V8</title>
+<title>HAUSTORY 360° Building V9</title>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -69,7 +69,7 @@ button{
   <div class="topbar">
     <div class="title">
       <strong>HAUSTORY · 25F</strong>
-      <span>3D BUILDING MASSING V8</span>
+      <span>3D BUILDING MASSING V9</span>
     </div>
 
     <div class="controls">
@@ -93,7 +93,9 @@ button{
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
-/* DIMENSIONS */
+/* =========================================================
+   DIMENSIONS
+========================================================= */
 
 const FLOOR_HEIGHT = .88;
 const REGULAR_FLOORS = 24;
@@ -155,7 +157,20 @@ const CAP_Z = 0;
 const CAP_LEFT_HEIGHT = 1.05;
 const CAP_RIGHT_HEIGHT = 1.72;
 
-/* SCENE */
+/* SIDE WALL */
+
+const BUILDING_NUMBER = "233";
+
+const SIDE_BASE_HEIGHT = 4.65;
+
+const SIDE_X =
+  RIGHT_X +
+  RIGHT_WIDTH/2 +
+  .035;
+
+/* =========================================================
+   SCENE
+========================================================= */
 
 const app =
   document.getElementById("app");
@@ -223,10 +238,9 @@ app.appendChild(
   renderer.domElement
 );
 
-/* LIGHT
-   녹색 지면광 제거.
-   중성 회색 간접광으로 변경.
-*/
+/* =========================================================
+   LIGHT
+========================================================= */
 
 const hemi =
   new THREE.HemisphereLight(
@@ -277,7 +291,9 @@ fill.position.set(
 
 scene.add(fill);
 
-/* MATERIAL */
+/* =========================================================
+   MATERIAL
+========================================================= */
 
 const MAT = {
 
@@ -356,18 +372,48 @@ const MAT = {
       color:0x707b80,
       roughness:.34,
       metalness:.72
+    }),
+
+  /* 측면 상부 짙은 남색 */
+
+  sideNavy:
+    new THREE.MeshStandardMaterial({
+      color:0x263848,
+      roughness:.68,
+      metalness:.02
+    }),
+
+  /* 측면 하부 밝은 남색 */
+
+  sideBlue:
+    new THREE.MeshStandardMaterial({
+      color:0x39779e,
+      roughness:.62,
+      metalness:.02
+    }),
+
+  /* 측면 패널 이음선 */
+
+  sideJoint:
+    new THREE.MeshStandardMaterial({
+      color:0x5c7081,
+      roughness:.68
     })
 
 };
 
-/* BUILDING */
+/* =========================================================
+   BUILDING
+========================================================= */
 
 const building =
   new THREE.Group();
 
 scene.add(building);
 
-/* HELPERS */
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function box(
   w,h,d,
@@ -418,7 +464,9 @@ function litPick(
   );
 }
 
-/* MAIN BODY */
+/* =========================================================
+   MAIN BODY
+========================================================= */
 
 const mainBody =
   new THREE.Mesh(
@@ -451,7 +499,9 @@ mainBody.receiveShadow = true;
 
 building.add(mainBody);
 
-/* LEFT WHITE WALL */
+/* =========================================================
+   LEFT WHITE WALL
+========================================================= */
 
 box(
   LEFT_WALL_WIDTH,
@@ -483,7 +533,9 @@ box(
   MAIN_FRONT + .13
 );
 
-/* RIGHT BEIGE MASS */
+/* =========================================================
+   RIGHT BEIGE MASS
+========================================================= */
 
 const rightBody =
   new THREE.Mesh(
@@ -530,7 +582,9 @@ box(
   RIGHT_Z
 );
 
-/* BLUE CORE */
+/* =========================================================
+   BLUE CORE
+========================================================= */
 
 box(
   BLUE_WIDTH,
@@ -616,7 +670,9 @@ for(
 
 }
 
-/* BIG WHITE FRAME */
+/* =========================================================
+   BIG WHITE FRAME
+========================================================= */
 
 const FRAME_LEFT_X =
   BLUE_X -
@@ -641,14 +697,9 @@ box(
   .32,
   FRAME_HEIGHT,
   .21,
-
   MAT.whiteBright,
-
   FRAME_LEFT_X,
-
-  FRAME_BOTTOM +
-  FRAME_HEIGHT/2,
-
+  FRAME_BOTTOM + FRAME_HEIGHT/2,
   MAIN_FRONT+.17
 );
 
@@ -656,14 +707,9 @@ box(
   .32,
   FRAME_HEIGHT,
   .21,
-
   MAT.whiteBright,
-
   FRAME_RIGHT_X,
-
-  FRAME_BOTTOM +
-  FRAME_HEIGHT/2,
-
+  FRAME_BOTTOM + FRAME_HEIGHT/2,
   MAIN_FRONT+.17
 );
 
@@ -671,24 +717,20 @@ box(
   FRAME_RIGHT_X -
   FRAME_LEFT_X +
   .32,
-
   .22,
-
   .21,
-
   MAT.whiteBright,
-
   (
     FRAME_LEFT_X +
     FRAME_RIGHT_X
   )/2,
-
   FRAME_TOP,
-
   MAIN_FRONT+.17
 );
 
-/* LEFT WINDOW STRIP */
+/* =========================================================
+   LEFT WINDOW STRIP
+========================================================= */
 
 for(
   let floor=0;
@@ -719,7 +761,10 @@ for(
 
 }
 
-/* RIGHT MASS WINDOWS */
+/* =========================================================
+   RIGHT MASS FRONT WINDOWS
+   전면은 그대로 유지
+========================================================= */
 
 for(
   let floor=0;
@@ -763,49 +808,257 @@ for(
 
 }
 
+/* =========================================================
+   NEW PAINTED SIDE WALL
+   ★ 기존 측면 창문 완전 제거
+========================================================= */
+
+/*
+   전체 측면 상부
+*/
+
+const SIDE_UPPER_HEIGHT =
+  RIGHT_HEIGHT -
+  SIDE_BASE_HEIGHT;
+
+box(
+  .055,
+  SIDE_UPPER_HEIGHT,
+  RIGHT_DEPTH-.18,
+
+  MAT.sideNavy,
+
+  SIDE_X,
+
+  SIDE_BASE_HEIGHT +
+  SIDE_UPPER_HEIGHT/2,
+
+  RIGHT_Z
+);
+
+/*
+   하부 밝은 남색 영역
+*/
+
+box(
+  .06,
+  SIDE_BASE_HEIGHT,
+  RIGHT_DEPTH-.18,
+
+  MAT.sideBlue,
+
+  SIDE_X+.004,
+
+  SIDE_BASE_HEIGHT/2,
+
+  RIGHT_Z
+);
+
+/* =========================================================
+   SIDE PANEL JOINTS
+   참고사진의 얇은 패널 이음선
+========================================================= */
+
+/*
+  세로 이음선
+*/
+
+[
+  .25,
+  .50,
+  .75
+].forEach(rate=>{
+
+  const z =
+    RIGHT_Z -
+    RIGHT_DEPTH/2 +
+    RIGHT_DEPTH*rate;
+
+  box(
+    .025,
+    SIDE_UPPER_HEIGHT-.18,
+    .028,
+
+    MAT.sideJoint,
+
+    SIDE_X+.035,
+
+    SIDE_BASE_HEIGHT +
+    SIDE_UPPER_HEIGHT/2,
+
+    z
+  );
+
+});
+
+/*
+  가로 이음선
+*/
+
+const jointRows = 9;
+
 for(
-  let floor=0;
-  floor<21;
-  floor++
+  let i=1;
+  i<jointRows;
+  i++
 ){
 
   const y =
-    1.45 +
-    floor*.88;
+    SIDE_BASE_HEIGHT +
+    (
+      SIDE_UPPER_HEIGHT /
+      jointRows
+    ) * i;
 
-  for(
-    let c=0;
-    c<3;
-    c++
-  ){
+  box(
+    .025,
+    .028,
+    RIGHT_DEPTH-.23,
 
-    box(
-      .09,
-      .54,
-      .66,
+    MAT.sideJoint,
 
-      litPick(
-        floor,c,10
-      )
-        ? MAT.lit
-        : MAT.glassDark,
+    SIDE_X+.036,
 
-      RIGHT_X +
-      RIGHT_WIDTH/2 +
-      .08,
+    y,
 
-      y,
-
-      RIGHT_Z -
-      1.18 +
-      c*1.05
-    );
-
-  }
+    RIGHT_Z
+  );
 
 }
 
-/* TOP FLOOR */
+/* =========================================================
+   SIDE WHITE EDGE TRIMS
+========================================================= */
+
+/*
+  측면 앞쪽 흰색 테두리
+*/
+
+box(
+  .10,
+  RIGHT_HEIGHT,
+  .20,
+
+  MAT.whiteBright,
+
+  SIDE_X+.045,
+
+  RIGHT_HEIGHT/2,
+
+  RIGHT_Z +
+  RIGHT_DEPTH/2 -
+  .04
+);
+
+/*
+  측면 뒤쪽 흰색 테두리
+*/
+
+box(
+  .10,
+  RIGHT_HEIGHT,
+  .20,
+
+  MAT.whiteBright,
+
+  SIDE_X+.045,
+
+  RIGHT_HEIGHT/2,
+
+  RIGHT_Z -
+  RIGHT_DEPTH/2 +
+  .04
+);
+
+/* =========================================================
+   BUILDING NUMBER
+========================================================= */
+
+function createBuildingNumberTexture(){
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width = 512;
+  canvas.height = 256;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  ctx.font =
+    "900 150px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.fillStyle =
+    "#ffffff";
+
+  ctx.fillText(
+    BUILDING_NUMBER,
+    canvas.width/2,
+    canvas.height/2
+  );
+
+  const texture =
+    new THREE.CanvasTexture(
+      canvas
+    );
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
+
+  return texture;
+}
+
+const numberMaterial =
+  new THREE.MeshBasicMaterial({
+    map:createBuildingNumberTexture(),
+    transparent:true
+  });
+
+const numberPlane =
+  new THREE.Mesh(
+
+    new THREE.PlaneGeometry(
+      1.55,
+      .78
+    ),
+
+    numberMaterial
+
+  );
+
+/*
+  측면(+X)을 향하도록 회전
+*/
+
+numberPlane.rotation.y =
+  Math.PI/2;
+
+numberPlane.position.set(
+  SIDE_X+.07,
+  SIDE_BASE_HEIGHT*.53,
+  RIGHT_Z+.28
+);
+
+building.add(
+  numberPlane
+);
+
+/* =========================================================
+   TOP FLOOR
+========================================================= */
 
 box(
   MAIN_WIDTH,
@@ -849,7 +1102,9 @@ for(
 
 }
 
-/* WHITE SIGNATURE BASE */
+/* =========================================================
+   SIGNATURE BASE
+========================================================= */
 
 box(
   CAP_WIDTH,
@@ -865,15 +1120,14 @@ box(
   CAP_Z
 );
 
-/* SIGNATURE WEDGE */
+/* =========================================================
+   SIGNATURE WEDGE
+========================================================= */
 
 function createSignatureWedge(){
 
-  const w =
-    CAP_WIDTH;
-
-  const d =
-    CAP_DEPTH;
+  const w = CAP_WIDTH;
+  const d = CAP_DEPTH;
 
   const leftH =
     CAP_LEFT_HEIGHT;
@@ -960,7 +1214,9 @@ function createSignatureWedge(){
 
 createSignatureWedge();
 
-/* LOGO */
+/* =========================================================
+   HAUSTORY LOGO
+========================================================= */
 
 function createLogoTexture(){
 
@@ -973,9 +1229,7 @@ function createLogoTexture(){
   canvas.height = 256;
 
   const ctx =
-    canvas.getContext(
-      "2d"
-    );
+    canvas.getContext("2d");
 
   ctx.font =
     "900 124px Arial";
@@ -1051,7 +1305,9 @@ building.add(
   logo
 );
 
-/* SOLAR PANEL TEXTURE */
+/* =========================================================
+   SOLAR TEXTURE
+========================================================= */
 
 function solarTexture(){
 
@@ -1064,9 +1320,7 @@ function solarTexture(){
   canvas.height = 768;
 
   const ctx =
-    canvas.getContext(
-      "2d"
-    );
+    canvas.getContext("2d");
 
   const gradient =
     ctx.createLinearGradient(
@@ -1118,11 +1372,8 @@ function solarTexture(){
       c++
     ){
 
-      const x =
-        c*cw;
-
-      const y =
-        r*ch;
+      const x = c*cw;
+      const y = r*ch;
 
       ctx.strokeStyle =
         "rgba(170,215,230,.30)";
@@ -1191,7 +1442,9 @@ const solarMaterial =
     metalness:.10
   });
 
-/* SOLAR MODULE */
+/* =========================================================
+   SOLAR MODULE
+========================================================= */
 
 function solarModule(
   width=1.02,
@@ -1215,10 +1468,7 @@ function solarModule(
     );
 
   back.castShadow = true;
-
-  group.add(
-    back
-  );
+  group.add(back);
 
   const surface =
     new THREE.Mesh(
@@ -1238,9 +1488,7 @@ function solarModule(
   surface.position.y =
     .031;
 
-  group.add(
-    surface
-  );
+  group.add(surface);
 
   const h = .07;
   const t = .045;
@@ -1260,9 +1508,7 @@ function solarModule(
     0,.035,-depth/2
   );
 
-  group.add(
-    north
-  );
+  group.add(north);
 
   const south =
     north.clone();
@@ -1270,9 +1516,7 @@ function solarModule(
   south.position.z =
     depth/2;
 
-  group.add(
-    south
-  );
+  group.add(south);
 
   const west =
     new THREE.Mesh(
@@ -1289,9 +1533,7 @@ function solarModule(
     -width/2,.035,0
   );
 
-  group.add(
-    west
-  );
+  group.add(west);
 
   const east =
     west.clone();
@@ -1299,14 +1541,14 @@ function solarModule(
   east.position.x =
     width/2;
 
-  group.add(
-    east
-  );
+  group.add(east);
 
   return group;
 }
 
-/* SOLAR ARRAY */
+/* =========================================================
+   SOLAR ARRAY
+========================================================= */
 
 function createRoofSolar(){
 
@@ -1356,9 +1598,7 @@ function createRoofSolar(){
         panelD/2 +
         r*(panelD+gap);
 
-      group.add(
-        panel
-      );
+      group.add(panel);
 
     }
 
@@ -1389,15 +1629,15 @@ function createRoofSolar(){
 
   );
 
-  building.add(
-    group
-  );
+  building.add(group);
 
 }
 
 createRoofSolar();
 
-/* GROUND */
+/* =========================================================
+   GROUND
+========================================================= */
 
 const ground =
   new THREE.Mesh(
@@ -1420,11 +1660,11 @@ ground.rotation.x =
 ground.receiveShadow =
   true;
 
-scene.add(
-  ground
-);
+scene.add(ground);
 
-/* INTERACTION */
+/* =========================================================
+   INTERACTION
+========================================================= */
 
 let rotationY = 0;
 let targetRotationY = 0;
@@ -1613,7 +1853,9 @@ renderer.domElement.addEventListener(
   removePointer
 );
 
-/* UI */
+/* =========================================================
+   UI
+========================================================= */
 
 const resetBtn =
   document.getElementById(
