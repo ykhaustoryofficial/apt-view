@@ -320,11 +320,14 @@ const MAT = {
       roughness:.44
     }),
 
-  signatureWhite:
-    new THREE.MeshStandardMaterial({
-      color:0xf6f7f5,
-      roughness:.42
-    }),
+signatureWhite:
+  new THREE.MeshStandardMaterial({
+    color:0xffffff,
+    emissive:0xffffff,
+    emissiveIntensity:.08,
+    roughness:.30,
+    metalness:0.00
+  }),
 
   beige:
     new THREE.MeshStandardMaterial({
