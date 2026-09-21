@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#dce9ed">
+<title>HAUSTORY UNIT VIEWER</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#dce9ed;
+  --card:rgba(255,255,255,.82);
+  --card-hover:rgba(255,255,255,.97);
+  --ink:#273840;
+  --sub:#718087;
+  --line:rgba(53,72,80,.09);
+  --shadow:0 14px 35px rgba(53,72,80,.09);
+  --radius:24px;
+}
+
+html,body{
+  min-height:100%;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(255,255,255,.65),transparent 26%),
+    radial-gradient(circle at 90% 80%,rgba(176,210,218,.45),transparent 28%),
+    var(--bg);
+  color:var(--ink);
+  padding:
+    max(28px,env(safe-area-inset-top))
+    18px
+    max(34px,env(safe-area-inset-bottom));
+}
+
+.wrap{
+  width:min(920px,100%);
+  margin:0 auto;
+}
+
+header{
+  margin:18px 4px 30px;
+}
+
+.eyebrow{
+  font-size:12px;
+  letter-spacing:.14em;
+  font-weight:800;
+  color:#789099;
+  margin-bottom:8px;
+}
+
+h1{
+  font-size:clamp(28px,7vw,46px);
+  line-height:1.08;
+  letter-spacing:-.04em;
+}
+
+header p{
+  margin-top:12px;
+  color:var(--sub);
+  font-size:14px;
+  line-height:1.65;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:210px;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:var(--radius);
+  background:var(--card);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  text-decoration:none;
+  color:inherit;
+  overflow:hidden;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.card::after{
+  content:"";
+  position:absolute;
+  width:110px;
+  height:110px;
+  right:-30px;
+  bottom:-35px;
+  border-radius:50%;
+  background:rgba(126,174,190,.13);
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  background:var(--card-hover);
+  box-shadow:0 20px 45px rgba(53,72,80,.14);
+}
+
+.card:active{
+  transform:scale(.985);
+}
+
+.unit{
+  position:relative;
+  z-index:1;
+}
+
+.unit-letter{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:62px;
+  height:62px;
+  border-radius:19px;
+  background:#f4f8f9;
+  box-shadow:
+    inset 0 0 0 1px rgba(48,71,80,.06),
+    0 6px 18px rgba(50,75,84,.08);
+  font-size:29px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+
+.unit-name{
+  margin-top:17px;
+  font-size:20px;
+  font-weight:850;
+  letter-spacing:-.03em;
+}
+
+.unit-info{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:24px;
+  padding-top:15px;
+  border-top:1px solid var(--line);
+}
+
+.area{
+  font-size:12px;
+  color:var(--sub);
+}
+
+.open{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#e9f1f3;
+  font-size:18px;
+  font-weight:700;
+}
+
+footer{
+  margin:25px 4px 0;
+  padding-top:18px;
+  border-top:1px solid rgba(54,79,88,.09);
+  color:#7c8c92;
+  font-size:12px;
+  line-height:1.7;
+}
+
+@media(max-width:680px){
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .card{
+    min-height:180px;
+    padding:18px;
+    border-radius:21px;
+  }
+
+  .unit-letter{
+    width:54px;
+    height:54px;
+    border-radius:17px;
+    font-size:25px;
+  }
+
+  .unit-name{
+    font-size:18px;
+  }
+}
+
+@media(max-width:390px){
+  body{
+    padding-left:14px;
+    padding-right:14px;
+  }
+
+  .grid{
+    gap:10px;
+  }
+
+  .card{
+    min-height:166px;
+    padding:16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="wrap">
+
+<header>
+  <div class="eyebrow">HAUSTORY · 3D UNIT CHECK</div>
+  <h1>유닛 모델 뷰어</h1>
+  <p>
+    확인할 주택형을 선택하세요.<br>
+    각 페이지에서 창호·루버·외곽 형태를 회전하며 확인할 수 있습니다.
+  </p>
+</header>
+
+<section class="grid">
+
+<a class="card" href="./unit-a.html">
+  <div class="unit">
+    <div class="unit-letter">A</div>
+    <div class="unit-name">55A TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9200㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+<a class="card" href="./unit-b.html">
+  <div class="unit">
+    <div class="unit-letter">B</div>
+    <div class="unit-name">55B TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9500㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+<a class="card" href="./unit-c.html">
+  <div class="unit">
+    <div class="unit-letter">C</div>
+    <div class="unit-name">55C TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9500㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+<a class="card" href="./unit-d.html">
+  <div class="unit">
+    <div class="unit-letter">D</div>
+    <div class="unit-name">55D TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9500㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+<a class="card" href="./unit-e.html">
+  <div class="unit">
+    <div class="unit-letter">E</div>
+    <div class="unit-name">55E TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9500㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+<a class="card" href="./unit-f.html">
+  <div class="unit">
+    <div class="unit-letter">F</div>
+    <div class="unit-name">55F TYPE</div>
+  </div>
+  <div class="unit-info">
+    <span class="area">55.9600㎡</span>
+    <span class="open">→</span>
+  </div>
+</a>
+
+</section>
+
+<footer>
+  UNIT 좌표 기준 · FRONT = 거실창 방향<br>
+  각 유닛 수정 후 이 페이지로 돌아와 다른 타입을 바로 확인하면 됩니다.
+</footer>
+
+</main>
+
+</body>
+</html>
