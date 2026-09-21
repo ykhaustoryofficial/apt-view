@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>HAUSTORY 360° Building V6</title>
+<title>HAUSTORY 360° Building V7</title>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{
-  touch-action:none;overscroll-behavior:none;
+  touch-action:none;
+  overscroll-behavior:none;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif
 }
 #app{
@@ -22,13 +23,16 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 .ui{position:fixed;inset:0;z-index:20;pointer-events:none}
 .topbar{
-  position:absolute;top:max(14px,env(safe-area-inset-top));
-  left:16px;right:16px;display:flex;align-items:center;justify-content:space-between
+  position:absolute;
+  top:max(14px,env(safe-area-inset-top));
+  left:16px;right:16px;
+  display:flex;align-items:center;justify-content:space-between
 }
 .title,.bottom,button{
   border:1px solid rgba(255,255,255,.55);
   background:rgba(255,255,255,.43);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
   box-shadow:0 10px 30px rgba(30,50,55,.08)
 }
 .title{padding:10px 14px;border-radius:16px;color:#24343b}
@@ -42,8 +46,12 @@ button{
 .bottom{
   position:absolute;left:50%;
   bottom:max(18px,calc(env(safe-area-inset-bottom) + 10px));
-  transform:translateX(-50%);width:min(92vw,430px);
-  padding:13px 16px;border-radius:18px;text-align:center;color:#283b41
+  transform:translateX(-50%);
+  width:min(92vw,430px);
+  padding:13px 16px;
+  border-radius:18px;
+  text-align:center;
+  color:#283b41
 }
 .bottom strong{display:block;font-size:13px}
 .bottom span{display:block;margin-top:4px;font-size:10px;opacity:.58}
@@ -62,8 +70,9 @@ button{
   <div class="topbar">
     <div class="title">
       <strong>HAUSTORY · 25F</strong>
-      <span>3D BUILDING MASSING V6</span>
+      <span>3D BUILDING MASSING V7</span>
     </div>
+
     <div class="controls">
       <button id="autoBtn">자동회전</button>
       <button id="resetBtn">정면</button>
@@ -73,6 +82,7 @@ button{
   <div class="bottom">
     <strong>손가락으로 건물을 돌려보세요</strong>
     <span>좌우 회전 · 위아래 시점 · 두 손가락 확대/축소</span>
+
     <div class="status">
       <div id="degree">0°</div>
       <div id="zoomText">100%</div>
@@ -127,33 +137,51 @@ const BLUE_X = MAIN_X - .45;
 const MAIN_FRONT = MAIN_DEPTH/2;
 
 /* =========================================================
-   SIGNATURE CAP
-
-   ★ 정면에서:
-   왼쪽 낮음 → 오른쪽 높음
-
-   아래쪽 바닥선은 완전 수평.
+   NEW LEFT WHITE WALL
+   기존 왼쪽 벽을 덮지 않고 바깥에 추가
 ========================================================= */
 
-const CAP_WIDTH = MAIN_WIDTH + .72;
-const CAP_DEPTH = MAIN_DEPTH + .38;
+const LEFT_WALL_WIDTH = .46;
 
-const CAP_X = MAIN_X;
+const LEFT_WALL_DEPTH =
+  MAIN_DEPTH + .38;
+
+const LEFT_WALL_HEIGHT =
+  ROOF_BASE_Y;
+
+const LEFT_WALL_X =
+  MAIN_X -
+  MAIN_WIDTH/2 -
+  LEFT_WALL_WIDTH/2 +
+  .06;
+
+/* =========================================================
+   SIGNATURE
+========================================================= */
+
+const CAP_WIDTH =
+  MAIN_WIDTH + .72;
+
+const CAP_DEPTH =
+  MAIN_DEPTH + .38;
+
+const CAP_X =
+  MAIN_X;
+
 const CAP_Z = 0;
 
-/*
-  왼쪽 높이 / 오른쪽 높이
-*/
-const CAP_LEFT_HEIGHT  = 1.05;
+const CAP_LEFT_HEIGHT = 1.05;
 const CAP_RIGHT_HEIGHT = 1.72;
 
 /* =========================================================
    SCENE
 ========================================================= */
 
-const app = document.getElementById("app");
+const app =
+  document.getElementById("app");
 
-const scene = new THREE.Scene();
+const scene =
+  new THREE.Scene();
 
 scene.fog =
   new THREE.Fog(
@@ -206,8 +234,7 @@ renderer.outputColorSpace =
 renderer.toneMapping =
   THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure =
-  1.10;
+renderer.toneMappingExposure = 1.10;
 
 renderer.domElement.style.touchAction =
   "none";
@@ -217,7 +244,7 @@ app.appendChild(
 );
 
 /* =========================================================
-   LIGHTING
+   LIGHT
 ========================================================= */
 
 scene.add(
@@ -235,7 +262,9 @@ const sun =
   );
 
 sun.position.set(
-  -14,30,18
+  -14,
+  30,
+  18
 );
 
 sun.castShadow = true;
@@ -254,80 +283,99 @@ const fill =
   );
 
 fill.position.set(
-  18,15,-16
+  18,
+  15,
+  -16
 );
 
 scene.add(fill);
 
 /* =========================================================
-   MATERIALS
+   MATERIAL
 ========================================================= */
 
 const MAT = {
 
-  dark:new THREE.MeshStandardMaterial({
-    color:0x303c43,
-    roughness:.58
-  }),
+  dark:
+    new THREE.MeshStandardMaterial({
+      color:0x303c43,
+      roughness:.58
+    }),
 
-  dark2:new THREE.MeshStandardMaterial({
-    color:0x45535a,
-    roughness:.63
-  }),
+  dark2:
+    new THREE.MeshStandardMaterial({
+      color:0x45535a,
+      roughness:.63
+    }),
 
-  white:new THREE.MeshStandardMaterial({
-    color:0xe9ecea,
-    roughness:.53
-  }),
+  white:
+    new THREE.MeshStandardMaterial({
+      color:0xe9ecea,
+      roughness:.53
+    }),
 
-  whiteBright:new THREE.MeshStandardMaterial({
-    color:0xf5f6f4,
-    roughness:.44
-  }),
+  whiteBright:
+    new THREE.MeshStandardMaterial({
+      color:0xf5f6f4,
+      roughness:.44
+    }),
 
-  beige:new THREE.MeshStandardMaterial({
-    color:0xb3a791,
-    roughness:.68
-  }),
+  signatureWhite:
+    new THREE.MeshStandardMaterial({
+      color:0xf6f7f5,
+      roughness:.42
+    }),
 
-  beigeDark:new THREE.MeshStandardMaterial({
-    color:0x897d6d,
-    roughness:.70
-  }),
+  beige:
+    new THREE.MeshStandardMaterial({
+      color:0xb3a791,
+      roughness:.68
+    }),
 
-  blue:new THREE.MeshStandardMaterial({
-    color:0x647ca5,
-    roughness:.20,
-    metalness:.06
-  }),
+  beigeDark:
+    new THREE.MeshStandardMaterial({
+      color:0x897d6d,
+      roughness:.70
+    }),
 
-  glass:new THREE.MeshStandardMaterial({
-    color:0x879eaa,
-    roughness:.22
-  }),
+  blue:
+    new THREE.MeshStandardMaterial({
+      color:0x647ca5,
+      roughness:.20,
+      metalness:.06
+    }),
 
-  glassDark:new THREE.MeshStandardMaterial({
-    color:0x65767e,
-    roughness:.24
-  }),
+  glass:
+    new THREE.MeshStandardMaterial({
+      color:0x879eaa,
+      roughness:.22
+    }),
 
-  lit:new THREE.MeshStandardMaterial({
-    color:0xd3b679,
-    emissive:0x86602d,
-    emissiveIntensity:.72,
-    roughness:.35
-  }),
+  glassDark:
+    new THREE.MeshStandardMaterial({
+      color:0x65767e,
+      roughness:.24
+    }),
 
-  metal:new THREE.MeshStandardMaterial({
-    color:0x707b80,
-    roughness:.34,
-    metalness:.72
-  })
+  lit:
+    new THREE.MeshStandardMaterial({
+      color:0xd3b679,
+      emissive:0x86602d,
+      emissiveIntensity:.72,
+      roughness:.35
+    }),
+
+  metal:
+    new THREE.MeshStandardMaterial({
+      color:0x707b80,
+      roughness:.34,
+      metalness:.72
+    })
 
 };
 
 /* =========================================================
-   BUILDING
+   BUILDING GROUP
 ========================================================= */
 
 const building =
@@ -335,7 +383,9 @@ const building =
 
 scene.add(building);
 
-/* HELPER */
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function box(
   w,h,d,
@@ -345,7 +395,9 @@ function box(
 
   const mesh =
     new THREE.Mesh(
-      new THREE.BoxGeometry(w,h,d),
+      new THREE.BoxGeometry(
+        w,h,d
+      ),
       material
     );
 
@@ -361,7 +413,11 @@ function box(
   return mesh;
 }
 
-function litPick(floor,column,side){
+function litPick(
+  floor,
+  column,
+  side
+){
 
   return (
     (
@@ -416,6 +472,52 @@ mainBody.receiveShadow = true;
 building.add(mainBody);
 
 /* =========================================================
+   NEW LEFT WHITE WALL
+========================================================= */
+
+/*
+  기존 건물의 왼쪽면 색을 바꾸는 것이 아니다.
+
+  원래 메인 바디는 그대로 존재하고,
+  그 바깥쪽에 별도의 흰색 벽체가 하나 추가된다.
+*/
+
+box(
+  LEFT_WALL_WIDTH,
+  LEFT_WALL_HEIGHT,
+  LEFT_WALL_DEPTH,
+
+  MAT.whiteBright,
+
+  LEFT_WALL_X,
+
+  LEFT_WALL_HEIGHT/2,
+
+  0
+);
+
+/*
+  앞쪽에서 조금 더 또렷하게 보이도록
+  얇은 세로 마감재 추가
+*/
+
+box(
+  .14,
+  LEFT_WALL_HEIGHT,
+  .20,
+
+  MAT.signatureWhite,
+
+  LEFT_WALL_X -
+  LEFT_WALL_WIDTH/2 -
+  .02,
+
+  LEFT_WALL_HEIGHT/2,
+
+  MAIN_FRONT + .13
+);
+
+/* =========================================================
    RIGHT BEIGE MASS
 ========================================================= */
 
@@ -454,9 +556,13 @@ box(
   RIGHT_WIDTH+.10,
   .18,
   RIGHT_DEPTH+.10,
+
   MAT.dark2,
+
   RIGHT_X,
+
   RIGHT_HEIGHT+.09,
+
   RIGHT_Z
 );
 
@@ -468,6 +574,7 @@ box(
   BLUE_WIDTH,
   BODY_HEIGHT-2.05,
   .07,
+
   MAT.blue,
 
   BLUE_X,
@@ -477,7 +584,7 @@ box(
   MAIN_FRONT+.04
 );
 
-/* BLUE WINDOWS */
+/* WINDOWS */
 
 const facadeColumns = [
   -1.50,
@@ -523,7 +630,7 @@ for(
   );
 }
 
-/* HORIZONTAL BLUE LINES */
+/* HORIZONTAL LINES */
 
 for(
   let i=0;
@@ -548,7 +655,7 @@ for(
 }
 
 /* =========================================================
-   BIG WHITE RECTANGULAR FRAME
+   BIG WHITE FRAME
 ========================================================= */
 
 const FRAME_LEFT_X =
@@ -562,18 +669,19 @@ const FRAME_RIGHT_X =
   .22;
 
 const FRAME_BOTTOM = .10;
-const FRAME_TOP = BODY_HEIGHT-.20;
+
+const FRAME_TOP =
+  BODY_HEIGHT-.20;
 
 const FRAME_HEIGHT =
   FRAME_TOP -
   FRAME_BOTTOM;
 
-/* LEFT */
-
 box(
   .32,
   FRAME_HEIGHT,
   .21,
+
   MAT.whiteBright,
 
   FRAME_LEFT_X,
@@ -584,12 +692,11 @@ box(
   MAIN_FRONT+.17
 );
 
-/* RIGHT */
-
 box(
   .32,
   FRAME_HEIGHT,
   .21,
+
   MAT.whiteBright,
 
   FRAME_RIGHT_X,
@@ -599,11 +706,6 @@ box(
 
   MAIN_FRONT+.17
 );
-
-/*
-  TOP
-  ★ 완전 수평
-*/
 
 box(
   FRAME_RIGHT_X -
@@ -627,7 +729,7 @@ box(
 );
 
 /* =========================================================
-   LEFT SIDE WINDOW STRIP
+   LEFT WINDOW STRIP
 ========================================================= */
 
 for(
@@ -660,7 +762,7 @@ for(
 }
 
 /* =========================================================
-   RIGHT MASS FRONT WINDOWS
+   RIGHT MASS WINDOWS
 ========================================================= */
 
 for(
@@ -705,8 +807,6 @@ for(
 
 }
 
-/* RIGHT SIDE */
-
 for(
   let floor=0;
   floor<21;
@@ -750,7 +850,7 @@ for(
 }
 
 /* =========================================================
-   REAL TOP FLOOR
+   TOP FLOOR
 ========================================================= */
 
 box(
@@ -767,8 +867,6 @@ box(
 
   0
 );
-
-/* TOP FLOOR WINDOWS */
 
 for(
   let i=0;
@@ -798,15 +896,27 @@ for(
 }
 
 /* =========================================================
+   WHITE SIGNATURE BASE
+   상단 구조물이 본체와 연결되어 보이도록
+   하부도 전부 흰색
+========================================================= */
+
+box(
+  CAP_WIDTH,
+  .18,
+  CAP_DEPTH,
+
+  MAT.signatureWhite,
+
+  CAP_X,
+
+  ROOF_BASE_Y+.09,
+
+  CAP_Z
+);
+
+/* =========================================================
    SIGNATURE WEDGE
-   ★ 핵심 수정
-
-   정면 기준:
-   왼쪽 낮음
-   오른쪽 높음
-
-   front/back 모두 같은 경사라
-   3D로 실제 wedge 형태가 된다.
 ========================================================= */
 
 function createSignatureWedge(){
@@ -827,48 +937,38 @@ function createSignatureWedge(){
   const positions =
     new Float32Array([
 
-      /* FRONT BOTTOM */
-      -w/2, 0, d/2,
-       w/2, 0, d/2,
+      -w/2,0,d/2,
+       w/2,0,d/2,
 
-      /* FRONT TOP */
-      -w/2, leftH,  d/2,
-       w/2, rightH, d/2,
+      -w/2,leftH,d/2,
+       w/2,rightH,d/2,
 
-      /* BACK BOTTOM */
-      -w/2, 0, -d/2,
-       w/2, 0, -d/2,
+      -w/2,0,-d/2,
+       w/2,0,-d/2,
 
-      /* BACK TOP */
-      -w/2, leftH,  -d/2,
-       w/2, rightH, -d/2
+      -w/2,leftH,-d/2,
+       w/2,rightH,-d/2
 
     ]);
 
 
   const indices = [
 
-    /* FRONT */
     0,1,3,
     0,3,2,
 
-    /* BACK */
     5,4,6,
     5,6,7,
 
-    /* LEFT */
     4,0,2,
     4,2,6,
 
-    /* RIGHT */
     1,5,7,
     1,7,3,
 
-    /* BOTTOM */
     4,5,1,
     4,1,0,
 
-    /* TOP */
     2,3,7,
     2,7,6
 
@@ -899,13 +999,13 @@ function createSignatureWedge(){
   const wedge =
     new THREE.Mesh(
       geometry,
-      MAT.whiteBright
+      MAT.signatureWhite
     );
 
 
   wedge.position.set(
     CAP_X,
-    ROOF_BASE_Y,
+    ROOF_BASE_Y+.18,
     CAP_Z
   );
 
@@ -923,7 +1023,7 @@ function createSignatureWedge(){
 createSignatureWedge();
 
 /* =========================================================
-   HAUSTORY LOGO
+   LOGO
 ========================================================= */
 
 function createLogoTexture(){
@@ -1002,15 +1102,15 @@ const logo =
 
 logo.position.set(
 
-  CAP_X + .20,
+  CAP_X+.20,
 
-  ROOF_BASE_Y +
+  ROOF_BASE_Y+.18 +
   (
     CAP_LEFT_HEIGHT +
     CAP_RIGHT_HEIGHT
-  )/2 * .56,
+  )/2*.56,
 
-  CAP_DEPTH/2 + .012
+  CAP_DEPTH/2+.012
 
 );
 
@@ -1020,7 +1120,7 @@ building.add(
 );
 
 /* =========================================================
-   SOLAR TEXTURE
+   SOLAR PANEL TEXTURE
 ========================================================= */
 
 function solarTexture(){
@@ -1094,13 +1194,18 @@ function solarTexture(){
       c++
     ){
 
-      const x = c*cw;
-      const y = r*ch;
+      const x =
+        c*cw;
+
+      const y =
+        r*ch;
+
 
       ctx.strokeStyle =
         "rgba(170,215,230,.30)";
 
       ctx.lineWidth = 2;
+
 
       ctx.strokeRect(
         x+3,
@@ -1109,32 +1214,39 @@ function solarTexture(){
         ch-6
       );
 
+
       ctx.strokeStyle =
         "rgba(220,235,240,.18)";
 
       ctx.lineWidth = 1;
 
+
       ctx.beginPath();
 
+
       ctx.moveTo(
         x+cw*.36,
         y+5
       );
+
 
       ctx.lineTo(
         x+cw*.36,
         y+ch-5
       );
 
+
       ctx.moveTo(
         x+cw*.64,
         y+5
       );
 
+
       ctx.lineTo(
         x+cw*.64,
         y+ch-5
       );
+
 
       ctx.stroke();
 
@@ -1148,14 +1260,18 @@ function solarTexture(){
       canvas
     );
 
+
   texture.colorSpace =
     THREE.SRGBColorSpace;
+
 
   texture.anisotropy =
     renderer.capabilities
     .getMaxAnisotropy();
 
+
   return texture;
+
 }
 
 
@@ -1178,6 +1294,7 @@ function solarModule(
   const group =
     new THREE.Group();
 
+
   const back =
     new THREE.Mesh(
 
@@ -1191,8 +1308,13 @@ function solarModule(
 
     );
 
+
   back.castShadow = true;
-  group.add(back);
+
+
+  group.add(
+    back
+  );
 
 
   const surface =
@@ -1207,13 +1329,18 @@ function solarModule(
 
     );
 
+
   surface.rotation.x =
     -Math.PI/2;
+
 
   surface.position.y =
     .031;
 
-  group.add(surface);
+
+  group.add(
+    surface
+  );
 
 
   const h = .07;
@@ -1224,70 +1351,78 @@ function solarModule(
     new THREE.Mesh(
 
       new THREE.BoxGeometry(
-        width,
-        h,
-        t
+        width,h,t
       ),
 
       MAT.metal
 
     );
 
+
   north.position.set(
     0,.035,-depth/2
   );
 
-  group.add(north);
+
+  group.add(
+    north
+  );
 
 
   const south =
     north.clone();
 
+
   south.position.z =
     depth/2;
 
-  group.add(south);
+
+  group.add(
+    south
+  );
 
 
   const west =
     new THREE.Mesh(
 
       new THREE.BoxGeometry(
-        t,
-        h,
-        depth
+        t,h,depth
       ),
 
       MAT.metal
 
     );
 
+
   west.position.set(
-    -width/2,
-    .035,
-    0
+    -width/2,.035,0
   );
 
-  group.add(west);
+
+  group.add(
+    west
+  );
 
 
   const east =
     west.clone();
 
+
   east.position.x =
     width/2;
 
-  group.add(east);
+
+  group.add(
+    east
+  );
 
 
   return group;
+
 }
 
 /* =========================================================
-   SOLAR ARRAY ON SIGNATURE
-
-   ★ 시그니처가 x축으로 올라가므로
-   패널도 z축 회전으로 같은 각도를 따른다.
+   SOLAR ARRAY
 ========================================================= */
 
 function createRoofSolar(){
@@ -1305,17 +1440,13 @@ function createRoofSolar(){
 
 
   const totalW =
-
-    columns*panelW
-
-    + (columns-1)*gap;
+    columns*panelW +
+    (columns-1)*gap;
 
 
   const totalD =
-
-    rows*panelD
-
-    + (rows-1)*gap;
+    rows*panelD +
+    (rows-1)*gap;
 
 
   for(
@@ -1338,25 +1469,15 @@ function createRoofSolar(){
 
 
       panel.position.x =
-
-        -totalW/2
-
-        + panelW/2
-
-        + c*(
-          panelW+gap
-        );
+        -totalW/2 +
+        panelW/2 +
+        c*(panelW+gap);
 
 
       panel.position.z =
-
-        -totalD/2
-
-        + panelD/2
-
-        + r*(
-          panelD+gap
-        );
+        -totalD/2 +
+        panelD/2 +
+        r*(panelD+gap);
 
 
       group.add(
@@ -1370,19 +1491,11 @@ function createRoofSolar(){
 
   const slope =
     Math.atan2(
-
       CAP_RIGHT_HEIGHT -
       CAP_LEFT_HEIGHT,
-
       CAP_WIDTH
-
     );
 
-
-  /*
-    x 방향의 상승면을 따라
-    전체 배열을 z축 회전.
-  */
 
   group.rotation.z =
     slope;
@@ -1392,13 +1505,11 @@ function createRoofSolar(){
 
     CAP_X,
 
-    ROOF_BASE_Y
-
-    + (
+    ROOF_BASE_Y+.18 +
+    (
       CAP_LEFT_HEIGHT +
       CAP_RIGHT_HEIGHT
     )/2
-
     + .10,
 
     CAP_Z
@@ -1411,6 +1522,7 @@ function createRoofSolar(){
   );
 
 }
+
 
 createRoofSolar();
 
@@ -1433,11 +1545,14 @@ const ground =
 
   );
 
+
 ground.rotation.x =
   -Math.PI/2;
 
+
 ground.receiveShadow =
   true;
+
 
 scene.add(
   ground
@@ -1474,9 +1589,11 @@ renderer.domElement.addEventListener(
       }
     );
 
+
     renderer.domElement.setPointerCapture(
       event.pointerId
     );
+
 
     if(
       pointers.size===1
@@ -1490,12 +1607,14 @@ renderer.domElement.addEventListener(
 
     }
 
+
     if(
       pointers.size===2
     ){
 
       const p =
         [...pointers.values()];
+
 
       previousPinch =
         Math.hypot(
@@ -1521,6 +1640,7 @@ renderer.domElement.addEventListener(
       return;
     }
 
+
     pointers.set(
       event.pointerId,
       {
@@ -1537,6 +1657,7 @@ renderer.domElement.addEventListener(
       const dx =
         event.clientX -
         previousX;
+
 
       const dy =
         event.clientY -
@@ -1561,6 +1682,7 @@ renderer.domElement.addEventListener(
 
       previousX =
         event.clientX;
+
 
       previousY =
         event.clientY;
@@ -1621,7 +1743,9 @@ function removePointer(event){
     event.pointerId
   );
 
-  previousPinch = null;
+
+  previousPinch =
+    null;
 
 
   if(
@@ -1630,6 +1754,7 @@ function removePointer(event){
 
     const p =
       [...pointers.values()][0];
+
 
     previousX = p.x;
     previousY = p.y;
@@ -1643,6 +1768,7 @@ renderer.domElement.addEventListener(
   "pointerup",
   removePointer
 );
+
 
 renderer.domElement.addEventListener(
   "pointercancel",
@@ -1658,15 +1784,18 @@ const resetBtn =
     "resetBtn"
   );
 
+
 const autoBtn =
   document.getElementById(
     "autoBtn"
   );
 
+
 const degree =
   document.getElementById(
     "degree"
   );
+
 
 const zoomText =
   document.getElementById(
@@ -1700,6 +1829,7 @@ autoBtn.addEventListener(
     autoRotate =
       !autoRotate;
 
+
     autoBtn.textContent =
       autoRotate
       ? "자동회전 중"
@@ -1720,7 +1850,9 @@ window.addEventListener(
       innerWidth /
       innerHeight;
 
+
     camera.updateProjectionMatrix();
+
 
     renderer.setSize(
       innerWidth,
@@ -1835,13 +1967,11 @@ function animate(){
 
 
   zoomText.textContent =
-    `${
-      Math.round(
-        38 /
-        cameraDistance *
-        100
-      )
-    }%`;
+    `${Math.round(
+      38 /
+      cameraDistance *
+      100
+    )}%`;
 
 
   renderer.render(
@@ -1850,6 +1980,7 @@ function animate(){
   );
 
 }
+
 
 animate();
 
