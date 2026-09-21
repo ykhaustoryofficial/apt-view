@@ -1,109 +1,155 @@
-export const UNIT_A = {
-  id: "055.9200A",
-  code: "A",
-  area: 55.9200,
+import{opening as O}from"../opening-presets.js";
 
-  size: {
-    width: 9.40,
-    depth: 7.00,
-    floorHeight: 2.85,
-    wall: 0.18
+export const UNIT_A={
+  id:"055.9200A",
+  code:"A",
+  area:55.9200,
+
+  /*
+    A형 실제 비율 재설정
+
+    WIDTH  = 12.480m
+    DEPTH  =  8.450m
+    HEIGHT =  2.850m
+
+    LOCAL:
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size:{
+    width:12.48,
+    depth:8.45,
+    floorHeight:2.85,
+    wall:.18
   },
 
   /*
     FRONT
-    외부에서 바라볼 때:
-    작은방창 → 작은방창 → 거실창 → 안방창
+    외부에서 보았을 때 왼쪽 → 오른쪽
+
+    침실3 → 침실2 → 거실 → 침실1
+
+    C형의 동일 방 치수/창 위치를
+    좌우 대칭시킨 기준.
   */
-  frontOpenings: [
+  frontOpenings:[
+
+    O("smallRoomWindow",{
+      id:"F01",
+      name:"bedroom3Window",
+      x:-4.91,
+      w:1.85
+    }),
+
+    O("smallRoomWindow",{
+      id:"F02",
+      name:"bedroom2Window",
+      x:-2.46,
+      w:1.70
+    }),
+
+    O("livingRoomWindow",{
+      id:"F03",
+      name:"livingRoomWindow",
+      x:.60,
+      w:2.55
+    }),
+
+    O("masterRoomWindow",{
+      id:"F04",
+      name:"bedroom1Window",
+      x:4.12,
+      w:1.95
+    })
+
+  ],
+
+  /*
+    A형 왼쪽 후면은 크게 안쪽으로 들어감.
+
+    leftX = -6.24
+    -6.24 + 3.70 = -2.54
+
+    즉 후면에서는 약 x=-2.54부터
+    본격적인 외벽이 시작되는 형태로 근사.
+  */
+  leftRearInset:{
+    offset:3.70,
+    untilZ:-2.05
+  },
+
+  /*
+    REAR PROFILE
+
+    주방 부분이 가장 뒤쪽.
+    다용도실과 실외기실/드레스룸 쪽은
+    약 0.28m 전진한 형태.
+  */
+  rearProfile:[
+
     {
-      id: "F01",
-      name: "smallRoomWindow1",
-      type: "window",
-      x: -3.55,
-      w: 1.10,
-      h: 1.10,
-      sill: 0.97
+      xMin:-2.54,
+      xMax:-.75,
+      offset:.28
     },
 
     {
-      id: "F02",
-      name: "smallRoomWindow2",
-      type: "window",
-      x: -2.05,
-      w: 1.10,
-      h: 1.10,
-      sill: 0.97
+      xMin:-.75,
+      xMax:2.45,
+      offset:0
     },
 
     {
-      id: "F03",
-      name: "livingRoomWindow",
-      type: "largeWindow",
-      x: 0.65,
-      w: 2.15,
-      h: 1.45,
-      sill: 0.62
-    },
-
-    {
-      id: "F04",
-      name: "masterRoomWindow",
-      type: "window",
-      x: 3.45,
-      w: 1.20,
-      h: 1.35,
-      sill: 0.72
+      xMin:2.45,
+      xMax:6.24,
+      offset:.28
     }
+
   ],
 
   /*
     REAR
-    외부에서 바라볼 때:
-    드레스룸창 → 루버 → 주방창 → 다용도실창
+    평면도상 왼쪽 → 오른쪽
+
+    다용도실창
+    주방창
+    실외기실 루버
+    드레스룸창
   */
-  rearOpenings: [
-    {
-      id: "R01",
-      name: "dressRoomWindow",
-      type: "window",
-      x: 3.60,
-      w: 0.82,
-      h: 0.82,
-      sill: 1.15
-    },
+  rearOpenings:[
 
-    {
-      id: "R02",
-      name: "outdoorUnitLouver",
-      type: "louver",
-      x: 2.15,
-      w: 0.72,
-      h: 1.45,
-      sill: 0.68
-    },
+    O("utilityRoomWindow",{
+      id:"R01",
+      name:"utilityRoomWindow",
+      x:-1.48,
+      w:.85
+    }),
 
-    {
-      id: "R03",
-      name: "kitchenWindow",
-      type: "kitchenWindow",
-      x: 0.85,
-      w: 0.72,
-      h: 0.56,
-      sill: 1.24
-    },
+    O("kitchenWindow",{
+      id:"R02",
+      name:"kitchenWindow",
+      x:1.40,
+      w:.95
+    }),
 
-    {
-      id: "R04",
-      name: "utilityRoomWindow",
-      type: "window",
-      x: -0.59,
-      w: 0.72,
-      h: 0.78,
-      sill: 1.13
-    }
+    O("outdoorUnitLouver",{
+      id:"R03",
+      name:"outdoorUnitLouver",
+      x:3.52,
+      w:1.00
+    }),
+
+    O("dressRoomWindow",{
+      id:"R04",
+      name:"dressRoomWindow",
+      x:5.00,
+      w:.85
+    })
+
   ],
 
-  leftOpenings: [],
-  rightOpenings: []
+  leftOpenings:[],
+  rightOpenings:[]
 };
