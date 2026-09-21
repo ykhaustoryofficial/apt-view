@@ -4,6 +4,9 @@
        ELEMENTS
     ====================================================== */
 
+const buildingLayer =
+    document.getElementById("buildingLayer");
+
     const heroScene =
         document.getElementById("heroScene");
 
@@ -891,6 +894,50 @@
 
         }
     );
+    
+    function renderBuildings() {
+    buildingLayer.innerHTML = "";
 
+    const buildings =
+        CYBER_TOUR_DATA.site.buildings;
+
+    buildings.forEach(building => {
+        const el =
+            document.createElement("div");
+
+        el.className = "generated-building";
+
+        const floors =
+            building.floors ?? 20;
+
+        const height =
+            Math.max(180, floors * 11);
+
+        el.style.left =
+            `${building.x}%`;
+
+        el.style.top =
+            `${building.y}%`;
+
+        el.style.height =
+            `${height}px`;
+
+        el.style.transform =
+            `translate(-50%, -100%)
+             rotate(${building.rotation}deg)`;
+
+        el.innerHTML = `
+            <div class="building-face"></div>
+            <div class="building-side"></div>
+            <div class="building-roof"></div>
+            <span class="building-label">
+                ${building.name}
+            </span>
+        `;
+
+        buildingLayer.appendChild(el);
+    });
+}
+renderBuildings();
 
 })();
