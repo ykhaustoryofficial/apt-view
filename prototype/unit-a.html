@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UNIT A</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Pretendard",sans-serif;background:#dce9ed}
+#view{position:fixed;inset:0}
+canvas{display:block}
+
+.info{
+ position:fixed;top:20px;left:20px;z-index:10;
+ padding:14px 16px;border-radius:18px;
+ background:rgba(255,255,255,.7);
+ backdrop-filter:blur(16px);
+ color:#26363d
+}
+.info strong{display:block;font-size:17px}
+.info span{display:block;margin-top:4px;font-size:11px;opacity:.6}
+
+.legend{
+ position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+ padding:12px 18px;border-radius:18px;
+ background:rgba(255,255,255,.75);
+ backdrop-filter:blur(16px);
+ font-size:12px;color:#31434a;text-align:center;
+ white-space:nowrap
+}
+</style>
+
+<script type="importmap">
+{
+ "imports":{
+   "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+   "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+ }
+}
+</script>
+</head>
+
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+ <strong>UNIT_A · 055.9200A</strong>
+ <span>전용면적 55.9200㎡ · 기준 모듈 v0.1</span>
+</div>
+
+<div class="legend">
+ FRONT ↓　·　REAR ↑　·　회전 / 확대축소 가능
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+/* =====================================================
+   UNIT A DATA
+   실제 치수 확보 후 여기만 수정
+===================================================== */
+
+const UNIT_A = {
+ id:"055.9200A",
+ area:55.9200,
+
+ width:9.40,
+ depth:7.00,
+ floorHeight:2.85,
+
+ wall:0.18,
+
+ frontWindows:[
+   {x:-3.45,w:1.20,h:1.35,sill:.72},
+   {x:-1.55,w:1.15,h:1.35,sill:.72},
+   {x: .65,w:2.05,h:1.45,sill:.62},
+   {x: 3.45,w:1.35,h:1.35,sill:.72}
+ ],
+
+ rearWindows:[
+   {x:-3.35,w:.85,h:.85,sill:1.15},
+   {x:-.45,w:1.15,h:.85,sill:1.15},
+   {x: 2.85,w:.90,h:.85,sill:1.15},
+   {x: 4.05,w:.70,h:.85,sill:1.15}
+ ]
+};
+
+/* =====================================================
+   SCENE
+===================================================== */
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xdce9ed);
+
+const camera=new THREE.PerspectiveCamera(
+ 38,
+ innerWidth/innerHeight,
+ .1,
+ 100
+);
+
+camera.position.set(10,8,13);
+
+const renderer=new THREE.WebGLRenderer({
+ antialias:true
+});
+
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+document.getElementById("view").appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+
+controls.enableDamping=true;
+controls.dampingFactor=.07;
+controls.target.set(0,1.2,0);
+
+controls.minDistance=7;
+controls.maxDistance=30;
+
+controls.maxPolarAngle=Math.PI/2.02;
+
+/* =====================================================
+   LIGHT
+===================================================== */
+
+scene.add(
+ new THREE.HemisphereLight(
+   0xf1f8ff,
+   0xb7b9b5,
+   2.1
+ )
+);
+
+const sun=new THREE.DirectionalLight(
+ 0xffffff,
+ 2.5
+);
+
+sun.position.set(-8,12,10);
+sun.castShadow=true;
+
+scene.add(sun);
+
+/* =====================================================
+   MATERIALS
+===================================================== */
+
+const wallMat=new THREE.MeshStandardMaterial({
+ color:0xe9ece9,
+ roughness:.72
+});
+
+const slabMat=new THREE.MeshStandardMaterial({
+ color:0xcfd4d2,
+ roughness:.82
+});
+
+const glassMat=new THREE.MeshStandardMaterial({
+ color:0x668497,
+ roughness:.18,
+ metalness:.08
+});
+
+const frameMat=new THREE.MeshStandardMaterial({
+ color:0xe8ecec,
+ roughness:.42
+});
+
+const socketMat=new THREE.MeshStandardMaterial({
+ color:0x89969c,
+ transparent:true,
+ opacity:.32,
+ roughness:.7
+});
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const unit=new THREE.Group();
+scene.add(unit);
+
+function box(w,h,d,mat,x,y,z){
+
+ const mesh=new THREE.Mesh(
+   new THREE.BoxGeometry(w,h,d),
+   mat
+ );
+
+ mesh.position.set(x,y,z);
+ mesh.castShadow=true;
+ mesh.receiveShadow=true;
+
+ unit.add(mesh);
+
+ return mesh;
+}
+
+/* =====================================================
+   FLOOR
+===================================================== */
+
+box(
+ UNIT_A.width,
+ .12,
+ UNIT_A.depth,
+ slabMat,
+ 0,
+ .06,
+ 0
+);
+
+/* =====================================================
+   FRONT / REAR WALL GENERATOR
+===================================================== */
+
+function buildWall(z,windows,isFront){
+
+ const W=UNIT_A.width;
+ const H=UNIT_A.floorHeight;
+ const T=UNIT_A.wall;
+
+ const sorted=[...windows].sort(
+   (a,b)=>a.x-b.x
+ );
+
+ let cursor=-W/2;
+
+ sorted.forEach(win=>{
+
+   const left=win.x-win.w/2;
+   const right=win.x+win.w/2;
+
+   if(left>cursor){
+
+     box(
+       left-cursor,
+       H,
+       T,
+       wallMat,
+       (cursor+left)/2,
+       H/2,
+       z
+     );
+
+   }
+
+   if(win.sill>0){
+
+     box(
+       win.w,
+       win.sill,
+       T,
+       wallMat,
+       win.x,
+       win.sill/2,
+       z
+     );
+
+   }
+
+   const topY=
+     win.sill+
+     win.h;
+
+   if(topY<H){
+
+     box(
+       win.w,
+       H-topY,
+       T,
+       wallMat,
+       win.x,
+       topY+(H-topY)/2,
+       z
+     );
+
+   }
+
+   const glassZ=
+     z+
+     (isFront?.012:-.012);
+
+   box(
+     win.w-.10,
+     win.h-.10,
+     .055,
+     glassMat,
+     win.x,
+     win.sill+win.h/2,
+     glassZ
+   );
+
+   /* 창 프레임 */
+
+   box(
+     win.w,
+     .055,
+     .07,
+     frameMat,
+     win.x,
+     win.sill,
+     glassZ
+   );
+
+   box(
+     win.w,
+     .055,
+     .07,
+     frameMat,
+     win.x,
+     win.sill+win.h,
+     glassZ
+   );
+
+   box(
+     .055,
+     win.h,
+     .07,
+     frameMat,
+     win.x-win.w/2,
+     win.sill+win.h/2,
+     glassZ
+   );
+
+   box(
+     .055,
+     win.h,
+     .07,
+     frameMat,
+     win.x+win.w/2,
+     win.sill+win.h/2,
+     glassZ
+   );
+
+   cursor=right;
+
+ });
+
+ if(cursor<W/2){
+
+   box(
+     W/2-cursor,
+     H,
+     T,
+     wallMat,
+     (cursor+W/2)/2,
+     H/2,
+     z
+   );
+
+ }
+
+}
+
+/* FRONT = 평면도 아래쪽 */
+
+buildWall(
+ UNIT_A.depth/2,
+ UNIT_A.frontWindows,
+ true
+);
+
+/* REAR = 평면도 위쪽 */
+
+buildWall(
+ -UNIT_A.depth/2,
+ UNIT_A.rearWindows,
+ false
+);
+
+/* =====================================================
+   LEFT / RIGHT BASIC JOIN WALLS
+
+   아직 외관 마감이 아니다.
+   나중에 다른 UNIT과 붙으면 숨겨질 수 있는 접합면.
+===================================================== */
+
+box(
+ UNIT_A.wall,
+ UNIT_A.floorHeight,
+ UNIT_A.depth,
+ wallMat,
+ -UNIT_A.width/2,
+ UNIT_A.floorHeight/2,
+ 0
+);
+
+box(
+ UNIT_A.wall,
+ UNIT_A.floorHeight,
+ UNIT_A.depth,
+ wallMat,
+ UNIT_A.width/2,
+ UNIT_A.floorHeight/2,
+ 0
+);
+
+/* =====================================================
+   JOIN SOCKET MARKERS
+   실제 완성 모델에서는 숨긴다.
+===================================================== */
+
+box(
+ .03,
+ 1.20,
+ 2.2,
+ socketMat,
+ -UNIT_A.width/2-.11,
+ 1.10,
+ 0
+);
+
+box(
+ .03,
+ 1.20,
+ 2.2,
+ socketMat,
+ UNIT_A.width/2+.11,
+ 1.10,
+ 0
+);
+
+/* =====================================================
+   ORIENTATION MARKERS
+===================================================== */
+
+const frontMarker=new THREE.Mesh(
+ new THREE.BoxGeometry(2.1,.035,.18),
+ new THREE.MeshStandardMaterial({
+   color:0x4b88aa
+ })
+);
+
+frontMarker.position.set(
+ 0,
+ .15,
+ UNIT_A.depth/2+.38
+);
+
+unit.add(frontMarker);
+
+const rearMarker=frontMarker.clone();
+
+rearMarker.material=
+ new THREE.MeshStandardMaterial({
+   color:0x7f8b90
+ });
+
+rearMarker.position.z=
+ -UNIT_A.depth/2-.38;
+
+unit.add(rearMarker);
+
+/* =====================================================
+   GROUND
+===================================================== */
+
+const ground=new THREE.Mesh(
+ new THREE.PlaneGeometry(40,40),
+ new THREE.MeshStandardMaterial({
+   color:0xaab7a6,
+   roughness:1
+ })
+);
+
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
+
+scene.add(ground);
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function animate(){
+
+ requestAnimationFrame(animate);
+
+ controls.update();
+
+ renderer.render(
+   scene,
+   camera
+ );
+
+}
+
+animate();
+
+addEventListener("resize",()=>{
+
+ camera.aspect=
+   innerWidth/innerHeight;
+
+ camera.updateProjectionMatrix();
+
+ renderer.setSize(
+   innerWidth,
+   innerHeight
+ );
+
+});
+</script>
+
+</body>
+</html>
