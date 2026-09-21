@@ -20,6 +20,7 @@ body{
   height:100%;
   overflow:hidden;
   background:#d9e8ed;
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -30,6 +31,7 @@ body{
 
 body{
   touch-action:none;
+  overscroll-behavior:none;
 }
 
 #app{
@@ -54,6 +56,7 @@ canvas{
   display:block;
   width:100%;
   height:100%;
+  touch-action:none;
 }
 
 /* =========================
@@ -77,8 +80,6 @@ canvas{
   display:flex;
   align-items:center;
   justify-content:space-between;
-
-  pointer-events:none;
 }
 
 .title{
@@ -180,13 +181,10 @@ button{
 
   box-shadow:
     0 14px 32px rgba(40,60,65,.09);
-
-  pointer-events:none;
 }
 
 .bottom strong{
   display:block;
-
   font-size:13px;
 }
 
@@ -200,8 +198,12 @@ button{
   opacity:.58;
 }
 
-.degree{
+.status{
   margin-top:7px;
+
+  display:flex;
+  justify-content:center;
+  gap:12px;
 
   font-size:10px;
   font-weight:700;
@@ -210,7 +212,6 @@ button{
 }
 </style>
 </head>
-
 
 <body>
 
@@ -239,7 +240,6 @@ button{
 
   </div>
 
-
   <div class="bottom">
 
     <strong>
@@ -247,14 +247,12 @@ button{
     </strong>
 
     <span>
-      좌우 회전 · 위아래 시점 · 핀치 확대/축소
+      한 손가락 회전 · 두 손가락 확대/축소
     </span>
 
-    <div
-      class="degree"
-      id="degree"
-    >
-      0°
+    <div class="status">
+      <div id="degree">0°</div>
+      <div id="zoomText">100%</div>
     </div>
 
   </div>
@@ -292,7 +290,6 @@ const TOTAL_HEIGHT =
   BODY_HEIGHT + TOP_FLOOR_HEIGHT;
 
 
-
 /* =========================================================
    SCENE
 ========================================================= */
@@ -306,10 +303,9 @@ const scene =
 scene.fog =
   new THREE.Fog(
     0xd9e5e7,
-    38,
-    68
+    45,
+    85
   );
-
 
 
 /* =========================================================
@@ -325,18 +321,27 @@ const camera =
     200
   );
 
+
+/*
+  기본 거리를 예전보다 멀리 잡아서
+  옥상까지 처음부터 보이게 함
+*/
+
+let cameraDistance = 42;
+
+let targetDistance = 42;
+
 camera.position.set(
-  17,
-  13,
-  31
+  0,
+  TOTAL_HEIGHT * .53,
+  cameraDistance
 );
 
 camera.lookAt(
   0,
-  10,
+  TOTAL_HEIGHT * .5,
   0
 );
-
 
 
 /* =========================================================
@@ -376,10 +381,12 @@ renderer.toneMapping =
 renderer.toneMappingExposure =
   1.15;
 
+renderer.domElement.style.touchAction =
+  "none";
+
 app.appendChild(
   renderer.domElement
 );
-
 
 
 /* =========================================================
@@ -436,7 +443,6 @@ fillLight.position.set(
 );
 
 scene.add(fillLight);
-
 
 
 /* =========================================================
@@ -511,7 +517,6 @@ const MAT = {
 };
 
 
-
 /* =========================================================
    BUILDING GROUP
 ========================================================= */
@@ -520,7 +525,6 @@ const building =
   new THREE.Group();
 
 scene.add(building);
-
 
 
 /* =========================================================
@@ -553,7 +557,6 @@ body.receiveShadow = true;
 building.add(body);
 
 
-
 /* =========================================================
    TOP FLOOR BODY
 ========================================================= */
@@ -575,7 +578,6 @@ topFloor.position.y =
 topFloor.castShadow = true;
 
 building.add(topFloor);
-
 
 
 /* =========================================================
@@ -610,8 +612,8 @@ function makeBox(
   building.add(mesh);
 
   return mesh;
-}
 
+}
 
 
 /* =========================================================
@@ -669,7 +671,6 @@ const ribDepth = .22;
 });
 
 
-
 /* =========================================================
    SIDE CORNER FRAMES
 ========================================================= */
@@ -707,7 +708,6 @@ const ribDepth = .22;
 });
 
 
-
 /* =========================================================
    FLOOR WINDOWS
 ========================================================= */
@@ -737,8 +737,7 @@ function shouldLight(
 }
 
 
-
-/* front / back */
+/* FRONT / BACK */
 
 const frontColumns = [
   -3.75,
@@ -748,6 +747,7 @@ const frontColumns = [
   2.55,
   3.75
 ];
+
 
 for(
   let floor = 0;
@@ -808,19 +808,20 @@ for(
         -BUILDING_DEPTH / 2 - .13
       );
 
-  });
+    }
+  );
 
 }
 
 
-
-/* side windows */
+/* SIDE WINDOWS */
 
 const sideColumns = [
   -1.75,
   0,
   1.75
 ];
+
 
 for(
   let floor = 0;
@@ -881,10 +882,10 @@ for(
         z
       );
 
-  });
+    }
+  );
 
 }
-
 
 
 /* =========================================================
@@ -930,7 +931,6 @@ for(
 }
 
 
-
 /* =========================================================
    HORIZONTAL WHITE BANDS
 ========================================================= */
@@ -954,6 +954,7 @@ for(
     BUILDING_DEPTH / 2 + .13
   );
 
+
   makeBox(
     BUILDING_WIDTH + .1,
     .16,
@@ -969,13 +970,13 @@ for(
 });
 
 
-
 /* =========================================================
    TOP FLOOR LARGE WINDOWS
 ========================================================= */
 
 const topWindowY =
   BODY_HEIGHT + .63;
+
 
 [
   -3.8,
@@ -1015,7 +1016,6 @@ const topWindowY =
 });
 
 
-
 /* =========================================================
    SIGNATURE SLOPED ROOF
 ========================================================= */
@@ -1034,6 +1034,7 @@ function createSignature(){
 
   const shape =
     new THREE.Shape();
+
 
   shape.moveTo(
     -width/2,
@@ -1094,8 +1095,8 @@ function createSignature(){
 
 }
 
-createSignature();
 
+createSignature();
 
 
 /* =========================================================
@@ -1160,8 +1161,10 @@ function createLogoTexture(){
       canvas
     );
 
+
   texture.colorSpace =
     THREE.SRGBColorSpace;
+
 
   return texture;
 
@@ -1184,11 +1187,13 @@ const logoFront =
     logoMaterial
   );
 
+
 logoFront.position.set(
   1.15,
   TOTAL_HEIGHT + 1.03,
   BUILDING_DEPTH / 2 + .23
 );
+
 
 building.add(
   logoFront
@@ -1198,16 +1203,18 @@ building.add(
 const logoBack =
   logoFront.clone();
 
+
 logoBack.position.z =
   -BUILDING_DEPTH / 2 - .23;
+
 
 logoBack.rotation.y =
   Math.PI;
 
+
 building.add(
   logoBack
 );
-
 
 
 /* =========================================================
@@ -1225,7 +1232,6 @@ makeBox(
   TOTAL_HEIGHT + 1.25,
   -.9
 );
-
 
 
 /* =========================================================
@@ -1259,6 +1265,7 @@ function solarPanel(
   panel.rotation.x =
     -.18;
 
+
   panel.rotation.y =
     rotationY;
 
@@ -1284,7 +1291,6 @@ solarPanel(
 );
 
 
-
 /* =========================================================
    GROUND
 ========================================================= */
@@ -1302,19 +1308,21 @@ const ground =
     })
   );
 
+
 ground.rotation.x =
   -Math.PI / 2;
 
+
 ground.receiveShadow = true;
+
 
 scene.add(
   ground
 );
 
 
-
 /* =========================================================
-   CAMERA / ROTATION CONTROLS
+   ROTATION / ZOOM STATE
 ========================================================= */
 
 let rotationY = 0;
@@ -1325,112 +1333,279 @@ let targetRotationY = 0;
 
 let targetRotationX = -.04;
 
-let cameraDistance = 31;
+let autoRotate = true;
 
-let targetDistance = 31;
 
-let isDragging = false;
+/*
+  모든 손가락 위치를 여기 저장.
+  1개면 회전,
+  2개면 핀치 확대/축소.
+*/
+
+const activePointers =
+  new Map();
+
 
 let previousX = 0;
 
 let previousY = 0;
 
-let autoRotate = true;
+let previousPinchDistance =
+  null;
 
-let lastTouchDistance = null;
 
-
+/* =========================================================
+   POINTER DOWN
+========================================================= */
 
 renderer.domElement.addEventListener(
   "pointerdown",
   event=>{
 
-    isDragging = true;
-
     autoRotate = false;
 
-    previousX =
-      event.clientX;
 
-    previousY =
-      event.clientY;
+    activePointers.set(
+      event.pointerId,
+      {
+        x:event.clientX,
+        y:event.clientY
+      }
+    );
+
 
     renderer.domElement
       .setPointerCapture(
         event.pointerId
       );
 
+
+    if(
+      activePointers.size === 1
+    ){
+
+      previousX =
+        event.clientX;
+
+      previousY =
+        event.clientY;
+
+    }
+
+
+    if(
+      activePointers.size === 2
+    ){
+
+      const points =
+        [...activePointers.values()];
+
+
+      previousPinchDistance =
+        Math.hypot(
+          points[1].x
+          - points[0].x,
+
+          points[1].y
+          - points[0].y
+        );
+
+    }
+
   }
 );
 
 
+/* =========================================================
+   POINTER MOVE
+========================================================= */
 
 renderer.domElement.addEventListener(
   "pointermove",
   event=>{
 
-    if(!isDragging) return;
+    if(
+      !activePointers.has(
+        event.pointerId
+      )
+    ){
+
+      return;
+
+    }
 
 
-    const dx =
-      event.clientX
-      - previousX;
-
-    const dy =
-      event.clientY
-      - previousY;
-
-
-    targetRotationY +=
-      dx * .009;
+    activePointers.set(
+      event.pointerId,
+      {
+        x:event.clientX,
+        y:event.clientY
+      }
+    );
 
 
-    targetRotationX +=
-      dy * .004;
+    /* =====================================================
+       ONE FINGER
+       ROTATE
+    ====================================================== */
+
+    if(
+      activePointers.size === 1
+    ){
+
+      const dx =
+        event.clientX
+        - previousX;
 
 
-    targetRotationX =
-      THREE.MathUtils.clamp(
-        targetRotationX,
-        -.28,
-        .24
-      );
+      const dy =
+        event.clientY
+        - previousY;
 
 
-    previousX =
-      event.clientX;
+      targetRotationY +=
+        dx * .009;
 
-    previousY =
-      event.clientY;
+
+      targetRotationX +=
+        dy * .004;
+
+
+      targetRotationX =
+        THREE.MathUtils.clamp(
+          targetRotationX,
+          -.36,
+          .30
+        );
+
+
+      previousX =
+        event.clientX;
+
+
+      previousY =
+        event.clientY;
+
+    }
+
+
+    /* =====================================================
+       TWO FINGERS
+       PINCH ZOOM
+    ====================================================== */
+
+    if(
+      activePointers.size === 2
+    ){
+
+      const points =
+        [...activePointers.values()];
+
+
+      const distance =
+        Math.hypot(
+          points[1].x
+          - points[0].x,
+
+          points[1].y
+          - points[0].y
+        );
+
+
+      if(
+        previousPinchDistance
+        !== null
+      ){
+
+        const difference =
+          distance
+          - previousPinchDistance;
+
+
+        /*
+          벌리면 가까워짐
+          모으면 멀어짐
+        */
+
+        targetDistance -=
+          difference * .09;
+
+
+        /*
+          확대/축소 범위를 크게 잡음
+        */
+
+        targetDistance =
+          THREE.MathUtils.clamp(
+            targetDistance,
+            16,
+            70
+          );
+
+      }
+
+
+      previousPinchDistance =
+        distance;
+
+    }
 
   }
 );
 
+
+/* =========================================================
+   POINTER RELEASE
+========================================================= */
+
+function removePointer(
+  event
+){
+
+  activePointers.delete(
+    event.pointerId
+  );
+
+
+  previousPinchDistance =
+    null;
+
+
+  if(
+    activePointers.size === 1
+  ){
+
+    const point =
+      [...activePointers.values()][0];
+
+
+    previousX =
+      point.x;
+
+
+    previousY =
+      point.y;
+
+  }
+
+}
 
 
 renderer.domElement.addEventListener(
   "pointerup",
-  ()=>{
-
-    isDragging = false;
-
-  }
+  removePointer
 );
-
 
 
 renderer.domElement.addEventListener(
   "pointercancel",
-  ()=>{
-
-    isDragging = false;
-
-  }
+  removePointer
 );
 
 
-
-/* wheel */
+/* =========================================================
+   MOUSE WHEEL ZOOM
+========================================================= */
 
 renderer.domElement.addEventListener(
   "wheel",
@@ -1438,14 +1613,16 @@ renderer.domElement.addEventListener(
 
     autoRotate = false;
 
+
     targetDistance +=
-      event.deltaY * .012;
+      event.deltaY * .02;
+
 
     targetDistance =
       THREE.MathUtils.clamp(
         targetDistance,
-        23,
-        42
+        16,
+        70
       );
 
   },
@@ -1453,85 +1630,6 @@ renderer.domElement.addEventListener(
     passive:true
   }
 );
-
-
-
-/* pinch */
-
-renderer.domElement.addEventListener(
-  "touchmove",
-  event=>{
-
-    if(
-      event.touches.length !== 2
-    ){
-
-      lastTouchDistance = null;
-
-      return;
-    }
-
-
-    const a =
-      event.touches[0];
-
-    const b =
-      event.touches[1];
-
-
-    const distance =
-      Math.hypot(
-        b.clientX-a.clientX,
-        b.clientY-a.clientY
-      );
-
-
-    if(
-      lastTouchDistance !== null
-    ){
-
-      const difference =
-        lastTouchDistance
-        - distance;
-
-
-      targetDistance +=
-        difference * .025;
-
-
-      targetDistance =
-        THREE.MathUtils.clamp(
-          targetDistance,
-          23,
-          42
-        );
-
-    }
-
-
-    lastTouchDistance =
-      distance;
-
-  },
-  {
-    passive:true
-  }
-);
-
-
-
-renderer.domElement.addEventListener(
-  "touchend",
-  ()=>{
-
-    lastTouchDistance = null;
-
-  },
-  {
-    passive:true
-  }
-);
-
 
 
 /* =========================================================
@@ -1543,14 +1641,22 @@ const resetBtn =
     "resetBtn"
   );
 
+
 const autoBtn =
   document.getElementById(
     "autoBtn"
   );
 
+
 const degree =
   document.getElementById(
     "degree"
+  );
+
+
+const zoomText =
+  document.getElementById(
+    "zoomText"
   );
 
 
@@ -1564,7 +1670,10 @@ resetBtn.addEventListener(
 
     targetRotationX = -.04;
 
-    targetDistance = 31;
+    targetDistance = 42;
+
+    autoBtn.textContent =
+      "자동회전";
 
   }
 );
@@ -1577,6 +1686,7 @@ autoBtn.addEventListener(
     autoRotate =
       !autoRotate;
 
+
     autoBtn.textContent =
       autoRotate
         ? "자동회전 중"
@@ -1584,7 +1694,6 @@ autoBtn.addEventListener(
 
   }
 );
-
 
 
 /* =========================================================
@@ -1599,6 +1708,7 @@ window.addEventListener(
       window.innerWidth
       / window.innerHeight;
 
+
     camera.updateProjectionMatrix();
 
 
@@ -1609,7 +1719,6 @@ window.addEventListener(
 
   }
 );
-
 
 
 /* =========================================================
@@ -1631,7 +1740,9 @@ function animate(){
     clock.getDelta();
 
 
-  if(autoRotate){
+  if(
+    autoRotate
+  ){
 
     targetRotationY +=
       delta * .23;
@@ -1643,7 +1754,7 @@ function animate(){
     THREE.MathUtils.lerp(
       rotationY,
       targetRotationY,
-      .08
+      .09
     );
 
 
@@ -1651,7 +1762,7 @@ function animate(){
     THREE.MathUtils.lerp(
       rotationX,
       targetRotationX,
-      .08
+      .09
     );
 
 
@@ -1659,28 +1770,28 @@ function animate(){
     THREE.MathUtils.lerp(
       cameraDistance,
       targetDistance,
-      .08
+      .11
     );
 
 
   building.rotation.y =
     rotationY;
 
+
   building.rotation.x =
     rotationX;
 
 
-  camera.position.z =
-    cameraDistance;
-
-
-  camera.position.y =
-    11.5;
+  camera.position.set(
+    0,
+    TOTAL_HEIGHT * .53,
+    cameraDistance
+  );
 
 
   camera.lookAt(
     0,
-    10.5,
+    TOTAL_HEIGHT * .5,
     0
   );
 
@@ -1690,12 +1801,30 @@ function animate(){
       rotationY
     );
 
+
   deg =
     ((deg % 360) + 360) % 360;
 
 
   degree.textContent =
     `${Math.round(deg)}°`;
+
+
+  /*
+    42 = 기본 100%
+    가까워질수록 확대율 증가
+  */
+
+  const zoomPercent =
+    Math.round(
+      42
+      / cameraDistance
+      * 100
+    );
+
+
+  zoomText.textContent =
+    `${zoomPercent}%`;
 
 
   renderer.render(
