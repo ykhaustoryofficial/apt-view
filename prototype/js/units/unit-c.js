@@ -1,102 +1,29 @@
-export const UNIT_C = {
-  id: "055.9500C",
-  code: "C",
-  area: 55.9500,
+export const UNIT_C={
+  id:"055.9500C",code:"C",area:55.9500,
+  size:{width:9.40,depth:7.00,floorHeight:2.85,wall:0.18},
 
-  size: {
-    width: 9.40,
-    depth: 7.00,
-    floorHeight: 2.85,
-    wall: 0.18
-  },
-
-  /*
-    FRONT
-    외부에서 바라볼 때:
-    작은방창 → 작은방창 → 거실창 → 안방창
-  */
-  frontOpenings: [
-    {
-      id: "F01",
-      name: "smallRoomWindow1",
-      type: "window",
-      x: -3.55,
-      w: 1.10,
-      h: 1.10,
-      sill: 0.97
-    },
-
-    {
-      id: "F02",
-      name: "smallRoomWindow2",
-      type: "window",
-      x: -2.05,
-      w: 1.10,
-      h: 1.10,
-      sill: 0.97
-    },
-
-    {
-      id: "F03",
-      name: "livingRoomWindow",
-      type: "largeWindow",
-      x: 0.65,
-      w: 2.15,
-      h: 1.45,
-      sill: 0.62
-    },
-
-    {
-      id: "F04",
-      name: "masterRoomWindow",
-      type: "window",
-      x: 3.45,
-      w: 1.20,
-      h: 1.35,
-      sill: 0.72
-    }
+  // FRONT: 작은방창 → 작은방창 → 거실창 → 안방창
+  frontOpenings:[
+    {id:"F01",name:"smallRoomWindow1",type:"window",x:-3.55,w:1.10,h:1.10,sill:.97},
+    {id:"F02",name:"smallRoomWindow2",type:"window",x:-2.05,w:1.10,h:1.10,sill:.97},
+    {id:"F03",name:"livingRoomWindow",type:"largeWindow",x:.65,w:2.15,h:1.45,sill:.62},
+    {id:"F04",name:"masterRoomWindow",type:"window",x:3.45,w:1.20,h:1.35,sill:.72}
   ],
 
-  /*
-    REAR
-    A타입과 동일하지만
-    드레스룸창만 없음.
-
-    외부에서 바라볼 때:
-    루버 → 주방창 → 다용도실창
-  */
-  rearOpenings: [
-    {
-      id: "R01",
-      name: "outdoorUnitLouver",
-      type: "louver",
-      x: 2.15,
-      w: 0.72,
-      h: 1.45,
-      sill: 0.68
-    },
-
-    {
-      id: "R02",
-      name: "kitchenWindow",
-      type: "kitchenWindow",
-      x: 0.85,
-      w: 0.72,
-      h: 0.56,
-      sill: 1.24
-    },
-
-    {
-      id: "R03",
-      name: "utilityRoomWindow",
-      type: "window",
-      x: -0.59,
-      w: 0.72,
-      h: 0.78,
-      sill: 1.13
-    }
+  // REAR: 좌측 끝부분만 2단 계단형, 중앙~우측은 직선
+  rearProfile:[
+    {xMin:-4.70,xMax:-3.25,offset:.75},
+    {xMin:-3.25,xMax:-2.10,offset:.35},
+    {xMin:-2.10,xMax:4.70,offset:0}
   ],
 
-  leftOpenings: [],
-  rightOpenings: []
+  // REAR: 드레스룸창 없음 / 루버 → 주방창 → 다용도실창
+  rearOpenings:[
+    {id:"R01",name:"outdoorUnitLouver",type:"louver",x:2.15,w:.72,h:1.45,sill:.68},
+    {id:"R02",name:"kitchenWindow",type:"kitchenWindow",x:.85,w:.72,h:.56,sill:1.24},
+    {id:"R03",name:"utilityRoomWindow",type:"window",x:-.59,w:.72,h:.78,sill:1.13}
+  ],
+
+  leftOpenings:[],
+  rightOpenings:[]
 };
