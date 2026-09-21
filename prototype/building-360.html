@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+
+<title>HAUSTORY 360° Building</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#d9e8ed;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Pretendard",
+    "Apple SD Gothic Neo",
+    sans-serif;
+}
+
+body{
+  touch-action:none;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(255,255,255,.95),
+      transparent 40%
+    ),
+    linear-gradient(
+      180deg,
+      #d7e9ef 0%,
+      #bfd4db 60%,
+      #9eaf99 100%
+    );
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+/* =========================
+   UI
+========================= */
+
+.ui{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
+}
+
+.topbar{
+  position:absolute;
+
+  top:max(14px,env(safe-area-inset-top));
+  left:16px;
+  right:16px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  pointer-events:none;
+}
+
+.title{
+  padding:10px 14px;
+
+  border:1px solid rgba(255,255,255,.52);
+  border-radius:16px;
+
+  color:#24343b;
+
+  background:
+    rgba(255,255,255,.44);
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  box-shadow:
+    0 8px 25px rgba(40,60,65,.08);
+}
+
+.title strong{
+  display:block;
+  font-size:14px;
+}
+
+.title span{
+  display:block;
+  margin-top:3px;
+
+  font-size:9px;
+  letter-spacing:.14em;
+
+  opacity:.55;
+}
+
+.controls{
+  display:flex;
+  gap:7px;
+
+  pointer-events:auto;
+}
+
+button{
+  height:42px;
+  padding:0 14px;
+
+  border:
+    1px solid rgba(255,255,255,.55);
+
+  border-radius:14px;
+
+  color:#23343b;
+
+  background:
+    rgba(255,255,255,.46);
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  box-shadow:
+    0 8px 22px rgba(40,60,65,.08);
+
+  font:inherit;
+  font-size:12px;
+  font-weight:650;
+}
+
+.bottom{
+  position:absolute;
+
+  left:50%;
+
+  bottom:
+    max(
+      18px,
+      calc(env(safe-area-inset-bottom) + 10px)
+    );
+
+  transform:translateX(-50%);
+
+  width:min(92vw,430px);
+
+  padding:13px 16px;
+
+  text-align:center;
+
+  color:#283b41;
+
+  border:
+    1px solid rgba(255,255,255,.5);
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,.42);
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  box-shadow:
+    0 14px 32px rgba(40,60,65,.09);
+
+  pointer-events:none;
+}
+
+.bottom strong{
+  display:block;
+
+  font-size:13px;
+}
+
+.bottom span{
+  display:block;
+
+  margin-top:4px;
+
+  font-size:10px;
+
+  opacity:.58;
+}
+
+.degree{
+  margin-top:7px;
+
+  font-size:10px;
+  font-weight:700;
+
+  opacity:.7;
+}
+</style>
+</head>
+
+
+<body>
+
+<div id="app"></div>
+
+<div class="ui">
+
+  <div class="topbar">
+
+    <div class="title">
+      <strong>HAUSTORY · 25F</strong>
+      <span>3D BUILDING PROTOTYPE</span>
+    </div>
+
+    <div class="controls">
+
+      <button id="autoBtn">
+        자동회전
+      </button>
+
+      <button id="resetBtn">
+        정면
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="bottom">
+
+    <strong>
+      손가락으로 건물을 돌려보세요
+    </strong>
+
+    <span>
+      좌우 회전 · 위아래 시점 · 핀치 확대/축소
+    </span>
+
+    <div
+      class="degree"
+      id="degree"
+    >
+      0°
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+import * as THREE from
+'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const TOTAL_FLOORS = 25;
+
+const FLOOR_HEIGHT = 0.9;
+
+const BUILDING_WIDTH = 10;
+
+const BUILDING_DEPTH = 5.8;
+
+const REGULAR_FLOORS =
+  TOTAL_FLOORS - 1;
+
+const BODY_HEIGHT =
+  REGULAR_FLOORS * FLOOR_HEIGHT;
+
+const TOP_FLOOR_HEIGHT = 1.25;
+
+const TOTAL_HEIGHT =
+  BODY_HEIGHT + TOP_FLOOR_HEIGHT;
+
+
+
+/* =========================================================
+   SCENE
+========================================================= */
+
+const app =
+  document.getElementById("app");
+
+const scene =
+  new THREE.Scene();
+
+scene.fog =
+  new THREE.Fog(
+    0xd9e5e7,
+    38,
+    68
+  );
+
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+const camera =
+  new THREE.PerspectiveCamera(
+    34,
+    window.innerWidth /
+    window.innerHeight,
+    0.1,
+    200
+  );
+
+camera.position.set(
+  17,
+  13,
+  31
+);
+
+camera.lookAt(
+  0,
+  10,
+  0
+);
+
+
+
+/* =========================================================
+   RENDERER
+========================================================= */
+
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias:true,
+    alpha:true,
+    powerPreference:"high-performance"
+  });
+
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio,
+    2
+  )
+);
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.type =
+  THREE.PCFSoftShadowMap;
+
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
+
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure =
+  1.15;
+
+app.appendChild(
+  renderer.domElement
+);
+
+
+
+/* =========================================================
+   LIGHT
+========================================================= */
+
+const hemi =
+  new THREE.HemisphereLight(
+    0xeaf7ff,
+    0x6c785e,
+    2.6
+  );
+
+scene.add(hemi);
+
+
+const sun =
+  new THREE.DirectionalLight(
+    0xfff3dd,
+    3.2
+  );
+
+sun.position.set(
+  -13,
+  28,
+  18
+);
+
+sun.castShadow = true;
+
+sun.shadow.mapSize.set(
+  2048,
+  2048
+);
+
+sun.shadow.camera.left = -20;
+sun.shadow.camera.right = 20;
+sun.shadow.camera.top = 35;
+sun.shadow.camera.bottom = -10;
+
+scene.add(sun);
+
+
+const fillLight =
+  new THREE.DirectionalLight(
+    0xb8d8e8,
+    1.5
+  );
+
+fillLight.position.set(
+  16,
+  12,
+  -14
+);
+
+scene.add(fillLight);
+
+
+
+/* =========================================================
+   MATERIALS
+========================================================= */
+
+const MAT = {
+
+  dark:
+    new THREE.MeshStandardMaterial({
+      color:0x323e44,
+      roughness:.58,
+      metalness:.08
+    }),
+
+  darkSide:
+    new THREE.MeshStandardMaterial({
+      color:0x46545a,
+      roughness:.64,
+      metalness:.05
+    }),
+
+  white:
+    new THREE.MeshStandardMaterial({
+      color:0xe8ecea,
+      roughness:.53,
+      metalness:.03
+    }),
+
+  whiteBright:
+    new THREE.MeshStandardMaterial({
+      color:0xf3f5f3,
+      roughness:.45,
+      metalness:.03
+    }),
+
+  roof:
+    new THREE.MeshStandardMaterial({
+      color:0xaeb8b7,
+      roughness:.68
+    }),
+
+  solar:
+    new THREE.MeshStandardMaterial({
+      color:0x405d69,
+      roughness:.28,
+      metalness:.22
+    }),
+
+  glass:
+    new THREE.MeshStandardMaterial({
+      color:0x637981,
+      roughness:.2,
+      metalness:.12
+    }),
+
+  lit:
+    new THREE.MeshStandardMaterial({
+      color:0xd6b576,
+      emissive:0x8f652e,
+      emissiveIntensity:.8,
+      roughness:.35
+    }),
+
+  rail:
+    new THREE.MeshStandardMaterial({
+      color:0x1d292e,
+      roughness:.5,
+      metalness:.22
+    })
+
+};
+
+
+
+/* =========================================================
+   BUILDING GROUP
+========================================================= */
+
+const building =
+  new THREE.Group();
+
+scene.add(building);
+
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+const body =
+  new THREE.Mesh(
+    new THREE.BoxGeometry(
+      BUILDING_WIDTH,
+      BODY_HEIGHT,
+      BUILDING_DEPTH
+    ),
+    [
+      MAT.darkSide,
+      MAT.darkSide,
+      MAT.dark,
+      MAT.dark,
+      MAT.dark,
+      MAT.dark
+    ]
+  );
+
+body.position.y =
+  BODY_HEIGHT / 2;
+
+body.castShadow = true;
+body.receiveShadow = true;
+
+building.add(body);
+
+
+
+/* =========================================================
+   TOP FLOOR BODY
+========================================================= */
+
+const topFloor =
+  new THREE.Mesh(
+    new THREE.BoxGeometry(
+      BUILDING_WIDTH,
+      TOP_FLOOR_HEIGHT,
+      BUILDING_DEPTH
+    ),
+    MAT.dark
+  );
+
+topFloor.position.y =
+  BODY_HEIGHT
+  + TOP_FLOOR_HEIGHT / 2;
+
+topFloor.castShadow = true;
+
+building.add(topFloor);
+
+
+
+/* =========================================================
+   HELPER
+========================================================= */
+
+function makeBox(
+  w,
+  h,
+  d,
+  material,
+  x,
+  y,
+  z
+){
+
+  const mesh =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        w,h,d
+      ),
+      material
+    );
+
+  mesh.position.set(
+    x,y,z
+  );
+
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+
+  building.add(mesh);
+
+  return mesh;
+}
+
+
+
+/* =========================================================
+   WHITE VERTICAL FRAMES
+========================================================= */
+
+const ribWidth = .48;
+
+const ribDepth = .22;
+
+
+[
+  -4.55,
+  -1.65,
+  1.65,
+  4.55
+
+].forEach(x=>{
+
+  makeBox(
+    ribWidth,
+    TOTAL_HEIGHT + .3,
+    ribDepth,
+
+    MAT.whiteBright,
+
+    x,
+    TOTAL_HEIGHT / 2,
+    BUILDING_DEPTH / 2 + .12
+  );
+
+});
+
+
+[
+  -4.55,
+  -1.65,
+  1.65,
+  4.55
+
+].forEach(x=>{
+
+  makeBox(
+    ribWidth,
+    TOTAL_HEIGHT + .3,
+    ribDepth,
+
+    MAT.whiteBright,
+
+    x,
+    TOTAL_HEIGHT / 2,
+    -BUILDING_DEPTH / 2 - .12
+  );
+
+});
+
+
+
+/* =========================================================
+   SIDE CORNER FRAMES
+========================================================= */
+
+[
+  -BUILDING_DEPTH / 2 + .22,
+  BUILDING_DEPTH / 2 - .22
+
+].forEach(z=>{
+
+  makeBox(
+    .2,
+    TOTAL_HEIGHT + .3,
+    .45,
+
+    MAT.white,
+
+    -BUILDING_WIDTH / 2 - .1,
+    TOTAL_HEIGHT / 2,
+    z
+  );
+
+  makeBox(
+    .2,
+    TOTAL_HEIGHT + .3,
+    .45,
+
+    MAT.white,
+
+    BUILDING_WIDTH / 2 + .1,
+    TOTAL_HEIGHT / 2,
+    z
+  );
+
+});
+
+
+
+/* =========================================================
+   FLOOR WINDOWS
+========================================================= */
+
+function shouldLight(
+  floor,
+  column,
+  side
+){
+
+  return (
+    (
+      floor * 7
+      + column * 11
+      + side * 17
+    ) % 29 === 0
+
+    ||
+
+    (
+      floor * 5
+      + column * 3
+      + side * 13
+    ) % 41 === 0
+  );
+
+}
+
+
+
+/* front / back */
+
+const frontColumns = [
+  -3.75,
+  -2.55,
+  -.75,
+  .75,
+  2.55,
+  3.75
+];
+
+for(
+  let floor = 0;
+  floor < REGULAR_FLOORS;
+  floor++
+){
+
+  const y =
+    floor * FLOOR_HEIGHT
+    + FLOOR_HEIGHT * .52;
+
+
+  frontColumns.forEach(
+    (x,column)=>{
+
+      const lit =
+        shouldLight(
+          floor,
+          column,
+          0
+        );
+
+
+      makeBox(
+        .82,
+        .52,
+        .11,
+
+        lit
+          ? MAT.lit
+          : MAT.glass,
+
+        x,
+        y,
+        BUILDING_DEPTH / 2 + .13
+      );
+
+
+      const litBack =
+        shouldLight(
+          floor,
+          column,
+          1
+        );
+
+
+      makeBox(
+        .82,
+        .52,
+        .11,
+
+        litBack
+          ? MAT.lit
+          : MAT.glass,
+
+        x,
+        y,
+        -BUILDING_DEPTH / 2 - .13
+      );
+
+  });
+
+}
+
+
+
+/* side windows */
+
+const sideColumns = [
+  -1.75,
+  0,
+  1.75
+];
+
+for(
+  let floor = 0;
+  floor < REGULAR_FLOORS;
+  floor++
+){
+
+  const y =
+    floor * FLOOR_HEIGHT
+    + FLOOR_HEIGHT * .52;
+
+
+  sideColumns.forEach(
+    (z,column)=>{
+
+      const mat =
+        shouldLight(
+          floor,
+          column,
+          2
+        )
+        ? MAT.lit
+        : MAT.glass;
+
+
+      makeBox(
+        .11,
+        .52,
+        .88,
+
+        mat,
+
+        BUILDING_WIDTH / 2 + .13,
+        y,
+        z
+      );
+
+
+      const mat2 =
+        shouldLight(
+          floor,
+          column,
+          3
+        )
+        ? MAT.lit
+        : MAT.glass;
+
+
+      makeBox(
+        .11,
+        .52,
+        .88,
+
+        mat2,
+
+        -BUILDING_WIDTH / 2 - .13,
+        y,
+        z
+      );
+
+  });
+
+}
+
+
+
+/* =========================================================
+   BALCONY RAILS
+========================================================= */
+
+for(
+  let floor = 1;
+  floor < REGULAR_FLOORS;
+  floor += 4
+){
+
+  const y =
+    floor * FLOOR_HEIGHT
+    + .22;
+
+
+  makeBox(
+    2.1,
+    .05,
+    .13,
+
+    MAT.rail,
+
+    -2.95,
+    y,
+    BUILDING_DEPTH / 2 + .24
+  );
+
+
+  makeBox(
+    2.1,
+    .05,
+    .13,
+
+    MAT.rail,
+
+    2.95,
+    y,
+    BUILDING_DEPTH / 2 + .24
+  );
+
+}
+
+
+
+/* =========================================================
+   HORIZONTAL WHITE BANDS
+========================================================= */
+
+[
+  6.3,
+  12.6,
+  18.0
+
+].forEach(y=>{
+
+  makeBox(
+    BUILDING_WIDTH + .1,
+    .16,
+    .22,
+
+    MAT.white,
+
+    0,
+    y,
+    BUILDING_DEPTH / 2 + .13
+  );
+
+  makeBox(
+    BUILDING_WIDTH + .1,
+    .16,
+    .22,
+
+    MAT.white,
+
+    0,
+    y,
+    -BUILDING_DEPTH / 2 - .13
+  );
+
+});
+
+
+
+/* =========================================================
+   TOP FLOOR LARGE WINDOWS
+========================================================= */
+
+const topWindowY =
+  BODY_HEIGHT + .63;
+
+[
+  -3.8,
+  -2.25,
+  -.75,
+  .75,
+  2.25,
+  3.8
+
+].forEach(x=>{
+
+  makeBox(
+    1.12,
+    .88,
+    .13,
+
+    MAT.glass,
+
+    x,
+    topWindowY,
+    BUILDING_DEPTH / 2 + .15
+  );
+
+
+  makeBox(
+    1.12,
+    .88,
+    .13,
+
+    MAT.glass,
+
+    x,
+    topWindowY,
+    -BUILDING_DEPTH / 2 - .15
+  );
+
+});
+
+
+
+/* =========================================================
+   SIGNATURE SLOPED ROOF
+========================================================= */
+
+function createSignature(){
+
+  const width =
+    BUILDING_WIDTH + .55;
+
+  const height =
+    2.05;
+
+  const depth =
+    BUILDING_DEPTH + .4;
+
+
+  const shape =
+    new THREE.Shape();
+
+  shape.moveTo(
+    -width/2,
+    0
+  );
+
+  shape.lineTo(
+    width/2,
+    0
+  );
+
+  shape.lineTo(
+    width/2,
+    height
+  );
+
+  shape.lineTo(
+    -width/2,
+    height * .56
+  );
+
+  shape.closePath();
+
+
+  const geometry =
+    new THREE.ExtrudeGeometry(
+      shape,
+      {
+        depth:depth,
+        bevelEnabled:false
+      }
+    );
+
+
+  geometry.translate(
+    0,
+    0,
+    -depth / 2
+  );
+
+
+  const mesh =
+    new THREE.Mesh(
+      geometry,
+      MAT.whiteBright
+    );
+
+
+  mesh.position.y =
+    TOTAL_HEIGHT;
+
+
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+
+
+  building.add(mesh);
+
+}
+
+createSignature();
+
+
+
+/* =========================================================
+   HAUSTORY LOGO
+========================================================= */
+
+function createLogoTexture(){
+
+  const canvas =
+    document.createElement(
+      "canvas"
+    );
+
+  canvas.width = 1024;
+  canvas.height = 256;
+
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  ctx.font =
+    "900 124px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+
+  ctx.fillStyle =
+    "rgba(0,0,0,.2)";
+
+  ctx.fillText(
+    "HAUSTORY",
+    516,
+    142
+  );
+
+
+  ctx.fillStyle =
+    "#263239";
+
+  ctx.fillText(
+    "HAUSTORY",
+    512,
+    132
+  );
+
+
+  const texture =
+    new THREE.CanvasTexture(
+      canvas
+    );
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
+
+  return texture;
+
+}
+
+
+const logoMaterial =
+  new THREE.MeshBasicMaterial({
+    map:createLogoTexture(),
+    transparent:true
+  });
+
+
+const logoFront =
+  new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      6.6,
+      1.65
+    ),
+    logoMaterial
+  );
+
+logoFront.position.set(
+  1.15,
+  TOTAL_HEIGHT + 1.03,
+  BUILDING_DEPTH / 2 + .23
+);
+
+building.add(
+  logoFront
+);
+
+
+const logoBack =
+  logoFront.clone();
+
+logoBack.position.z =
+  -BUILDING_DEPTH / 2 - .23;
+
+logoBack.rotation.y =
+  Math.PI;
+
+building.add(
+  logoBack
+);
+
+
+
+/* =========================================================
+   ROOFTOP MACHINE ROOM
+========================================================= */
+
+makeBox(
+  2.2,
+  .85,
+  1.8,
+
+  MAT.roof,
+
+  2.65,
+  TOTAL_HEIGHT + 1.25,
+  -.9
+);
+
+
+
+/* =========================================================
+   SOLAR PANELS
+========================================================= */
+
+function solarPanel(
+  x,
+  z,
+  rotationY=0
+){
+
+  const panel =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        2.3,
+        .08,
+        1.1
+      ),
+      MAT.solar
+    );
+
+
+  panel.position.set(
+    x,
+    TOTAL_HEIGHT + 1.35,
+    z
+  );
+
+
+  panel.rotation.x =
+    -.18;
+
+  panel.rotation.y =
+    rotationY;
+
+
+  panel.castShadow = true;
+
+
+  building.add(
+    panel
+  );
+
+}
+
+
+solarPanel(
+  -2.7,
+  -.7
+);
+
+solarPanel(
+  -.2,
+  -.7
+);
+
+
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+const ground =
+  new THREE.Mesh(
+    new THREE.CircleGeometry(
+      32,
+      96
+    ),
+
+    new THREE.MeshStandardMaterial({
+      color:0x91a58c,
+      roughness:1
+    })
+  );
+
+ground.rotation.x =
+  -Math.PI / 2;
+
+ground.receiveShadow = true;
+
+scene.add(
+  ground
+);
+
+
+
+/* =========================================================
+   CAMERA / ROTATION CONTROLS
+========================================================= */
+
+let rotationY = 0;
+
+let rotationX = -.04;
+
+let targetRotationY = 0;
+
+let targetRotationX = -.04;
+
+let cameraDistance = 31;
+
+let targetDistance = 31;
+
+let isDragging = false;
+
+let previousX = 0;
+
+let previousY = 0;
+
+let autoRotate = true;
+
+let lastTouchDistance = null;
+
+
+
+renderer.domElement.addEventListener(
+  "pointerdown",
+  event=>{
+
+    isDragging = true;
+
+    autoRotate = false;
+
+    previousX =
+      event.clientX;
+
+    previousY =
+      event.clientY;
+
+    renderer.domElement
+      .setPointerCapture(
+        event.pointerId
+      );
+
+  }
+);
+
+
+
+renderer.domElement.addEventListener(
+  "pointermove",
+  event=>{
+
+    if(!isDragging) return;
+
+
+    const dx =
+      event.clientX
+      - previousX;
+
+    const dy =
+      event.clientY
+      - previousY;
+
+
+    targetRotationY +=
+      dx * .009;
+
+
+    targetRotationX +=
+      dy * .004;
+
+
+    targetRotationX =
+      THREE.MathUtils.clamp(
+        targetRotationX,
+        -.28,
+        .24
+      );
+
+
+    previousX =
+      event.clientX;
+
+    previousY =
+      event.clientY;
+
+  }
+);
+
+
+
+renderer.domElement.addEventListener(
+  "pointerup",
+  ()=>{
+
+    isDragging = false;
+
+  }
+);
+
+
+
+renderer.domElement.addEventListener(
+  "pointercancel",
+  ()=>{
+
+    isDragging = false;
+
+  }
+);
+
+
+
+/* wheel */
+
+renderer.domElement.addEventListener(
+  "wheel",
+  event=>{
+
+    autoRotate = false;
+
+    targetDistance +=
+      event.deltaY * .012;
+
+    targetDistance =
+      THREE.MathUtils.clamp(
+        targetDistance,
+        23,
+        42
+      );
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+
+/* pinch */
+
+renderer.domElement.addEventListener(
+  "touchmove",
+  event=>{
+
+    if(
+      event.touches.length !== 2
+    ){
+
+      lastTouchDistance = null;
+
+      return;
+    }
+
+
+    const a =
+      event.touches[0];
+
+    const b =
+      event.touches[1];
+
+
+    const distance =
+      Math.hypot(
+        b.clientX-a.clientX,
+        b.clientY-a.clientY
+      );
+
+
+    if(
+      lastTouchDistance !== null
+    ){
+
+      const difference =
+        lastTouchDistance
+        - distance;
+
+
+      targetDistance +=
+        difference * .025;
+
+
+      targetDistance =
+        THREE.MathUtils.clamp(
+          targetDistance,
+          23,
+          42
+        );
+
+    }
+
+
+    lastTouchDistance =
+      distance;
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+
+renderer.domElement.addEventListener(
+  "touchend",
+  ()=>{
+
+    lastTouchDistance = null;
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+const resetBtn =
+  document.getElementById(
+    "resetBtn"
+  );
+
+const autoBtn =
+  document.getElementById(
+    "autoBtn"
+  );
+
+const degree =
+  document.getElementById(
+    "degree"
+  );
+
+
+resetBtn.addEventListener(
+  "click",
+  ()=>{
+
+    autoRotate = false;
+
+    targetRotationY = 0;
+
+    targetRotationX = -.04;
+
+    targetDistance = 31;
+
+  }
+);
+
+
+autoBtn.addEventListener(
+  "click",
+  ()=>{
+
+    autoRotate =
+      !autoRotate;
+
+    autoBtn.textContent =
+      autoRotate
+        ? "자동회전 중"
+        : "자동회전";
+
+  }
+);
+
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+  "resize",
+  ()=>{
+
+    camera.aspect =
+      window.innerWidth
+      / window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+const clock =
+  new THREE.Clock();
+
+
+function animate(){
+
+  requestAnimationFrame(
+    animate
+  );
+
+
+  const delta =
+    clock.getDelta();
+
+
+  if(autoRotate){
+
+    targetRotationY +=
+      delta * .23;
+
+  }
+
+
+  rotationY =
+    THREE.MathUtils.lerp(
+      rotationY,
+      targetRotationY,
+      .08
+    );
+
+
+  rotationX =
+    THREE.MathUtils.lerp(
+      rotationX,
+      targetRotationX,
+      .08
+    );
+
+
+  cameraDistance =
+    THREE.MathUtils.lerp(
+      cameraDistance,
+      targetDistance,
+      .08
+    );
+
+
+  building.rotation.y =
+    rotationY;
+
+  building.rotation.x =
+    rotationX;
+
+
+  camera.position.z =
+    cameraDistance;
+
+
+  camera.position.y =
+    11.5;
+
+
+  camera.lookAt(
+    0,
+    10.5,
+    0
+  );
+
+
+  let deg =
+    THREE.MathUtils.radToDeg(
+      rotationY
+    );
+
+  deg =
+    ((deg % 360) + 360) % 360;
+
+
+  degree.textContent =
+    `${Math.round(deg)}°`;
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
+animate();
+
+</script>
+
+</body>
+</html>
