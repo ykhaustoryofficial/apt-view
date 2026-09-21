@@ -19,17 +19,18 @@ export const UNIT_D={
   ],
 
   /*
-    REAR를 밖에서 바라봤을 때 LEFT → RIGHT
-    다용도실창 → 주방창 → 다용도실창 → 루버
+    REAR를 정면으로 바라봤을 때 RIGHT → LEFT
+    루버 → 다용도실창 → 주방창 → 다용도실창
 
-    주방창 x:-0.65
-    = FRONT 거실창 x:-0.65와 동일 축
+    R01 = 가장 오른쪽 첫 계단벽 중앙
+    R02 = 그 왼쪽 두 번째 계단벽 중앙
+    R03 = FRONT 거실창과 같은 x축
   */
   rearOpenings:[
-    {id:"R01",name:"utilityRoomWindow1",type:"window",x:1.25,w:.72,h:.78,sill:1.13},
-    {id:"R02",name:"kitchenWindow",type:"kitchenWindow",x:-.65,w:.72,h:.56,sill:1.24},
-    {id:"R03",name:"utilityRoomWindow2",type:"window",x:-2.10,w:.72,h:.78,sill:1.13},
-    {id:"R04",name:"outdoorUnitLouver",type:"louver",x:-3.55,w:.72,h:1.45,sill:.68}
+    {id:"R01",name:"outdoorUnitLouver",type:"louver",x:-4.03,w:.72,h:1.45,sill:.68},
+    {id:"R02",name:"utilityRoomWindow1",type:"window",x:-2.75,w:.72,h:.78,sill:1.13},
+    {id:"R03",name:"kitchenWindow",type:"kitchenWindow",x:-.65,w:.72,h:.56,sill:1.24},
+    {id:"R04",name:"utilityRoomWindow2",type:"window",x:1.15,w:.72,h:.78,sill:1.13}
   ],
 
   leftOpenings:[],
