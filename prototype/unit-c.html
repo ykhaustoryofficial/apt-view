@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>UNIT C</title>
+
+<link
+  rel="stylesheet"
+  href="./css/unit-viewer.css"
+>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+  <strong id="unitTitle">UNIT_C</strong>
+  <span id="unitSubtitle">Loading...</span>
+</div>
+
+<div class="legend">
+  FRONT ↓ · REAR ↑ · 회전 / 확대축소
+</div>
+
+<script type="module">
+
+import {
+  UNIT_C
+} from "./js/units/unit-c.js";
+
+import {
+  createUnitViewer
+} from "./js/unit-viewer.js";
+
+createUnitViewer(
+  UNIT_C
+);
+
+</script>
+
+</body>
+</html>
