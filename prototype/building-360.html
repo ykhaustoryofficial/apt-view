@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>HAUSTORY 360° Building V7</title>
+<title>HAUSTORY 360° Building V8</title>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -50,8 +50,7 @@ button{
   width:min(92vw,430px);
   padding:13px 16px;
   border-radius:18px;
-  text-align:center;
-  color:#283b41
+  text-align:center;color:#283b41
 }
 .bottom strong{display:block;font-size:13px}
 .bottom span{display:block;margin-top:4px;font-size:10px;opacity:.58}
@@ -70,7 +69,7 @@ button{
   <div class="topbar">
     <div class="title">
       <strong>HAUSTORY · 25F</strong>
-      <span>3D BUILDING MASSING V7</span>
+      <span>3D BUILDING MASSING V8</span>
     </div>
 
     <div class="controls">
@@ -82,7 +81,6 @@ button{
   <div class="bottom">
     <strong>손가락으로 건물을 돌려보세요</strong>
     <span>좌우 회전 · 위아래 시점 · 두 손가락 확대/축소</span>
-
     <div class="status">
       <div id="degree">0°</div>
       <div id="zoomText">100%</div>
@@ -95,9 +93,7 @@ button{
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
-/* =========================================================
-   DIMENSIONS
-========================================================= */
+/* DIMENSIONS */
 
 const FLOOR_HEIGHT = .88;
 const REGULAR_FLOORS = 24;
@@ -136,18 +132,11 @@ const BLUE_WIDTH = 4.38;
 const BLUE_X = MAIN_X - .45;
 const MAIN_FRONT = MAIN_DEPTH/2;
 
-/* =========================================================
-   NEW LEFT WHITE WALL
-   기존 왼쪽 벽을 덮지 않고 바깥에 추가
-========================================================= */
+/* LEFT WHITE WALL */
 
 const LEFT_WALL_WIDTH = .46;
-
-const LEFT_WALL_DEPTH =
-  MAIN_DEPTH + .38;
-
-const LEFT_WALL_HEIGHT =
-  ROOF_BASE_Y;
+const LEFT_WALL_DEPTH = MAIN_DEPTH + .38;
+const LEFT_WALL_HEIGHT = ROOF_BASE_Y;
 
 const LEFT_WALL_X =
   MAIN_X -
@@ -155,27 +144,18 @@ const LEFT_WALL_X =
   LEFT_WALL_WIDTH/2 +
   .06;
 
-/* =========================================================
-   SIGNATURE
-========================================================= */
+/* SIGNATURE */
 
-const CAP_WIDTH =
-  MAIN_WIDTH + .72;
+const CAP_WIDTH = MAIN_WIDTH + .72;
+const CAP_DEPTH = MAIN_DEPTH + .38;
 
-const CAP_DEPTH =
-  MAIN_DEPTH + .38;
-
-const CAP_X =
-  MAIN_X;
-
+const CAP_X = MAIN_X;
 const CAP_Z = 0;
 
 const CAP_LEFT_HEIGHT = 1.05;
 const CAP_RIGHT_HEIGHT = 1.72;
 
-/* =========================================================
-   SCENE
-========================================================= */
+/* SCENE */
 
 const app =
   document.getElementById("app");
@@ -243,22 +223,24 @@ app.appendChild(
   renderer.domElement
 );
 
-/* =========================================================
-   LIGHT
-========================================================= */
+/* LIGHT
+   녹색 지면광 제거.
+   중성 회색 간접광으로 변경.
+*/
 
-scene.add(
+const hemi =
   new THREE.HemisphereLight(
-    0xebf8ff,
-    0x68755f,
-    2.7
-  )
-);
+    0xeaf6ff,
+    0xb8bbb7,
+    2.25
+  );
+
+scene.add(hemi);
 
 const sun =
   new THREE.DirectionalLight(
-    0xfff2dd,
-    3.25
+    0xfff1dc,
+    3.15
   );
 
 sun.position.set(
@@ -274,12 +256,17 @@ sun.shadow.mapSize.set(
   2048
 );
 
+sun.shadow.camera.left = -26;
+sun.shadow.camera.right = 26;
+sun.shadow.camera.top = 40;
+sun.shadow.camera.bottom = -12;
+
 scene.add(sun);
 
 const fill =
   new THREE.DirectionalLight(
-    0xb8dbe9,
-    1.45
+    0xdbe7eb,
+    .85
   );
 
 fill.position.set(
@@ -290,9 +277,7 @@ fill.position.set(
 
 scene.add(fill);
 
-/* =========================================================
-   MATERIAL
-========================================================= */
+/* MATERIAL */
 
 const MAT = {
 
@@ -320,14 +305,12 @@ const MAT = {
       roughness:.44
     }),
 
-signatureWhite:
-  new THREE.MeshStandardMaterial({
-    color:0xffffff,
-    emissive:0xffffff,
-    emissiveIntensity:.08,
-    roughness:.30,
-    metalness:0.00
-  }),
+  signatureWhite:
+    new THREE.MeshStandardMaterial({
+      color:0xffffff,
+      roughness:.42,
+      metalness:0
+    }),
 
   beige:
     new THREE.MeshStandardMaterial({
@@ -377,18 +360,14 @@ signatureWhite:
 
 };
 
-/* =========================================================
-   BUILDING GROUP
-========================================================= */
+/* BUILDING */
 
 const building =
   new THREE.Group();
 
 scene.add(building);
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* HELPERS */
 
 function box(
   w,h,d,
@@ -439,9 +418,7 @@ function litPick(
   );
 }
 
-/* =========================================================
-   MAIN BODY
-========================================================= */
+/* MAIN BODY */
 
 const mainBody =
   new THREE.Mesh(
@@ -474,16 +451,7 @@ mainBody.receiveShadow = true;
 
 building.add(mainBody);
 
-/* =========================================================
-   NEW LEFT WHITE WALL
-========================================================= */
-
-/*
-  기존 건물의 왼쪽면 색을 바꾸는 것이 아니다.
-
-  원래 메인 바디는 그대로 존재하고,
-  그 바깥쪽에 별도의 흰색 벽체가 하나 추가된다.
-*/
+/* LEFT WHITE WALL */
 
 box(
   LEFT_WALL_WIDTH,
@@ -499,17 +467,12 @@ box(
   0
 );
 
-/*
-  앞쪽에서 조금 더 또렷하게 보이도록
-  얇은 세로 마감재 추가
-*/
-
 box(
   .14,
   LEFT_WALL_HEIGHT,
   .20,
 
-  MAT.signatureWhite,
+  MAT.whiteBright,
 
   LEFT_WALL_X -
   LEFT_WALL_WIDTH/2 -
@@ -520,9 +483,7 @@ box(
   MAIN_FRONT + .13
 );
 
-/* =========================================================
-   RIGHT BEIGE MASS
-========================================================= */
+/* RIGHT BEIGE MASS */
 
 const rightBody =
   new THREE.Mesh(
@@ -569,9 +530,7 @@ box(
   RIGHT_Z
 );
 
-/* =========================================================
-   BLUE CORE
-========================================================= */
+/* BLUE CORE */
 
 box(
   BLUE_WIDTH,
@@ -657,9 +616,7 @@ for(
 
 }
 
-/* =========================================================
-   BIG WHITE FRAME
-========================================================= */
+/* BIG WHITE FRAME */
 
 const FRAME_LEFT_X =
   BLUE_X -
@@ -731,9 +688,7 @@ box(
   MAIN_FRONT+.17
 );
 
-/* =========================================================
-   LEFT WINDOW STRIP
-========================================================= */
+/* LEFT WINDOW STRIP */
 
 for(
   let floor=0;
@@ -764,9 +719,7 @@ for(
 
 }
 
-/* =========================================================
-   RIGHT MASS WINDOWS
-========================================================= */
+/* RIGHT MASS WINDOWS */
 
 for(
   let floor=0;
@@ -852,9 +805,7 @@ for(
 
 }
 
-/* =========================================================
-   TOP FLOOR
-========================================================= */
+/* TOP FLOOR */
 
 box(
   MAIN_WIDTH,
@@ -898,11 +849,7 @@ for(
 
 }
 
-/* =========================================================
-   WHITE SIGNATURE BASE
-   상단 구조물이 본체와 연결되어 보이도록
-   하부도 전부 흰색
-========================================================= */
+/* WHITE SIGNATURE BASE */
 
 box(
   CAP_WIDTH,
@@ -918,9 +865,7 @@ box(
   CAP_Z
 );
 
-/* =========================================================
-   SIGNATURE WEDGE
-========================================================= */
+/* SIGNATURE WEDGE */
 
 function createSignatureWedge(){
 
@@ -935,7 +880,6 @@ function createSignatureWedge(){
 
   const rightH =
     CAP_RIGHT_HEIGHT;
-
 
   const positions =
     new Float32Array([
@@ -953,7 +897,6 @@ function createSignatureWedge(){
        w/2,rightH,-d/2
 
     ]);
-
 
   const indices = [
 
@@ -977,10 +920,8 @@ function createSignatureWedge(){
 
   ];
 
-
   const geometry =
     new THREE.BufferGeometry();
-
 
   geometry.setAttribute(
     "position",
@@ -990,14 +931,11 @@ function createSignatureWedge(){
     )
   );
 
-
   geometry.setIndex(
     indices
   );
 
-
   geometry.computeVertexNormals();
-
 
   const wedge =
     new THREE.Mesh(
@@ -1005,17 +943,14 @@ function createSignatureWedge(){
       MAT.signatureWhite
     );
 
-
   wedge.position.set(
     CAP_X,
     ROOF_BASE_Y+.18,
     CAP_Z
   );
 
-
   wedge.castShadow = true;
   wedge.receiveShadow = true;
-
 
   building.add(
     wedge
@@ -1025,9 +960,7 @@ function createSignatureWedge(){
 
 createSignatureWedge();
 
-/* =========================================================
-   LOGO
-========================================================= */
+/* LOGO */
 
 function createLogoTexture(){
 
@@ -1082,13 +1015,11 @@ function createLogoTexture(){
   return texture;
 }
 
-
 const logoMaterial =
   new THREE.MeshBasicMaterial({
     map:createLogoTexture(),
     transparent:true
   });
-
 
 const logo =
   new THREE.Mesh(
@@ -1101,7 +1032,6 @@ const logo =
     logoMaterial
 
   );
-
 
 logo.position.set(
 
@@ -1117,14 +1047,11 @@ logo.position.set(
 
 );
 
-
 building.add(
   logo
 );
 
-/* =========================================================
-   SOLAR PANEL TEXTURE
-========================================================= */
+/* SOLAR PANEL TEXTURE */
 
 function solarTexture(){
 
@@ -1141,13 +1068,11 @@ function solarTexture(){
       "2d"
     );
 
-
   const gradient =
     ctx.createLinearGradient(
       0,0,
       512,768
     );
-
 
   gradient.addColorStop(
     0,
@@ -1164,16 +1089,13 @@ function solarTexture(){
     "#0d2a40"
   );
 
-
   ctx.fillStyle =
     gradient;
-
 
   ctx.fillRect(
     0,0,
     512,768
   );
-
 
   const cols = 6;
   const rows = 10;
@@ -1183,7 +1105,6 @@ function solarTexture(){
 
   const ch =
     768/rows;
-
 
   for(
     let r=0;
@@ -1203,12 +1124,10 @@ function solarTexture(){
       const y =
         r*ch;
 
-
       ctx.strokeStyle =
         "rgba(170,215,230,.30)";
 
       ctx.lineWidth = 2;
-
 
       ctx.strokeRect(
         x+3,
@@ -1217,39 +1136,32 @@ function solarTexture(){
         ch-6
       );
 
-
       ctx.strokeStyle =
         "rgba(220,235,240,.18)";
 
       ctx.lineWidth = 1;
 
-
       ctx.beginPath();
 
-
       ctx.moveTo(
         x+cw*.36,
         y+5
       );
-
 
       ctx.lineTo(
         x+cw*.36,
         y+ch-5
       );
 
-
       ctx.moveTo(
         x+cw*.64,
         y+5
       );
 
-
       ctx.lineTo(
         x+cw*.64,
         y+ch-5
       );
-
 
       ctx.stroke();
 
@@ -1257,26 +1169,20 @@ function solarTexture(){
 
   }
 
-
   const texture =
     new THREE.CanvasTexture(
       canvas
     );
 
-
   texture.colorSpace =
     THREE.SRGBColorSpace;
-
 
   texture.anisotropy =
     renderer.capabilities
     .getMaxAnisotropy();
 
-
   return texture;
-
 }
-
 
 const solarMaterial =
   new THREE.MeshStandardMaterial({
@@ -1285,9 +1191,7 @@ const solarMaterial =
     metalness:.10
   });
 
-/* =========================================================
-   SOLAR MODULE
-========================================================= */
+/* SOLAR MODULE */
 
 function solarModule(
   width=1.02,
@@ -1296,7 +1200,6 @@ function solarModule(
 
   const group =
     new THREE.Group();
-
 
   const back =
     new THREE.Mesh(
@@ -1311,14 +1214,11 @@ function solarModule(
 
     );
 
-
   back.castShadow = true;
-
 
   group.add(
     back
   );
-
 
   const surface =
     new THREE.Mesh(
@@ -1332,23 +1232,18 @@ function solarModule(
 
     );
 
-
   surface.rotation.x =
     -Math.PI/2;
 
-
   surface.position.y =
     .031;
-
 
   group.add(
     surface
   );
 
-
   const h = .07;
   const t = .045;
-
 
   const north =
     new THREE.Mesh(
@@ -1361,29 +1256,23 @@ function solarModule(
 
     );
 
-
   north.position.set(
     0,.035,-depth/2
   );
-
 
   group.add(
     north
   );
 
-
   const south =
     north.clone();
-
 
   south.position.z =
     depth/2;
 
-
   group.add(
     south
   );
-
 
   const west =
     new THREE.Mesh(
@@ -1396,43 +1285,33 @@ function solarModule(
 
     );
 
-
   west.position.set(
     -width/2,.035,0
   );
-
 
   group.add(
     west
   );
 
-
   const east =
     west.clone();
 
-
   east.position.x =
     width/2;
-
 
   group.add(
     east
   );
 
-
   return group;
-
 }
 
-/* =========================================================
-   SOLAR ARRAY
-========================================================= */
+/* SOLAR ARRAY */
 
 function createRoofSolar(){
 
   const group =
     new THREE.Group();
-
 
   const columns = 5;
   const rows = 2;
@@ -1441,16 +1320,13 @@ function createRoofSolar(){
   const panelD = 1.25;
   const gap = .075;
 
-
   const totalW =
     columns*panelW +
     (columns-1)*gap;
 
-
   const totalD =
     rows*panelD +
     (rows-1)*gap;
-
 
   for(
     let r=0;
@@ -1470,18 +1346,15 @@ function createRoofSolar(){
           panelD
         );
 
-
       panel.position.x =
         -totalW/2 +
         panelW/2 +
         c*(panelW+gap);
 
-
       panel.position.z =
         -totalD/2 +
         panelD/2 +
         r*(panelD+gap);
-
 
       group.add(
         panel
@@ -1491,7 +1364,6 @@ function createRoofSolar(){
 
   }
 
-
   const slope =
     Math.atan2(
       CAP_RIGHT_HEIGHT -
@@ -1499,10 +1371,8 @@ function createRoofSolar(){
       CAP_WIDTH
     );
 
-
   group.rotation.z =
     slope;
-
 
   group.position.set(
 
@@ -1519,19 +1389,15 @@ function createRoofSolar(){
 
   );
 
-
   building.add(
     group
   );
 
 }
 
-
 createRoofSolar();
 
-/* =========================================================
-   GROUND
-========================================================= */
+/* GROUND */
 
 const ground =
   new THREE.Mesh(
@@ -1548,22 +1414,17 @@ const ground =
 
   );
 
-
 ground.rotation.x =
   -Math.PI/2;
 
-
 ground.receiveShadow =
   true;
-
 
 scene.add(
   ground
 );
 
-/* =========================================================
-   INTERACTION
-========================================================= */
+/* INTERACTION */
 
 let rotationY = 0;
 let targetRotationY = 0;
@@ -1576,7 +1437,6 @@ const pointers =
 let previousX = 0;
 let previousY = 0;
 let previousPinch = null;
-
 
 renderer.domElement.addEventListener(
   "pointerdown",
@@ -1592,11 +1452,9 @@ renderer.domElement.addEventListener(
       }
     );
 
-
     renderer.domElement.setPointerCapture(
       event.pointerId
     );
-
 
     if(
       pointers.size===1
@@ -1610,14 +1468,12 @@ renderer.domElement.addEventListener(
 
     }
 
-
     if(
       pointers.size===2
     ){
 
       const p =
         [...pointers.values()];
-
 
       previousPinch =
         Math.hypot(
@@ -1629,7 +1485,6 @@ renderer.domElement.addEventListener(
 
   }
 );
-
 
 renderer.domElement.addEventListener(
   "pointermove",
@@ -1643,7 +1498,6 @@ renderer.domElement.addEventListener(
       return;
     }
 
-
     pointers.set(
       event.pointerId,
       {
@@ -1651,7 +1505,6 @@ renderer.domElement.addEventListener(
         y:event.clientY
       }
     );
-
 
     if(
       pointers.size===1
@@ -1661,19 +1514,15 @@ renderer.domElement.addEventListener(
         event.clientX -
         previousX;
 
-
       const dy =
         event.clientY -
         previousY;
 
-
       targetRotationY +=
         dx*.009;
 
-
       targetPitch +=
         dy*.0035;
-
 
       targetPitch =
         THREE.MathUtils.clamp(
@@ -1682,16 +1531,13 @@ renderer.domElement.addEventListener(
           .60
         );
 
-
       previousX =
         event.clientX;
-
 
       previousY =
         event.clientY;
 
     }
-
 
     if(
       pointers.size===2
@@ -1700,13 +1546,11 @@ renderer.domElement.addEventListener(
       const p =
         [...pointers.values()];
 
-
       const distance =
         Math.hypot(
           p[1].x-p[0].x,
           p[1].y-p[0].y
         );
-
 
       if(
         previousPinch!==null
@@ -1716,10 +1560,8 @@ renderer.domElement.addEventListener(
           distance -
           previousPinch;
 
-
         targetDistance -=
           diff*.09;
-
 
         targetDistance =
           THREE.MathUtils.clamp(
@@ -1730,7 +1572,6 @@ renderer.domElement.addEventListener(
 
       }
 
-
       previousPinch =
         distance;
 
@@ -1739,17 +1580,14 @@ renderer.domElement.addEventListener(
   }
 );
 
-
 function removePointer(event){
 
   pointers.delete(
     event.pointerId
   );
 
-
   previousPinch =
     null;
-
 
   if(
     pointers.size===1
@@ -1758,7 +1596,6 @@ function removePointer(event){
     const p =
       [...pointers.values()][0];
 
-
     previousX = p.x;
     previousY = p.y;
 
@@ -1766,45 +1603,37 @@ function removePointer(event){
 
 }
 
-
 renderer.domElement.addEventListener(
   "pointerup",
   removePointer
 );
-
 
 renderer.domElement.addEventListener(
   "pointercancel",
   removePointer
 );
 
-/* =========================================================
-   UI
-========================================================= */
+/* UI */
 
 const resetBtn =
   document.getElementById(
     "resetBtn"
   );
 
-
 const autoBtn =
   document.getElementById(
     "autoBtn"
   );
-
 
 const degree =
   document.getElementById(
     "degree"
   );
 
-
 const zoomText =
   document.getElementById(
     "zoomText"
   );
-
 
 resetBtn.addEventListener(
   "click",
@@ -1824,14 +1653,12 @@ resetBtn.addEventListener(
   }
 );
 
-
 autoBtn.addEventListener(
   "click",
   ()=>{
 
     autoRotate =
       !autoRotate;
-
 
     autoBtn.textContent =
       autoRotate
@@ -1841,9 +1668,7 @@ autoBtn.addEventListener(
   }
 );
 
-/* =========================================================
-   RESIZE
-========================================================= */
+/* RESIZE */
 
 window.addEventListener(
   "resize",
@@ -1853,9 +1678,7 @@ window.addEventListener(
       innerWidth /
       innerHeight;
 
-
     camera.updateProjectionMatrix();
-
 
     renderer.setSize(
       innerWidth,
@@ -1865,13 +1688,10 @@ window.addEventListener(
   }
 );
 
-/* =========================================================
-   ANIMATION
-========================================================= */
+/* ANIMATION */
 
 const clock =
   new THREE.Clock();
-
 
 function animate(){
 
@@ -1879,10 +1699,8 @@ function animate(){
     animate
   );
 
-
   const delta =
     clock.getDelta();
-
 
   if(
     autoRotate
@@ -1893,14 +1711,12 @@ function animate(){
 
   }
 
-
   rotationY =
     THREE.MathUtils.lerp(
       rotationY,
       targetRotationY,
       .09
     );
-
 
   cameraPitch =
     THREE.MathUtils.lerp(
@@ -1909,7 +1725,6 @@ function animate(){
       .09
     );
 
-
   cameraDistance =
     THREE.MathUtils.lerp(
       cameraDistance,
@@ -1917,21 +1732,17 @@ function animate(){
       .11
     );
 
-
   building.rotation.y =
     rotationY;
 
-
   const lookY =
     ROOF_BASE_Y*.47;
-
 
   const horizontal =
     cameraDistance *
     Math.cos(
       cameraPitch
     );
-
 
   camera.position.set(
 
@@ -1947,27 +1758,22 @@ function animate(){
 
   );
 
-
   camera.lookAt(
     0,
     lookY,
     0
   );
 
-
   let deg =
     THREE.MathUtils.radToDeg(
       rotationY
     );
 
-
   deg =
     ((deg%360)+360)%360;
 
-
   degree.textContent =
     `${Math.round(deg)}°`;
-
 
   zoomText.textContent =
     `${Math.round(
@@ -1976,14 +1782,12 @@ function animate(){
       100
     )}%`;
 
-
   renderer.render(
     scene,
     camera
   );
 
 }
-
 
 animate();
 
