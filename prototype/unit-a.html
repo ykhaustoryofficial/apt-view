@@ -53,7 +53,7 @@ canvas{display:block}
 
 <div class="info">
   <strong>UNIT_A · 055.9200A</strong>
-  <span>전용면적 55.9200㎡ · 기준 모듈 v0.3</span>
+  <span>전용면적 55.9200㎡ · 기준 모듈 v0.4</span>
 </div>
 
 <div class="legend">
@@ -76,7 +76,6 @@ const UNIT_A={
   floorHeight:2.85,
   wall:0.18,
 
-  /* 평면도 아래쪽 */
   frontOpenings:[
     {id:"F01",type:"window",x:-3.55,w:1.10,h:1.35,sill:.72},
     {id:"F02",type:"window",x:-2.05,w:1.10,h:1.35,sill:.72},
@@ -85,14 +84,8 @@ const UNIT_A={
   ],
 
   /*
-     REAR를 외부에서 바라봤을 때
-
-     LEFT → RIGHT
-
-     일반창 / 실외기실 루버 / 작은 주방창
-
-     ※ REAR에서는 화면 좌우와 Three.js X축이 반대로 보이므로
-        실제 배열을 맞추기 위해 X값을 큰 값 → 작은 값 순으로 둔다.
+    REAR(뒷면)를 외부에서 바라볼 때
+    LEFT → RIGHT = 일반창 / 루버 / 작은 주방창
   */
   rearOpenings:[
     {
@@ -109,8 +102,9 @@ const UNIT_A={
       type:"louver",
       x:2.15,
       w:.72,
-      h:1.18,
-      sill:.95
+      /* 아래로 더 길게 */
+      h:1.45,
+      sill:.68
     },
 
     {
@@ -118,8 +112,9 @@ const UNIT_A={
       type:"kitchenWindow",
       x:.85,
       w:.72,
-      h:.72,
-      sill:1.18
+      /* 세로 높이만 더 짧게 */
+      h:.56,
+      sill:1.24
     }
   ]
 };
@@ -127,7 +122,6 @@ const UNIT_A={
 /* =====================================================
    SCENE
 ===================================================== */
-
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xdce9ed);
 
@@ -137,295 +131,137 @@ const camera=new THREE.PerspectiveCamera(
   .1,
   100
 );
-
 camera.position.set(10,8,13);
 
-const renderer=new THREE.WebGLRenderer({
-  antialias:true
-});
-
-renderer.setPixelRatio(
-  Math.min(devicePixelRatio,2)
-);
-
-renderer.setSize(
-  innerWidth,
-  innerHeight
-);
-
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
-
-document
-  .getElementById("view")
-  .appendChild(renderer.domElement);
+document.getElementById("view").appendChild(renderer.domElement);
 
 /* =====================================================
    CONTROLS
 ===================================================== */
-
-const controls=new OrbitControls(
-  camera,
-  renderer.domElement
-);
-
+const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 controls.dampingFactor=.07;
-
-controls.target.set(
-  0,
-  1.2,
-  0
-);
-
+controls.target.set(0,1.2,0);
 controls.minDistance=7;
 controls.maxDistance=30;
-
-controls.maxPolarAngle=
-  Math.PI/2.02;
+controls.maxPolarAngle=Math.PI/2.02;
 
 /* =====================================================
    LIGHT
 ===================================================== */
+scene.add(new THREE.HemisphereLight(0xf4f9ff,0xb7b9b5,2.1));
 
-scene.add(
-  new THREE.HemisphereLight(
-    0xf4f9ff,
-    0xb7b9b5,
-    2.1
-  )
-);
-
-const sun=
-  new THREE.DirectionalLight(
-    0xffffff,
-    2.6
-  );
-
-sun.position.set(
-  -8,
-  12,
-  10
-);
-
+const sun=new THREE.DirectionalLight(0xffffff,2.6);
+sun.position.set(-8,12,10);
 sun.castShadow=true;
-
 scene.add(sun);
 
 /* =====================================================
    MATERIALS
 ===================================================== */
+const wallMat=new THREE.MeshStandardMaterial({
+  color:0xe9ece9,
+  roughness:.72
+});
 
-const wallMat=
-  new THREE.MeshStandardMaterial({
-    color:0xe9ece9,
-    roughness:.72
-  });
+const slabMat=new THREE.MeshStandardMaterial({
+  color:0xcfd4d2,
+  roughness:.82
+});
 
-const slabMat=
-  new THREE.MeshStandardMaterial({
-    color:0xcfd4d2,
-    roughness:.82
-  });
+const glassMat=new THREE.MeshStandardMaterial({
+  color:0x6b8798,
+  roughness:.18,
+  metalness:.08
+});
 
-const glassMat=
-  new THREE.MeshStandardMaterial({
-    color:0x6b8798,
-    roughness:.18,
-    metalness:.08
-  });
+const frameMat=new THREE.MeshStandardMaterial({
+  color:0xe8ecec,
+  roughness:.42
+});
 
-const frameMat=
-  new THREE.MeshStandardMaterial({
-    color:0xe8ecec,
-    roughness:.42
-  });
+const socketMat=new THREE.MeshStandardMaterial({
+  color:0x89969c,
+  transparent:true,
+  opacity:.32,
+  roughness:.7
+});
 
-const socketMat=
-  new THREE.MeshStandardMaterial({
-    color:0x89969c,
-    transparent:true,
-    opacity:.32,
-    roughness:.7
-  });
+const louverMat=new THREE.MeshStandardMaterial({
+  color:0x7f8a90,
+  roughness:.66,
+  metalness:.35
+});
 
-const louverMat=
-  new THREE.MeshStandardMaterial({
-    color:0x7f8a90,
-    roughness:.66,
-    metalness:.35
-  });
-
-const louverInsideMat=
-  new THREE.MeshStandardMaterial({
-    color:0x505c62,
-    roughness:.95
-  });
+const louverInsideMat=new THREE.MeshStandardMaterial({
+  color:0x505c62,
+  roughness:.95
+});
 
 /* =====================================================
    ROOT
 ===================================================== */
-
 const unit=new THREE.Group();
-
 scene.add(unit);
 
 /* =====================================================
-   BOX
+   BASIC BOX
 ===================================================== */
-
-function box(
-  w,h,d,
-  material,
-  x,y,z
-){
-
-  const mesh=
-    new THREE.Mesh(
-      new THREE.BoxGeometry(
-        w,h,d
-      ),
-      material
-    );
-
-  mesh.position.set(
-    x,y,z
+function box(w,h,d,material,x,y,z){
+  const mesh=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    material
   );
-
+  mesh.position.set(x,y,z);
   mesh.castShadow=true;
   mesh.receiveShadow=true;
-
   unit.add(mesh);
-
   return mesh;
 }
 
 /* =====================================================
    FLOOR
 ===================================================== */
-
 box(
   UNIT_A.width,
   .12,
   UNIT_A.depth,
   slabMat,
-  0,
-  .06,
-  0
+  0,.06,0
 );
 
 /* =====================================================
-   WINDOWS
+   WINDOW
 ===================================================== */
+function makeWindow(win,z,isFront){
+  const glassZ=z+(isFront?.012:-.012);
 
-function makeWindow(
-  win,
-  z,
-  isFront
-){
+  box(win.w-.10,win.h-.10,.055,glassMat,win.x,win.sill+win.h/2,glassZ);
 
-  const glassZ=
-    z+
-    (isFront?.012:-.012);
+  box(win.w,.055,.07,frameMat,win.x,win.sill,glassZ);
+  box(win.w,.055,.07,frameMat,win.x,win.sill+win.h,glassZ);
+  box(.055,win.h,.07,frameMat,win.x-win.w/2,win.sill+win.h/2,glassZ);
+  box(.055,win.h,.07,frameMat,win.x+win.w/2,win.sill+win.h/2,glassZ);
 
-  box(
-    win.w-.10,
-    win.h-.10,
-    .055,
-    glassMat,
-    win.x,
-    win.sill+win.h/2,
-    glassZ
-  );
+  const mullionCount=win.type==="largeWindow"?2:1;
 
-  box(
-    win.w,
-    .055,
-    .07,
-    frameMat,
-    win.x,
-    win.sill,
-    glassZ
-  );
-
-  box(
-    win.w,
-    .055,
-    .07,
-    frameMat,
-    win.x,
-    win.sill+win.h,
-    glassZ
-  );
-
-  box(
-    .055,
-    win.h,
-    .07,
-    frameMat,
-    win.x-win.w/2,
-    win.sill+win.h/2,
-    glassZ
-  );
-
-  box(
-    .055,
-    win.h,
-    .07,
-    frameMat,
-    win.x+win.w/2,
-    win.sill+win.h/2,
-    glassZ
-  );
-
-  const mullionCount=
-    win.type==="largeWindow"
-      ?2
-      :1;
-
-  for(
-    let i=1;
-    i<=mullionCount;
-    i++
-  ){
-
-    const mullionX=
-      win.x-
-      win.w/2+
-      (
-        win.w/
-        (mullionCount+1)
-      )*i;
-
-    box(
-      .04,
-      win.h-.06,
-      .05,
-      frameMat,
-      mullionX,
-      win.sill+win.h/2,
-      glassZ
-    );
+  for(let i=1;i<=mullionCount;i++){
+    const mullionX=win.x-win.w/2+(win.w/(mullionCount+1))*i;
+    box(.04,win.h-.06,.05,frameMat,mullionX,win.sill+win.h/2,glassZ);
   }
 }
 
 /* =====================================================
    LOUVER
 ===================================================== */
-
-function makeLouver(
-  opening,
-  z,
-  isFront
-){
-
-  const insideZ=
-    z+
-    (isFront?-.05:.05);
-
-  const faceZ=
-    z+
-    (isFront?.015:-.015);
+function makeLouver(opening,z,isFront){
+  const insideZ=z+(isFront?-.05:.05);
+  const faceZ=z+(isFront?.015:-.015);
 
   box(
     opening.w-.06,
@@ -433,283 +269,90 @@ function makeLouver(
     .12,
     louverInsideMat,
     opening.x,
-    opening.sill+
-      opening.h/2,
+    opening.sill+opening.h/2,
     insideZ
   );
 
-  box(
-    opening.w,
-    .05,
-    .07,
-    frameMat,
-    opening.x,
-    opening.sill,
-    faceZ
-  );
+  box(opening.w,.05,.07,frameMat,opening.x,opening.sill,faceZ);
+  box(opening.w,.05,.07,frameMat,opening.x,opening.sill+opening.h,faceZ);
+  box(.05,opening.h,.07,frameMat,opening.x-opening.w/2,opening.sill+opening.h/2,faceZ);
+  box(.05,opening.h,.07,frameMat,opening.x+opening.w/2,opening.sill+opening.h/2,faceZ);
 
-  box(
-    opening.w,
-    .05,
-    .07,
-    frameMat,
-    opening.x,
-    opening.sill+
-      opening.h,
-    faceZ
-  );
+  const slatCount=10;
 
-  box(
-    .05,
-    opening.h,
-    .07,
-    frameMat,
-    opening.x-
-      opening.w/2,
-    opening.sill+
-      opening.h/2,
-    faceZ
-  );
-
-  box(
-    .05,
-    opening.h,
-    .07,
-    frameMat,
-    opening.x+
-      opening.w/2,
-    opening.sill+
-      opening.h/2,
-    faceZ
-  );
-
-  const slatCount=8;
-
-  for(
-    let i=0;
-    i<slatCount;
-    i++
-  ){
-
+  for(let i=0;i<slatCount;i++){
     const yy=
-      opening.sill+
-      .12+
-      i*
-      (
-        (opening.h-.24)/
-        (slatCount-1)
-      );
+      opening.sill+.12+
+      i*((opening.h-.24)/(slatCount-1));
 
-    const slat=
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          opening.w-.14,
-          .028,
-          .075
-        ),
-        louverMat
-      );
-
-    slat.position.set(
-      opening.x,
-      yy,
-      faceZ
+    const slat=new THREE.Mesh(
+      new THREE.BoxGeometry(opening.w-.14,.028,.075),
+      louverMat
     );
 
-    slat.rotation.x=
-      isFront
-      ?-.28
-      :.28;
-
+    slat.position.set(opening.x,yy,faceZ);
+    slat.rotation.x=isFront?-.28:.28;
     slat.castShadow=true;
-
     unit.add(slat);
   }
 
-  for(
-    let i=1;
-    i<=2;
-    i++
-  ){
-
-    const xx=
-      opening.x-
-      opening.w/2+
-      (
-        opening.w/3
-      )*i;
-
-    box(
-      .03,
-      opening.h-.08,
-      .05,
-      louverMat,
-      xx,
-      opening.sill+
-        opening.h/2,
-      faceZ
-    );
+  for(let i=1;i<=2;i++){
+    const xx=opening.x-opening.w/2+(opening.w/3)*i;
+    box(.03,opening.h-.08,.05,louverMat,xx,opening.sill+opening.h/2,faceZ);
   }
 }
 
 /* =====================================================
-   WALL GENERATOR
+   WALL BUILDER
 ===================================================== */
+function buildWall(z,openings,isFront){
+  const W=UNIT_A.width;
+  const H=UNIT_A.floorHeight;
+  const T=UNIT_A.wall;
 
-function buildWall(
-  z,
-  openings,
-  isFront
-){
+  const sorted=[...openings].sort((a,b)=>a.x-b.x);
+  let cursor=-W/2;
 
-  const W=
-    UNIT_A.width;
+  sorted.forEach(opening=>{
+    const left=opening.x-opening.w/2;
+    const right=opening.x+opening.w/2;
 
-  const H=
-    UNIT_A.floorHeight;
-
-  const T=
-    UNIT_A.wall;
-
-  const sorted=
-    [...openings]
-      .sort(
-        (a,b)=>
-        a.x-b.x
-      );
-
-  let cursor=
-    -W/2;
-
-  sorted.forEach(
-    opening=>{
-      const left=
-        opening.x-
-        opening.w/2;
-
-      const right=
-        opening.x+
-        opening.w/2;
-
-      if(
-        left>cursor
-      ){
-
-        box(
-          left-cursor,
-          H,
-          T,
-          wallMat,
-          (cursor+left)/2,
-          H/2,
-          z
-        );
-      }
-
-      if(
-        opening.sill>0
-      ){
-
-        box(
-          opening.w,
-          opening.sill,
-          T,
-          wallMat,
-          opening.x,
-          opening.sill/2,
-          z
-        );
-      }
-
-      const topY=
-        opening.sill+
-        opening.h;
-
-      if(
-        topY<H
-      ){
-
-        box(
-          opening.w,
-          H-topY,
-          T,
-          wallMat,
-          opening.x,
-          topY+
-            (H-topY)/2,
-          z
-        );
-      }
-
-      if(
-        opening.type===
-        "louver"
-      ){
-
-        makeLouver(
-          opening,
-          z,
-          isFront
-        );
-
-      }else{
-
-        makeWindow(
-          opening,
-          z,
-          isFront
-        );
-      }
-
-      cursor=
-        right;
+    if(left>cursor){
+      box(left-cursor,H,T,wallMat,(cursor+left)/2,H/2,z);
     }
-  );
 
-  if(
-    cursor<W/2
-  ){
+    if(opening.sill>0){
+      box(opening.w,opening.sill,T,wallMat,opening.x,opening.sill/2,z);
+    }
 
-    box(
-      W/2-cursor,
-      H,
-      T,
-      wallMat,
-      (cursor+W/2)/2,
-      H/2,
-      z
-    );
+    const topY=opening.sill+opening.h;
+    if(topY<H){
+      box(opening.w,H-topY,T,wallMat,opening.x,topY+(H-topY)/2,z);
+    }
+
+    if(opening.type==="louver"){
+      makeLouver(opening,z,isFront);
+    }else{
+      makeWindow(opening,z,isFront);
+    }
+
+    cursor=right;
+  });
+
+  if(cursor<W/2){
+    box(W/2-cursor,H,T,wallMat,(cursor+W/2)/2,H/2,z);
   }
 }
 
 /* =====================================================
-   FRONT
+   WALLS
 ===================================================== */
-
-buildWall(
-  UNIT_A.depth/2,
-  UNIT_A.frontOpenings,
-  true
-);
+buildWall( UNIT_A.depth/2,  UNIT_A.frontOpenings, true  );
+buildWall(-UNIT_A.depth/2,  UNIT_A.rearOpenings,  false );
 
 /* =====================================================
-   REAR
-
-   외부에서 바라봤을 때:
-
-   [ 일반창 ][ 루버 ][ 작은 주방창 ]
+   SIDES
 ===================================================== */
-
-buildWall(
-  -UNIT_A.depth/2,
-  UNIT_A.rearOpenings,
-  false
-);
-
-/* =====================================================
-   SIDE
-===================================================== */
-
 box(
   UNIT_A.wall,
   UNIT_A.floorHeight,
@@ -731,137 +374,60 @@ box(
 );
 
 /* =====================================================
-   SOCKET
+   SIDE SOCKET MARKERS
 ===================================================== */
-
-box(
-  .03,
-  1.20,
-  2.2,
-  socketMat,
-  -UNIT_A.width/2-.11,
-  1.10,
-  0
-);
-
-box(
-  .03,
-  1.20,
-  2.2,
-  socketMat,
-  UNIT_A.width/2+.11,
-  1.10,
-  0
-);
+box(.03,1.20,2.2,socketMat,-UNIT_A.width/2-.11,1.10,0);
+box(.03,1.20,2.2,socketMat, UNIT_A.width/2+.11,1.10,0);
 
 /* =====================================================
-   ORIENTATION
+   FRONT / REAR MARKER
 ===================================================== */
-
-const frontMarker=
-  new THREE.Mesh(
-    new THREE.BoxGeometry(
-      2.1,
-      .035,
-      .18
-    ),
-    new THREE.MeshStandardMaterial({
-      color:0x4b88aa
-    })
-  );
-
-frontMarker.position.set(
-  0,
-  .15,
-  UNIT_A.depth/2+.38
+const frontMarker=new THREE.Mesh(
+  new THREE.BoxGeometry(2.1,.035,.18),
+  new THREE.MeshStandardMaterial({color:0x4b88aa})
 );
-
+frontMarker.position.set(0,.15,UNIT_A.depth/2+.38);
 unit.add(frontMarker);
 
-const rearMarker=
-  new THREE.Mesh(
-    new THREE.BoxGeometry(
-      2.1,
-      .035,
-      .18
-    ),
-    new THREE.MeshStandardMaterial({
-      color:0x7f8b90
-    })
-  );
-
-rearMarker.position.set(
-  0,
-  .15,
-  -UNIT_A.depth/2-.38
+const rearMarker=new THREE.Mesh(
+  new THREE.BoxGeometry(2.1,.035,.18),
+  new THREE.MeshStandardMaterial({color:0x7f8b90})
 );
-
+rearMarker.position.set(0,.15,-UNIT_A.depth/2-.38);
 unit.add(rearMarker);
 
 /* =====================================================
    GROUND
 ===================================================== */
-
-const ground=
-  new THREE.Mesh(
-    new THREE.PlaneGeometry(
-      40,
-      40
-    ),
-    new THREE.MeshStandardMaterial({
-      color:0xaab7a6,
-      roughness:1
-    })
-  );
-
-ground.rotation.x=
-  -Math.PI/2;
-
+const ground=new THREE.Mesh(
+  new THREE.PlaneGeometry(40,40),
+  new THREE.MeshStandardMaterial({
+    color:0xaab7a6,
+    roughness:1
+  })
+);
+ground.rotation.x=-Math.PI/2;
 ground.receiveShadow=true;
-
 scene.add(ground);
 
 /* =====================================================
    LOOP
 ===================================================== */
-
 function animate(){
-
-  requestAnimationFrame(
-    animate
-  );
-
+  requestAnimationFrame(animate);
   controls.update();
-
-  renderer.render(
-    scene,
-    camera
-  );
+  renderer.render(scene,camera);
 }
-
 animate();
 
 /* =====================================================
    RESIZE
 ===================================================== */
-
-addEventListener(
-  "resize",
-  ()=>{
-
-    camera.aspect=
-      innerWidth/
-      innerHeight;
-
-    camera
-      .updateProjectionMatrix();
-
-    renderer.setSize(
-      innerWidth,
-      innerHeight
-    );
-  }
-);
+addEventListener("resize",()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 </script>
 
 </body>
