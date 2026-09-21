@@ -2795,3 +2795,240 @@ button {
     text-shadow:
         0 2px 7px rgba(0,0,0,.45);
 }
+
+/* ===== 실제 조감도 느낌 보강 ===== */
+
+.building{
+  width:min(62vw,360px);
+  height:min(84vh,790px);
+}
+
+.tower{
+  transform:
+    perspective(1400px)
+    rotateY(-6deg);
+
+  transform-style:preserve-3d;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e6e9e8 0 7%,
+      #344047 7% 93%,
+      #e9eceb 93% 100%
+    );
+}
+
+/* 중앙부를 조금 더 어둡게 */
+.floor-zone{
+  left:25px;
+  right:25px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #263239,
+      #3a464c 18%,
+      #2f3b42 50%,
+      #3a464c 82%,
+      #263239
+    );
+}
+
+/* 흰색 세로 프레임을 실제 조감도처럼 슬림하게 */
+.vertical-frame{
+  width:6.5%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #cfd5d4,
+      #f6f7f5 48%,
+      #d1d7d6
+    );
+
+  box-shadow:
+    2px 0 5px rgba(0,0,0,.08);
+}
+
+.frame-left{
+  left:9%;
+}
+
+.frame-center{
+  left:47%;
+}
+
+.frame-right{
+  right:8%;
+}
+
+/* 가로띠를 얇게 */
+.band{
+  height:4px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f5f6f4,
+      #cbd2d1
+    );
+}
+
+/* 창 깊이감 */
+.window{
+  border:
+    1px solid #202b30;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7e9299,
+      #405259 62%,
+      #29383e
+    );
+
+  box-shadow:
+    inset 2px 2px 5px rgba(255,255,255,.13),
+    inset -2px -2px 5px rgba(0,0,0,.18);
+}
+
+/* 측면을 훨씬 깊게 */
+.deep-side{
+  position:absolute;
+
+  z-index:-3;
+
+  top:18px;
+  right:-68px;
+  bottom:8px;
+
+  width:72px;
+
+  transform:
+    rotateY(72deg);
+
+  transform-origin:left center;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.07) 0 2px,
+      transparent 2px 19px
+    ),
+    linear-gradient(
+      90deg,
+      #57666b,
+      #303e44
+    );
+
+  border-right:
+    5px solid #cfd4d4;
+
+  box-shadow:
+    13px 15px 24px rgba(0,0,0,.16);
+}
+
+/* 기존 가짜 측면 약화 */
+.tower::after{
+  opacity:.25;
+}
+
+/* ===== 옥상 ===== */
+
+.roof-unit{
+  position:absolute;
+
+  z-index:8;
+
+  left:12%;
+  right:9%;
+  top:-22px;
+
+  height:34px;
+
+  transform:
+    translateZ(-6px);
+
+  pointer-events:none;
+}
+
+.roof-box{
+  position:absolute;
+
+  right:6%;
+  bottom:0;
+
+  width:22%;
+  height:30px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #c8cecd,
+      #e4e7e5,
+      #abb4b4
+    );
+
+  box-shadow:
+    4px 5px 7px rgba(0,0,0,.16);
+}
+
+.solar{
+  position:absolute;
+
+  top:8px;
+
+  height:14px;
+
+  transform:
+    skewX(-24deg);
+
+  border:
+    1px solid #4d626b;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #526d79 0 8px,
+      #354d58 8px 10px
+    );
+
+  box-shadow:
+    2px 3px 4px rgba(0,0,0,.14);
+}
+
+.solar-1{
+  left:5%;
+  width:30%;
+}
+
+.solar-2{
+  left:40%;
+  width:23%;
+}
+
+/* 하우스토리 패널도 조금 더 현실적으로 */
+.signature{
+  height:92px;
+
+  background:
+    linear-gradient(
+      110deg,
+      #dfe5e5,
+      #f4f6f5 60%,
+      #cfd6d6
+    );
+
+  box-shadow:
+    0 5px 9px rgba(0,0,0,.12);
+}
+
+.signature span{
+  font-size:
+    clamp(22px,4.5vw,38px);
+
+  letter-spacing:-.055em;
+
+  color:#263037;
+}
