@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>HAUSTORY 360° Building V9</title>
+<title>HAUSTORY 360° Building V10</title>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{
-  touch-action:none;
-  overscroll-behavior:none;
+  touch-action:none;overscroll-behavior:none;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif
 }
 #app{
@@ -23,16 +22,13 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 .ui{position:fixed;inset:0;z-index:20;pointer-events:none}
 .topbar{
-  position:absolute;
-  top:max(14px,env(safe-area-inset-top));
-  left:16px;right:16px;
-  display:flex;align-items:center;justify-content:space-between
+  position:absolute;top:max(14px,env(safe-area-inset-top));
+  left:16px;right:16px;display:flex;align-items:center;justify-content:space-between
 }
 .title,.bottom,button{
   border:1px solid rgba(255,255,255,.55);
   background:rgba(255,255,255,.43);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   box-shadow:0 10px 30px rgba(30,50,55,.08)
 }
 .title{padding:10px 14px;border-radius:16px;color:#24343b}
@@ -47,17 +43,12 @@ button{
   position:absolute;left:50%;
   bottom:max(18px,calc(env(safe-area-inset-bottom) + 10px));
   transform:translateX(-50%);
-  width:min(92vw,430px);
-  padding:13px 16px;
-  border-radius:18px;
+  width:min(92vw,430px);padding:13px 16px;border-radius:18px;
   text-align:center;color:#283b41
 }
 .bottom strong{display:block;font-size:13px}
 .bottom span{display:block;margin-top:4px;font-size:10px;opacity:.58}
-.status{
-  display:flex;justify-content:center;gap:13px;
-  margin-top:7px;font-size:10px;font-weight:700;opacity:.7
-}
+.status{display:flex;justify-content:center;gap:13px;margin-top:7px;font-size:10px;font-weight:700;opacity:.7}
 </style>
 </head>
 
@@ -69,9 +60,8 @@ button{
   <div class="topbar">
     <div class="title">
       <strong>HAUSTORY · 25F</strong>
-      <span>3D BUILDING MASSING V9</span>
+      <span>3D BUILDING MASSING V10</span>
     </div>
-
     <div class="controls">
       <button id="autoBtn">자동회전</button>
       <button id="resetBtn">정면</button>
@@ -89,126 +79,83 @@ button{
 </div>
 
 <script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
-import * as THREE from
-'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-
-/* =========================================================
+/* =========================
    DIMENSIONS
-========================================================= */
+========================= */
 
-const FLOOR_HEIGHT = .88;
-const REGULAR_FLOORS = 24;
+const FLOOR_HEIGHT=.88;
+const REGULAR_FLOORS=24;
+const BODY_HEIGHT=REGULAR_FLOORS*FLOOR_HEIGHT;
+const TOP_FLOOR_HEIGHT=1.18;
+const ROOF_BASE_Y=BODY_HEIGHT+TOP_FLOOR_HEIGHT;
 
-const BODY_HEIGHT =
-  REGULAR_FLOORS * FLOOR_HEIGHT;
+const MAIN_X=-.65;
+const MAIN_WIDTH=7.35;
+const MAIN_DEPTH=4.75;
+const MAIN_FRONT=MAIN_DEPTH/2;
+const MAIN_BACK=-MAIN_DEPTH/2;
 
-const TOP_FLOOR_HEIGHT = 1.18;
+const RIGHT_WIDTH=3.05;
+const RIGHT_DEPTH=4.85;
+const RIGHT_HEIGHT=BODY_HEIGHT-.15;
 
-const ROOF_BASE_Y =
-  BODY_HEIGHT + TOP_FLOOR_HEIGHT;
+const RIGHT_X=
+  MAIN_X+MAIN_WIDTH/2+RIGHT_WIDTH/2-.32;
 
-/* MAIN */
+const RIGHT_Z=.08;
 
-const MAIN_X = -.65;
-const MAIN_WIDTH = 7.35;
-const MAIN_DEPTH = 4.75;
+const BLUE_WIDTH=4.38;
+const BLUE_X=MAIN_X-.45;
 
-/* RIGHT MASS */
+const LEFT_WALL_WIDTH=.46;
+const LEFT_WALL_DEPTH=MAIN_DEPTH+.38;
+const LEFT_WALL_HEIGHT=ROOF_BASE_Y;
 
-const RIGHT_WIDTH = 3.05;
-const RIGHT_DEPTH = 4.85;
-const RIGHT_HEIGHT = BODY_HEIGHT - .15;
+const LEFT_WALL_X=
+  MAIN_X-MAIN_WIDTH/2-LEFT_WALL_WIDTH/2+.06;
 
-const RIGHT_X =
-  MAIN_X +
-  MAIN_WIDTH/2 +
-  RIGHT_WIDTH/2 -
-  .32;
+const CAP_WIDTH=MAIN_WIDTH+.72;
+const CAP_DEPTH=MAIN_DEPTH+.38;
+const CAP_X=MAIN_X;
+const CAP_Z=0;
+const CAP_LEFT_HEIGHT=1.05;
+const CAP_RIGHT_HEIGHT=1.72;
 
-const RIGHT_Z = .08;
+const BUILDING_NUMBER="233";
+const SIDE_BASE_HEIGHT=4.65;
 
-/* BLUE CORE */
-
-const BLUE_WIDTH = 4.38;
-const BLUE_X = MAIN_X - .45;
-const MAIN_FRONT = MAIN_DEPTH/2;
-
-/* LEFT WHITE WALL */
-
-const LEFT_WALL_WIDTH = .46;
-const LEFT_WALL_DEPTH = MAIN_DEPTH + .38;
-const LEFT_WALL_HEIGHT = ROOF_BASE_Y;
-
-const LEFT_WALL_X =
-  MAIN_X -
-  MAIN_WIDTH/2 -
-  LEFT_WALL_WIDTH/2 +
-  .06;
-
-/* SIGNATURE */
-
-const CAP_WIDTH = MAIN_WIDTH + .72;
-const CAP_DEPTH = MAIN_DEPTH + .38;
-
-const CAP_X = MAIN_X;
-const CAP_Z = 0;
-
-const CAP_LEFT_HEIGHT = 1.05;
-const CAP_RIGHT_HEIGHT = 1.72;
-
-/* SIDE WALL */
-
-const BUILDING_NUMBER = "233";
-
-const SIDE_BASE_HEIGHT = 4.65;
-
-const SIDE_X =
-  RIGHT_X +
-  RIGHT_WIDTH/2 +
-  .035;
-
-/* =========================================================
+/* =========================
    SCENE
-========================================================= */
+========================= */
 
-const app =
-  document.getElementById("app");
+const app=document.getElementById("app");
+const scene=new THREE.Scene();
 
-const scene =
-  new THREE.Scene();
+scene.fog=new THREE.Fog(
+  0xd9e5e7,
+  48,
+  92
+);
 
-scene.fog =
-  new THREE.Fog(
-    0xd9e5e7,
-    48,
-    92
-  );
+const camera=new THREE.PerspectiveCamera(
+  34,
+  innerWidth/innerHeight,
+  .1,
+  240
+);
 
-/* CAMERA */
+let cameraDistance=38;
+let targetDistance=38;
+let cameraPitch=.10;
+let targetPitch=.10;
 
-const camera =
-  new THREE.PerspectiveCamera(
-    34,
-    innerWidth / innerHeight,
-    .1,
-    240
-  );
-
-let cameraDistance = 38;
-let targetDistance = 38;
-
-let cameraPitch = .10;
-let targetPitch = .10;
-
-/* RENDERER */
-
-const renderer =
-  new THREE.WebGLRenderer({
-    antialias:true,
-    alpha:true,
-    powerPreference:"high-performance"
-  });
+const renderer=new THREE.WebGLRenderer({
+  antialias:true,
+  alpha:true,
+  powerPreference:"high-performance"
+});
 
 renderer.setPixelRatio(
   Math.min(devicePixelRatio,2)
@@ -219,274 +166,191 @@ renderer.setSize(
   innerHeight
 );
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type =
-  THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.10;
+renderer.domElement.style.touchAction="none";
 
-renderer.outputColorSpace =
-  THREE.SRGBColorSpace;
+app.appendChild(renderer.domElement);
 
-renderer.toneMapping =
-  THREE.ACESFilmicToneMapping;
-
-renderer.toneMappingExposure = 1.10;
-
-renderer.domElement.style.touchAction =
-  "none";
-
-app.appendChild(
-  renderer.domElement
-);
-
-/* =========================================================
+/* =========================
    LIGHT
-========================================================= */
+========================= */
 
-const hemi =
+scene.add(
   new THREE.HemisphereLight(
     0xeaf6ff,
     0xb8bbb7,
     2.25
-  );
-
-scene.add(hemi);
-
-const sun =
-  new THREE.DirectionalLight(
-    0xfff1dc,
-    3.15
-  );
-
-sun.position.set(
-  -14,
-  30,
-  18
+  )
 );
 
-sun.castShadow = true;
-
-sun.shadow.mapSize.set(
-  2048,
-  2048
+const sun=new THREE.DirectionalLight(
+  0xfff1dc,
+  3.15
 );
 
-sun.shadow.camera.left = -26;
-sun.shadow.camera.right = 26;
-sun.shadow.camera.top = 40;
-sun.shadow.camera.bottom = -12;
+sun.position.set(-14,30,18);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-26;
+sun.shadow.camera.right=26;
+sun.shadow.camera.top=40;
+sun.shadow.camera.bottom=-12;
 
 scene.add(sun);
 
-const fill =
-  new THREE.DirectionalLight(
-    0xdbe7eb,
-    .85
-  );
-
-fill.position.set(
-  18,
-  15,
-  -16
+const fill=new THREE.DirectionalLight(
+  0xdbe7eb,
+  .85
 );
 
+fill.position.set(18,15,-16);
 scene.add(fill);
 
-/* =========================================================
-   MATERIAL
-========================================================= */
+/* =========================
+   MATERIALS
+========================= */
 
-const MAT = {
+const MAT={
 
-  dark:
-    new THREE.MeshStandardMaterial({
-      color:0x303c43,
-      roughness:.58
-    }),
+  dark:new THREE.MeshStandardMaterial({
+    color:0x303c43,roughness:.58
+  }),
 
-  dark2:
-    new THREE.MeshStandardMaterial({
-      color:0x45535a,
-      roughness:.63
-    }),
+  dark2:new THREE.MeshStandardMaterial({
+    color:0x45535a,roughness:.63
+  }),
 
-  white:
-    new THREE.MeshStandardMaterial({
-      color:0xe9ecea,
-      roughness:.53
-    }),
+  white:new THREE.MeshStandardMaterial({
+    color:0xe9ecea,roughness:.53
+  }),
 
-  whiteBright:
-    new THREE.MeshStandardMaterial({
-      color:0xf5f6f4,
-      roughness:.44
-    }),
+  whiteBright:new THREE.MeshStandardMaterial({
+    color:0xf5f6f4,roughness:.44
+  }),
 
-  signatureWhite:
-    new THREE.MeshStandardMaterial({
-      color:0xffffff,
-      roughness:.42,
-      metalness:0
-    }),
+  signatureWhite:new THREE.MeshStandardMaterial({
+    color:0xffffff,roughness:.42,metalness:0
+  }),
 
-  beige:
-    new THREE.MeshStandardMaterial({
-      color:0xb3a791,
-      roughness:.68
-    }),
+  beige:new THREE.MeshStandardMaterial({
+    color:0xb3a791,roughness:.68
+  }),
 
-  beigeDark:
-    new THREE.MeshStandardMaterial({
-      color:0x897d6d,
-      roughness:.70
-    }),
+  beigeDark:new THREE.MeshStandardMaterial({
+    color:0x897d6d,roughness:.70
+  }),
 
-  blue:
-    new THREE.MeshStandardMaterial({
-      color:0x647ca5,
-      roughness:.20,
-      metalness:.06
-    }),
+  blue:new THREE.MeshStandardMaterial({
+    color:0x647ca5,roughness:.20,metalness:.06
+  }),
 
-  glass:
-    new THREE.MeshStandardMaterial({
-      color:0x879eaa,
-      roughness:.22
-    }),
+  glass:new THREE.MeshStandardMaterial({
+    color:0x879eaa,roughness:.22
+  }),
 
-  glassDark:
-    new THREE.MeshStandardMaterial({
-      color:0x65767e,
-      roughness:.24
-    }),
+  glassDark:new THREE.MeshStandardMaterial({
+    color:0x65767e,roughness:.24
+  }),
 
-  lit:
-    new THREE.MeshStandardMaterial({
-      color:0xd3b679,
-      emissive:0x86602d,
-      emissiveIntensity:.72,
-      roughness:.35
-    }),
+  kitchenGlass:new THREE.MeshStandardMaterial({
+    color:0x7c929c,
+    roughness:.20,
+    metalness:.04
+  }),
 
-  metal:
-    new THREE.MeshStandardMaterial({
-      color:0x707b80,
-      roughness:.34,
-      metalness:.72
-    }),
+  kitchenFrame:new THREE.MeshStandardMaterial({
+    color:0xcfd5d4,
+    roughness:.48
+  }),
 
-  /* 측면 상부 짙은 남색 */
+  lit:new THREE.MeshStandardMaterial({
+    color:0xd3b679,
+    emissive:0x86602d,
+    emissiveIntensity:.72,
+    roughness:.35
+  }),
 
-  sideNavy:
-    new THREE.MeshStandardMaterial({
-      color:0x263848,
-      roughness:.68,
-      metalness:.02
-    }),
+  metal:new THREE.MeshStandardMaterial({
+    color:0x707b80,
+    roughness:.34,
+    metalness:.72
+  }),
 
-  /* 측면 하부 밝은 남색 */
+  sideNavy:new THREE.MeshStandardMaterial({
+    color:0x263848,
+    roughness:.68
+  }),
 
-  sideBlue:
-    new THREE.MeshStandardMaterial({
-      color:0x39779e,
-      roughness:.62,
-      metalness:.02
-    }),
+  sideBlue:new THREE.MeshStandardMaterial({
+    color:0x39779e,
+    roughness:.62
+  }),
 
-  /* 측면 패널 이음선 */
-
-  sideJoint:
-    new THREE.MeshStandardMaterial({
-      color:0x5c7081,
-      roughness:.68
-    })
+  sideJoint:new THREE.MeshStandardMaterial({
+    color:0x586c7c,
+    roughness:.68
+  })
 
 };
 
-/* =========================================================
-   BUILDING
-========================================================= */
+/* =========================
+   BUILDING GROUP
+========================= */
 
-const building =
-  new THREE.Group();
-
+const building=new THREE.Group();
 scene.add(building);
 
-/* =========================================================
+/* =========================
    HELPERS
-========================================================= */
+========================= */
 
-function box(
-  w,h,d,
-  material,
-  x,y,z
-){
+function box(w,h,d,material,x,y,z){
 
-  const mesh =
-    new THREE.Mesh(
-      new THREE.BoxGeometry(
-        w,h,d
-      ),
-      material
-    );
-
-  mesh.position.set(
-    x,y,z
+  const mesh=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    material
   );
 
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
+  mesh.position.set(x,y,z);
+  mesh.castShadow=true;
+  mesh.receiveShadow=true;
 
   building.add(mesh);
 
   return mesh;
 }
 
-function litPick(
-  floor,
-  column,
-  side
-){
+function litPick(floor,column,side){
 
-  return (
-    (
-      floor*7 +
-      column*11 +
-      side*13
-    ) % 31 === 0
-
-    ||
-
-    (
-      floor*5 +
-      column*3 +
-      side*17
-    ) % 43 === 0
+  return(
+    (floor*7+column*11+side*13)%31===0 ||
+    (floor*5+column*3+side*17)%43===0
   );
 }
 
-/* =========================================================
+/* =========================
    MAIN BODY
-========================================================= */
+========================= */
 
-const mainBody =
-  new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-      MAIN_WIDTH,
-      BODY_HEIGHT,
-      MAIN_DEPTH
-    ),
-
-    [
-      MAT.dark2,
-      MAT.dark2,
-      MAT.dark,
-      MAT.dark,
-      MAT.dark,
-      MAT.dark
-    ]
-
-  );
+const mainBody=new THREE.Mesh(
+  new THREE.BoxGeometry(
+    MAIN_WIDTH,
+    BODY_HEIGHT,
+    MAIN_DEPTH
+  ),
+  [
+    MAT.dark2,
+    MAT.dark2,
+    MAT.dark,
+    MAT.dark,
+    MAT.dark,
+    MAT.dark
+  ]
+);
 
 mainBody.position.set(
   MAIN_X,
@@ -494,68 +358,43 @@ mainBody.position.set(
   0
 );
 
-mainBody.castShadow = true;
-mainBody.receiveShadow = true;
-
+mainBody.castShadow=true;
+mainBody.receiveShadow=true;
 building.add(mainBody);
 
-/* =========================================================
-   LEFT WHITE WALL
-========================================================= */
+/* =========================
+   LEFT WHITE STRUCTURE
+========================= */
 
 box(
   LEFT_WALL_WIDTH,
   LEFT_WALL_HEIGHT,
   LEFT_WALL_DEPTH,
-
   MAT.whiteBright,
-
   LEFT_WALL_X,
-
   LEFT_WALL_HEIGHT/2,
-
   0
 );
 
-box(
-  .14,
-  LEFT_WALL_HEIGHT,
-  .20,
-
-  MAT.whiteBright,
-
-  LEFT_WALL_X -
-  LEFT_WALL_WIDTH/2 -
-  .02,
-
-  LEFT_WALL_HEIGHT/2,
-
-  MAIN_FRONT + .13
-);
-
-/* =========================================================
+/* =========================
    RIGHT BEIGE MASS
-========================================================= */
+========================= */
 
-const rightBody =
-  new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-      RIGHT_WIDTH,
-      RIGHT_HEIGHT,
-      RIGHT_DEPTH
-    ),
-
-    [
-      MAT.beigeDark,
-      MAT.beigeDark,
-      MAT.beige,
-      MAT.beige,
-      MAT.beige,
-      MAT.beige
-    ]
-
-  );
+const rightBody=new THREE.Mesh(
+  new THREE.BoxGeometry(
+    RIGHT_WIDTH,
+    RIGHT_HEIGHT,
+    RIGHT_DEPTH
+  ),
+  [
+    MAT.beigeDark,
+    MAT.beigeDark,
+    MAT.beige,
+    MAT.beige,
+    MAT.beige,
+    MAT.beige
+  ]
+);
 
 rightBody.position.set(
   RIGHT_X,
@@ -563,135 +402,86 @@ rightBody.position.set(
   RIGHT_Z
 );
 
-rightBody.castShadow = true;
-rightBody.receiveShadow = true;
-
+rightBody.castShadow=true;
+rightBody.receiveShadow=true;
 building.add(rightBody);
 
 box(
   RIGHT_WIDTH+.10,
   .18,
   RIGHT_DEPTH+.10,
-
   MAT.dark2,
-
   RIGHT_X,
-
   RIGHT_HEIGHT+.09,
-
   RIGHT_Z
 );
 
-/* =========================================================
-   BLUE CORE
-========================================================= */
+/* =========================
+   BLUE FRONT CORE
+========================= */
 
 box(
   BLUE_WIDTH,
   BODY_HEIGHT-2.05,
   .07,
-
   MAT.blue,
-
   BLUE_X,
-
-  (BODY_HEIGHT-2.05)/2 + 1.12,
-
+  (BODY_HEIGHT-2.05)/2+1.12,
   MAIN_FRONT+.04
 );
 
-/* WINDOWS */
-
-const facadeColumns = [
-  -1.50,
-  -.50,
-   .50,
-  1.50
+const facadeColumns=[
+  -1.50,-.50,.50,1.50
 ];
 
-for(
-  let floor=0;
-  floor<21;
-  floor++
-){
+for(let floor=0;floor<21;floor++){
 
-  const y =
-    2.30 +
-    floor*.88;
+  const y=2.30+floor*.88;
 
-  facadeColumns.forEach(
-    (offset,column)=>{
+  facadeColumns.forEach((offset,column)=>{
 
-      box(
-        .82,
-        .54,
-        .10,
+    box(
+      .82,.54,.10,
+      litPick(floor,column,2)
+        ? MAT.lit
+        : MAT.glass,
+      BLUE_X+offset,
+      y,
+      MAIN_FRONT+.11
+    );
 
-        litPick(
-          floor,
-          column,
-          2
-        )
-          ? MAT.lit
-          : MAT.glass,
-
-        BLUE_X + offset,
-
-        y,
-
-        MAIN_FRONT+.11
-      );
-
-    }
-  );
+  });
 }
 
-/* HORIZONTAL LINES */
-
-for(
-  let i=0;
-  i<20;
-  i++
-){
+for(let i=0;i<20;i++){
 
   box(
     BLUE_WIDTH-.12,
     .055,
     .13,
-
     MAT.white,
-
     BLUE_X,
-
-    2.72 + i*.88,
-
+    2.72+i*.88,
     MAIN_FRONT+.13
   );
 
 }
 
-/* =========================================================
-   BIG WHITE FRAME
-========================================================= */
+/* =========================
+   FRONT WHITE FRAME
+========================= */
 
-const FRAME_LEFT_X =
-  BLUE_X -
-  BLUE_WIDTH/2 -
-  .22;
+const FRAME_LEFT_X=
+  BLUE_X-BLUE_WIDTH/2-.22;
 
-const FRAME_RIGHT_X =
-  BLUE_X +
-  BLUE_WIDTH/2 +
-  .22;
+const FRAME_RIGHT_X=
+  BLUE_X+BLUE_WIDTH/2+.22;
 
-const FRAME_BOTTOM = .10;
+const FRAME_BOTTOM=.10;
+const FRAME_TOP=BODY_HEIGHT-.20;
 
-const FRAME_TOP =
-  BODY_HEIGHT-.20;
-
-const FRAME_HEIGHT =
-  FRAME_TOP -
-  FRAME_BOTTOM;
+const FRAME_HEIGHT=
+  FRAME_TOP-FRAME_BOTTOM;
 
 box(
   .32,
@@ -699,7 +489,7 @@ box(
   .21,
   MAT.whiteBright,
   FRAME_LEFT_X,
-  FRAME_BOTTOM + FRAME_HEIGHT/2,
+  FRAME_BOTTOM+FRAME_HEIGHT/2,
   MAIN_FRONT+.17
 );
 
@@ -709,99 +499,64 @@ box(
   .21,
   MAT.whiteBright,
   FRAME_RIGHT_X,
-  FRAME_BOTTOM + FRAME_HEIGHT/2,
+  FRAME_BOTTOM+FRAME_HEIGHT/2,
   MAIN_FRONT+.17
 );
 
 box(
-  FRAME_RIGHT_X -
-  FRAME_LEFT_X +
-  .32,
+  FRAME_RIGHT_X-FRAME_LEFT_X+.32,
   .22,
   .21,
   MAT.whiteBright,
-  (
-    FRAME_LEFT_X +
-    FRAME_RIGHT_X
-  )/2,
+  (FRAME_LEFT_X+FRAME_RIGHT_X)/2,
   FRAME_TOP,
   MAIN_FRONT+.17
 );
 
-/* =========================================================
-   LEFT WINDOW STRIP
-========================================================= */
+/* =========================
+   LEFT FRONT WINDOW STRIP
+========================= */
 
-for(
-  let floor=0;
-  floor<22;
-  floor++
-){
+for(let floor=0;floor<22;floor++){
 
   box(
-    .55,
-    .52,
-    .08,
+    .55,.52,.08,
 
-    litPick(
-      floor,1,5
-    )
+    litPick(floor,1,5)
       ? MAT.lit
       : MAT.glassDark,
 
-    MAIN_X -
-    MAIN_WIDTH/2 +
-    .38,
+    MAIN_X-MAIN_WIDTH/2+.38,
 
-    1.20 +
-    floor*.88,
+    1.20+floor*.88,
 
     MAIN_FRONT+.10
   );
 
 }
 
-/* =========================================================
-   RIGHT MASS FRONT WINDOWS
-   전면은 그대로 유지
-========================================================= */
+/* =========================
+   RIGHT FRONT WINDOWS
+========================= */
 
-for(
-  let floor=0;
-  floor<21;
-  floor++
-){
+for(let floor=0;floor<21;floor++){
 
-  const y =
-    1.45 +
-    floor*.88;
+  const y=1.45+floor*.88;
 
-  for(
-    let c=0;
-    c<2;
-    c++
-  ){
+  for(let c=0;c<2;c++){
 
     box(
-      .76,
-      .54,
-      .09,
+      .76,.54,.09,
 
-      litPick(
-        floor,c,9
-      )
+      litPick(floor,c,9)
         ? MAT.lit
         : MAT.glass,
 
-      RIGHT_X -
-      .55 +
-      c*1.13,
+      RIGHT_X-.55+c*1.13,
 
       y,
 
-      RIGHT_Z +
-      RIGHT_DEPTH/2 +
-      .09
+      RIGHT_Z+RIGHT_DEPTH/2+.09
     );
 
   }
@@ -809,252 +564,359 @@ for(
 }
 
 /* =========================================================
-   NEW PAINTED SIDE WALL
-   ★ 기존 측면 창문 완전 제거
+   RIGHT PAINTED SIDE
 ========================================================= */
 
-/*
-   전체 측면 상부
-*/
+const RIGHT_SIDE_X=
+  RIGHT_X+RIGHT_WIDTH/2+.035;
 
-const SIDE_UPPER_HEIGHT =
-  RIGHT_HEIGHT -
-  SIDE_BASE_HEIGHT;
-
-box(
-  .055,
-  SIDE_UPPER_HEIGHT,
-  RIGHT_DEPTH-.18,
-
-  MAT.sideNavy,
-
-  SIDE_X,
-
-  SIDE_BASE_HEIGHT +
-  SIDE_UPPER_HEIGHT/2,
-
-  RIGHT_Z
-);
-
-/*
-   하부 밝은 남색 영역
-*/
+const RIGHT_SIDE_UPPER=
+  RIGHT_HEIGHT-SIDE_BASE_HEIGHT;
 
 box(
   .06,
-  SIDE_BASE_HEIGHT,
-  RIGHT_DEPTH-.18,
-
-  MAT.sideBlue,
-
-  SIDE_X+.004,
-
-  SIDE_BASE_HEIGHT/2,
-
+  RIGHT_SIDE_UPPER,
+  RIGHT_DEPTH-.24,
+  MAT.sideNavy,
+  RIGHT_SIDE_X,
+  SIDE_BASE_HEIGHT+RIGHT_SIDE_UPPER/2,
   RIGHT_Z
 );
 
-/* =========================================================
-   SIDE PANEL JOINTS
-   참고사진의 얇은 패널 이음선
-========================================================= */
+box(
+  .065,
+  SIDE_BASE_HEIGHT,
+  RIGHT_DEPTH-.24,
+  MAT.sideBlue,
+  RIGHT_SIDE_X+.003,
+  SIDE_BASE_HEIGHT/2,
+  RIGHT_Z
+);
 
-/*
-  세로 이음선
-*/
+/* RIGHT PANEL JOINTS */
 
-[
-  .25,
-  .50,
-  .75
-].forEach(rate=>{
+for(let i=1;i<10;i++){
 
-  const z =
-    RIGHT_Z -
-    RIGHT_DEPTH/2 +
-    RIGHT_DEPTH*rate;
+  const y=
+    SIDE_BASE_HEIGHT+
+    RIGHT_SIDE_UPPER/10*i;
 
   box(
     .025,
-    SIDE_UPPER_HEIGHT-.18,
-    .028,
-
-    MAT.sideJoint,
-
-    SIDE_X+.035,
-
-    SIDE_BASE_HEIGHT +
-    SIDE_UPPER_HEIGHT/2,
-
-    z
-  );
-
-});
-
-/*
-  가로 이음선
-*/
-
-const jointRows = 9;
-
-for(
-  let i=1;
-  i<jointRows;
-  i++
-){
-
-  const y =
-    SIDE_BASE_HEIGHT +
-    (
-      SIDE_UPPER_HEIGHT /
-      jointRows
-    ) * i;
-
-  box(
     .025,
-    .028,
-    RIGHT_DEPTH-.23,
-
+    RIGHT_DEPTH-.28,
     MAT.sideJoint,
-
-    SIDE_X+.036,
-
+    RIGHT_SIDE_X+.035,
     y,
-
     RIGHT_Z
   );
 
 }
 
-/* =========================================================
-   SIDE WHITE EDGE TRIMS
-========================================================= */
+[-.92,-.30,.30,.92].forEach(z=>{
 
-/*
-  측면 앞쪽 흰색 테두리
-*/
-
-box(
-  .10,
-  RIGHT_HEIGHT,
-  .20,
-
-  MAT.whiteBright,
-
-  SIDE_X+.045,
-
-  RIGHT_HEIGHT/2,
-
-  RIGHT_Z +
-  RIGHT_DEPTH/2 -
-  .04
-);
-
-/*
-  측면 뒤쪽 흰색 테두리
-*/
-
-box(
-  .10,
-  RIGHT_HEIGHT,
-  .20,
-
-  MAT.whiteBright,
-
-  SIDE_X+.045,
-
-  RIGHT_HEIGHT/2,
-
-  RIGHT_Z -
-  RIGHT_DEPTH/2 +
-  .04
-);
-
-/* =========================================================
-   BUILDING NUMBER
-========================================================= */
-
-function createBuildingNumberTexture(){
-
-  const canvas =
-    document.createElement("canvas");
-
-  canvas.width = 512;
-  canvas.height = 256;
-
-  const ctx =
-    canvas.getContext("2d");
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
+  box(
+    .025,
+    RIGHT_SIDE_UPPER-.20,
+    .025,
+    MAT.sideJoint,
+    RIGHT_SIDE_X+.035,
+    SIDE_BASE_HEIGHT+RIGHT_SIDE_UPPER/2,
+    RIGHT_Z+z
   );
 
-  ctx.font =
-    "900 150px Arial";
+});
 
-  ctx.textAlign =
-    "center";
+/* RIGHT WHITE EDGES */
 
-  ctx.textBaseline =
-    "middle";
+box(
+  .10,
+  RIGHT_HEIGHT,
+  .18,
+  MAT.whiteBright,
+  RIGHT_SIDE_X+.045,
+  RIGHT_HEIGHT/2,
+  RIGHT_Z+RIGHT_DEPTH/2-.05
+);
 
-  ctx.fillStyle =
-    "#ffffff";
+box(
+  .10,
+  RIGHT_HEIGHT,
+  .18,
+  MAT.whiteBright,
+  RIGHT_SIDE_X+.045,
+  RIGHT_HEIGHT/2,
+  RIGHT_Z-RIGHT_DEPTH/2+.05
+);
+
+/* =========================================================
+   LEFT PAINTED SIDE
+========================================================= */
+
+/*
+  기존 흰색 벽체를 없애지 않고
+  그 바깥쪽 중앙에 남색 도장면을 얹는다.
+  앞/뒤 흰색 테두리는 그대로 남는다.
+*/
+
+const LEFT_SIDE_X=
+  LEFT_WALL_X-
+  LEFT_WALL_WIDTH/2-
+  .034;
+
+const LEFT_SIDE_UPPER=
+  LEFT_WALL_HEIGHT-
+  SIDE_BASE_HEIGHT;
+
+box(
+  .06,
+  LEFT_SIDE_UPPER,
+  LEFT_WALL_DEPTH-.58,
+  MAT.sideNavy,
+  LEFT_SIDE_X,
+  SIDE_BASE_HEIGHT+LEFT_SIDE_UPPER/2,
+  0
+);
+
+box(
+  .065,
+  SIDE_BASE_HEIGHT,
+  LEFT_WALL_DEPTH-.58,
+  MAT.sideBlue,
+  LEFT_SIDE_X-.003,
+  SIDE_BASE_HEIGHT/2,
+  0
+);
+
+/* LEFT PANEL JOINTS */
+
+for(let i=1;i<10;i++){
+
+  const y=
+    SIDE_BASE_HEIGHT+
+    LEFT_SIDE_UPPER/10*i;
+
+  box(
+    .025,
+    .025,
+    LEFT_WALL_DEPTH-.62,
+    MAT.sideJoint,
+    LEFT_SIDE_X-.035,
+    y,
+    0
+  );
+
+}
+
+[-.92,-.30,.30,.92].forEach(z=>{
+
+  box(
+    .025,
+    LEFT_SIDE_UPPER-.20,
+    .025,
+    MAT.sideJoint,
+    LEFT_SIDE_X-.035,
+    SIDE_BASE_HEIGHT+LEFT_SIDE_UPPER/2,
+    z
+  );
+
+});
+
+/* LEFT WHITE EDGES */
+
+box(
+  .10,
+  LEFT_WALL_HEIGHT,
+  .20,
+  MAT.whiteBright,
+  LEFT_SIDE_X-.045,
+  LEFT_WALL_HEIGHT/2,
+  LEFT_WALL_DEPTH/2-.06
+);
+
+box(
+  .10,
+  LEFT_WALL_HEIGHT,
+  .20,
+  MAT.whiteBright,
+  LEFT_SIDE_X-.045,
+  LEFT_WALL_HEIGHT/2,
+  -LEFT_WALL_DEPTH/2+.06
+);
+
+/* =========================================================
+   BUILDING NUMBERS — BOTH SIDES
+========================================================= */
+
+function numberTexture(){
+
+  const canvas=document.createElement("canvas");
+
+  canvas.width=512;
+  canvas.height=256;
+
+  const ctx=canvas.getContext("2d");
+
+  ctx.font="900 150px Arial";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillStyle="#ffffff";
 
   ctx.fillText(
     BUILDING_NUMBER,
-    canvas.width/2,
-    canvas.height/2
+    256,
+    128
   );
 
-  const texture =
-    new THREE.CanvasTexture(
-      canvas
-    );
+  const texture=
+    new THREE.CanvasTexture(canvas);
 
-  texture.colorSpace =
+  texture.colorSpace=
     THREE.SRGBColorSpace;
 
   return texture;
 }
 
-const numberMaterial =
+const numberMaterial=
   new THREE.MeshBasicMaterial({
-    map:createBuildingNumberTexture(),
-    transparent:true
+    map:numberTexture(),
+    transparent:true,
+    side:THREE.DoubleSide
   });
 
-const numberPlane =
+const rightNumber=
   new THREE.Mesh(
-
-    new THREE.PlaneGeometry(
-      1.55,
-      .78
-    ),
-
+    new THREE.PlaneGeometry(1.55,.78),
     numberMaterial
-
   );
 
+rightNumber.rotation.y=Math.PI/2;
+
+rightNumber.position.set(
+  RIGHT_SIDE_X+.07,
+  SIDE_BASE_HEIGHT*.54,
+  RIGHT_Z+.22
+);
+
+building.add(rightNumber);
+
+const leftNumber=
+  new THREE.Mesh(
+    new THREE.PlaneGeometry(1.55,.78),
+    numberMaterial
+  );
+
+leftNumber.rotation.y=-Math.PI/2;
+
+leftNumber.position.set(
+  LEFT_SIDE_X-.07,
+  SIDE_BASE_HEIGHT*.54,
+  .22
+);
+
+building.add(leftNumber);
+
+/* =========================================================
+   REAR KITCHEN WINDOWS
+========================================================= */
+
 /*
-  측면(+X)을 향하도록 회전
+  뒷면은 큰 창이 아니라
+  층별 작은 주방창을 반복 배치.
 */
 
-numberPlane.rotation.y =
-  Math.PI/2;
+const rearMainColumns=[
+  MAIN_X-2.35,
+  MAIN_X-.78,
+  MAIN_X+.80
+];
 
-numberPlane.position.set(
-  SIDE_X+.07,
-  SIDE_BASE_HEIGHT*.53,
-  RIGHT_Z+.28
-);
+for(let floor=0;floor<23;floor++){
 
-building.add(
-  numberPlane
-);
+  const y=
+    1.25+floor*.88;
+
+  rearMainColumns.forEach((x,column)=>{
+
+    /* 작은 창 외곽 프레임 */
+
+    box(
+      .64,
+      .46,
+      .07,
+      MAT.kitchenFrame,
+      x,
+      y,
+      MAIN_BACK-.075
+    );
+
+    /* 유리 */
+
+    box(
+      .49,
+      .31,
+      .09,
+
+      litPick(floor,column,20)
+        ? MAT.lit
+        : MAT.kitchenGlass,
+
+      x,
+      y,
+      MAIN_BACK-.115
+    );
+
+  });
+
+}
+
+/*
+  오른쪽 돌출 매스 후면에도
+  작은 주방창 2열
+*/
+
+const rearWingZ=
+  RIGHT_Z-RIGHT_DEPTH/2;
+
+const rearWingColumns=[
+  RIGHT_X-.58,
+  RIGHT_X+.58
+];
+
+for(let floor=0;floor<20;floor++){
+
+  const y=
+    1.45+floor*.88;
+
+  rearWingColumns.forEach((x,column)=>{
+
+    box(
+      .62,
+      .45,
+      .07,
+      MAT.kitchenFrame,
+      x,
+      y,
+      rearWingZ-.075
+    );
+
+    box(
+      .47,
+      .30,
+      .09,
+
+      litPick(floor,column,24)
+        ? MAT.lit
+        : MAT.kitchenGlass,
+
+      x,
+      y,
+      rearWingZ-.115
+    );
+
+  });
+
+}
 
 /* =========================================================
    TOP FLOOR
@@ -1064,22 +926,13 @@ box(
   MAIN_WIDTH,
   TOP_FLOOR_HEIGHT,
   MAIN_DEPTH,
-
   MAT.dark2,
-
   MAIN_X,
-
-  BODY_HEIGHT +
-  TOP_FLOOR_HEIGHT/2,
-
+  BODY_HEIGHT+TOP_FLOOR_HEIGHT/2,
   0
 );
 
-for(
-  let i=0;
-  i<6;
-  i++
-){
+for(let i=0;i<6;i++){
 
   box(
     .80,
@@ -1090,11 +943,9 @@ for(
       ? MAT.lit
       : MAT.glass,
 
-    MAIN_X -
-    2.55 +
-    i*1.02,
+    MAIN_X-2.55+i*1.02,
 
-    BODY_HEIGHT +
+    BODY_HEIGHT+
     TOP_FLOOR_HEIGHT*.50,
 
     MAIN_FRONT+.11
@@ -1103,78 +954,51 @@ for(
 }
 
 /* =========================================================
-   SIGNATURE BASE
+   SIGNATURE
 ========================================================= */
 
 box(
   CAP_WIDTH,
   .18,
   CAP_DEPTH,
-
   MAT.signatureWhite,
-
   CAP_X,
-
   ROOF_BASE_Y+.09,
-
   CAP_Z
 );
 
-/* =========================================================
-   SIGNATURE WEDGE
-========================================================= */
-
 function createSignatureWedge(){
 
-  const w = CAP_WIDTH;
-  const d = CAP_DEPTH;
+  const w=CAP_WIDTH;
+  const d=CAP_DEPTH;
 
-  const leftH =
-    CAP_LEFT_HEIGHT;
-
-  const rightH =
-    CAP_RIGHT_HEIGHT;
-
-  const positions =
+  const positions=
     new Float32Array([
 
       -w/2,0,d/2,
        w/2,0,d/2,
 
-      -w/2,leftH,d/2,
-       w/2,rightH,d/2,
+      -w/2,CAP_LEFT_HEIGHT,d/2,
+       w/2,CAP_RIGHT_HEIGHT,d/2,
 
       -w/2,0,-d/2,
        w/2,0,-d/2,
 
-      -w/2,leftH,-d/2,
-       w/2,rightH,-d/2
+      -w/2,CAP_LEFT_HEIGHT,-d/2,
+       w/2,CAP_RIGHT_HEIGHT,-d/2
 
     ]);
 
-  const indices = [
-
-    0,1,3,
-    0,3,2,
-
-    5,4,6,
-    5,6,7,
-
-    4,0,2,
-    4,2,6,
-
-    1,5,7,
-    1,7,3,
-
-    4,5,1,
-    4,1,0,
-
-    2,3,7,
-    2,7,6
-
+  const indices=[
+    0,1,3, 0,3,2,
+    5,4,6, 5,6,7,
+    4,0,2, 4,2,6,
+    1,5,7, 1,7,3,
+    4,5,1, 4,1,0,
+    2,3,7, 2,7,6
   ];
 
-  const geometry =
+  const geometry=
     new THREE.BufferGeometry();
 
   geometry.setAttribute(
@@ -1185,13 +1009,10 @@ function createSignatureWedge(){
     )
   );
 
-  geometry.setIndex(
-    indices
-  );
-
+  geometry.setIndex(indices);
   geometry.computeVertexNormals();
 
-  const wedge =
+  const wedge=
     new THREE.Mesh(
       geometry,
       MAT.signatureWhite
@@ -1203,13 +1024,10 @@ function createSignatureWedge(){
     CAP_Z
   );
 
-  wedge.castShadow = true;
-  wedge.receiveShadow = true;
+  wedge.castShadow=true;
+  wedge.receiveShadow=true;
 
-  building.add(
-    wedge
-  );
-
+  building.add(wedge);
 }
 
 createSignatureWedge();
@@ -1218,201 +1036,121 @@ createSignatureWedge();
    HAUSTORY LOGO
 ========================================================= */
 
-function createLogoTexture(){
+function logoTexture(){
 
-  const canvas =
-    document.createElement(
-      "canvas"
-    );
+  const canvas=
+    document.createElement("canvas");
 
-  canvas.width = 1024;
-  canvas.height = 256;
+  canvas.width=1024;
+  canvas.height=256;
 
-  const ctx =
+  const ctx=
     canvas.getContext("2d");
 
-  ctx.font =
-    "900 124px Arial";
+  ctx.font="900 124px Arial";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
 
-  ctx.textAlign =
-    "center";
+  ctx.fillStyle="rgba(0,0,0,.18)";
+  ctx.fillText("HAUSTORY",516,143);
 
-  ctx.textBaseline =
-    "middle";
+  ctx.fillStyle="#273238";
+  ctx.fillText("HAUSTORY",512,132);
 
-  ctx.fillStyle =
-    "rgba(0,0,0,.18)";
+  const texture=
+    new THREE.CanvasTexture(canvas);
 
-  ctx.fillText(
-    "HAUSTORY",
-    516,
-    143
-  );
-
-  ctx.fillStyle =
-    "#273238";
-
-  ctx.fillText(
-    "HAUSTORY",
-    512,
-    132
-  );
-
-  const texture =
-    new THREE.CanvasTexture(
-      canvas
-    );
-
-  texture.colorSpace =
+  texture.colorSpace=
     THREE.SRGBColorSpace;
 
   return texture;
 }
 
-const logoMaterial =
+const logoMaterial=
   new THREE.MeshBasicMaterial({
-    map:createLogoTexture(),
+    map:logoTexture(),
     transparent:true
   });
 
-const logo =
+const logo=
   new THREE.Mesh(
-
     new THREE.PlaneGeometry(
       5.20,
       1.22
     ),
-
     logoMaterial
-
   );
 
 logo.position.set(
-
   CAP_X+.20,
-
-  ROOF_BASE_Y+.18 +
-  (
-    CAP_LEFT_HEIGHT +
-    CAP_RIGHT_HEIGHT
-  )/2*.56,
-
+  ROOF_BASE_Y+.18+
+  (CAP_LEFT_HEIGHT+CAP_RIGHT_HEIGHT)/2*.56,
   CAP_DEPTH/2+.012
-
 );
 
-building.add(
-  logo
-);
+building.add(logo);
 
 /* =========================================================
-   SOLAR TEXTURE
+   SOLAR
 ========================================================= */
 
 function solarTexture(){
 
-  const canvas =
-    document.createElement(
-      "canvas"
-    );
+  const canvas=
+    document.createElement("canvas");
 
-  canvas.width = 512;
-  canvas.height = 768;
+  canvas.width=512;
+  canvas.height=768;
 
-  const ctx =
+  const ctx=
     canvas.getContext("2d");
 
-  const gradient =
+  const gradient=
     ctx.createLinearGradient(
-      0,0,
-      512,768
+      0,0,512,768
     );
 
-  gradient.addColorStop(
-    0,
-    "#315d78"
-  );
+  gradient.addColorStop(0,"#315d78");
+  gradient.addColorStop(.5,"#173c55");
+  gradient.addColorStop(1,"#0d2a40");
 
-  gradient.addColorStop(
-    .5,
-    "#173c55"
-  );
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,512,768);
 
-  gradient.addColorStop(
-    1,
-    "#0d2a40"
-  );
+  const cols=6;
+  const rows=10;
 
-  ctx.fillStyle =
-    gradient;
+  const cw=512/cols;
+  const ch=768/rows;
 
-  ctx.fillRect(
-    0,0,
-    512,768
-  );
+  for(let r=0;r<rows;r++){
 
-  const cols = 6;
-  const rows = 10;
+    for(let c=0;c<cols;c++){
 
-  const cw =
-    512/cols;
+      const x=c*cw;
+      const y=r*ch;
 
-  const ch =
-    768/rows;
-
-  for(
-    let r=0;
-    r<rows;
-    r++
-  ){
-
-    for(
-      let c=0;
-      c<cols;
-      c++
-    ){
-
-      const x = c*cw;
-      const y = r*ch;
-
-      ctx.strokeStyle =
+      ctx.strokeStyle=
         "rgba(170,215,230,.30)";
 
-      ctx.lineWidth = 2;
+      ctx.lineWidth=2;
 
       ctx.strokeRect(
-        x+3,
-        y+3,
-        cw-6,
-        ch-6
+        x+3,y+3,cw-6,ch-6
       );
 
-      ctx.strokeStyle =
+      ctx.strokeStyle=
         "rgba(220,235,240,.18)";
 
-      ctx.lineWidth = 1;
+      ctx.lineWidth=1;
 
       ctx.beginPath();
 
-      ctx.moveTo(
-        x+cw*.36,
-        y+5
-      );
+      ctx.moveTo(x+cw*.36,y+5);
+      ctx.lineTo(x+cw*.36,y+ch-5);
 
-      ctx.lineTo(
-        x+cw*.36,
-        y+ch-5
-      );
-
-      ctx.moveTo(
-        x+cw*.64,
-        y+5
-      );
-
-      ctx.lineTo(
-        x+cw*.64,
-        y+ch-5
-      );
+      ctx.moveTo(x+cw*.64,y+5);
+      ctx.lineTo(x+cw*.64,y+ch-5);
 
       ctx.stroke();
 
@@ -1420,88 +1158,67 @@ function solarTexture(){
 
   }
 
-  const texture =
-    new THREE.CanvasTexture(
-      canvas
-    );
+  const texture=
+    new THREE.CanvasTexture(canvas);
 
-  texture.colorSpace =
+  texture.colorSpace=
     THREE.SRGBColorSpace;
 
-  texture.anisotropy =
-    renderer.capabilities
-    .getMaxAnisotropy();
+  texture.anisotropy=
+    renderer.capabilities.getMaxAnisotropy();
 
   return texture;
 }
 
-const solarMaterial =
+const solarMaterial=
   new THREE.MeshStandardMaterial({
     map:solarTexture(),
     roughness:.18,
     metalness:.10
   });
 
-/* =========================================================
-   SOLAR MODULE
-========================================================= */
-
 function solarModule(
   width=1.02,
   depth=1.35
 ){
 
-  const group =
+  const group=
     new THREE.Group();
 
-  const back =
+  const back=
     new THREE.Mesh(
-
       new THREE.BoxGeometry(
-        width,
-        .055,
-        depth
+        width,.055,depth
       ),
-
       MAT.metal
-
     );
 
-  back.castShadow = true;
+  back.castShadow=true;
   group.add(back);
 
-  const surface =
+  const surface=
     new THREE.Mesh(
-
       new THREE.PlaneGeometry(
         width-.07,
         depth-.07
       ),
-
       solarMaterial
-
     );
 
-  surface.rotation.x =
-    -Math.PI/2;
-
-  surface.position.y =
-    .031;
+  surface.rotation.x=-Math.PI/2;
+  surface.position.y=.031;
 
   group.add(surface);
 
-  const h = .07;
-  const t = .045;
+  const h=.07;
+  const t=.045;
 
-  const north =
+  const north=
     new THREE.Mesh(
-
       new THREE.BoxGeometry(
         width,h,t
       ),
-
       MAT.metal
-
     );
 
   north.position.set(
@@ -1510,23 +1227,16 @@ function solarModule(
 
   group.add(north);
 
-  const south =
-    north.clone();
-
-  south.position.z =
-    depth/2;
-
+  const south=north.clone();
+  south.position.z=depth/2;
   group.add(south);
 
-  const west =
+  const west=
     new THREE.Mesh(
-
       new THREE.BoxGeometry(
         t,h,depth
       ),
-
       MAT.metal
-
     );
 
   west.position.set(
@@ -1535,67 +1245,51 @@ function solarModule(
 
   group.add(west);
 
-  const east =
-    west.clone();
-
-  east.position.x =
-    width/2;
-
+  const east=west.clone();
+  east.position.x=width/2;
   group.add(east);
 
   return group;
 }
 
-/* =========================================================
-   SOLAR ARRAY
-========================================================= */
-
 function createRoofSolar(){
 
-  const group =
+  const group=
     new THREE.Group();
 
-  const columns = 5;
-  const rows = 2;
+  const columns=5;
+  const rows=2;
 
-  const panelW = 1.03;
-  const panelD = 1.25;
-  const gap = .075;
+  const panelW=1.03;
+  const panelD=1.25;
+  const gap=.075;
 
-  const totalW =
-    columns*panelW +
+  const totalW=
+    columns*panelW+
     (columns-1)*gap;
 
-  const totalD =
-    rows*panelD +
+  const totalD=
+    rows*panelD+
     (rows-1)*gap;
 
-  for(
-    let r=0;
-    r<rows;
-    r++
-  ){
+  for(let r=0;r<rows;r++){
 
-    for(
-      let c=0;
-      c<columns;
-      c++
-    ){
+    for(let c=0;c<columns;c++){
 
-      const panel =
+      const panel=
         solarModule(
           panelW,
           panelD
         );
 
-      panel.position.x =
-        -totalW/2 +
-        panelW/2 +
+      panel.position.x=
+        -totalW/2+
+        panelW/2+
         c*(panelW+gap);
 
-      panel.position.z =
-        -totalD/2 +
-        panelD/2 +
+      panel.position.z=
+        -totalD/2+
+        panelD/2+
         r*(panelD+gap);
 
       group.add(panel);
@@ -1604,85 +1298,67 @@ function createRoofSolar(){
 
   }
 
-  const slope =
+  const slope=
     Math.atan2(
-      CAP_RIGHT_HEIGHT -
+      CAP_RIGHT_HEIGHT-
       CAP_LEFT_HEIGHT,
       CAP_WIDTH
     );
 
-  group.rotation.z =
-    slope;
+  group.rotation.z=slope;
 
   group.position.set(
-
     CAP_X,
-
-    ROOF_BASE_Y+.18 +
-    (
-      CAP_LEFT_HEIGHT +
-      CAP_RIGHT_HEIGHT
-    )/2
-    + .10,
-
+    ROOF_BASE_Y+.18+
+    (CAP_LEFT_HEIGHT+CAP_RIGHT_HEIGHT)/2+.10,
     CAP_Z
-
   );
 
   building.add(group);
-
 }
 
 createRoofSolar();
 
-/* =========================================================
+/* =========================
    GROUND
-========================================================= */
+========================= */
 
-const ground =
+const ground=
   new THREE.Mesh(
-
     new THREE.CircleGeometry(
       34,
       96
     ),
-
     new THREE.MeshStandardMaterial({
       color:0x91a58c,
       roughness:1
     })
-
   );
 
-ground.rotation.x =
-  -Math.PI/2;
-
-ground.receiveShadow =
-  true;
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
 
 scene.add(ground);
 
-/* =========================================================
+/* =========================
    INTERACTION
-========================================================= */
+========================= */
 
-let rotationY = 0;
-let targetRotationY = 0;
+let rotationY=0;
+let targetRotationY=0;
+let autoRotate=true;
 
-let autoRotate = true;
+const pointers=new Map();
 
-const pointers =
-  new Map();
-
-let previousX = 0;
-let previousY = 0;
-let previousPinch = null;
+let previousX=0;
+let previousY=0;
+let previousPinch=null;
 
 renderer.domElement.addEventListener(
   "pointerdown",
   event=>{
 
-    autoRotate = false;
+    autoRotate=false;
 
     pointers.set(
       event.pointerId,
@@ -1692,30 +1368,22 @@ renderer.domElement.addEventListener(
       }
     );
 
-    renderer.domElement.setPointerCapture(
-      event.pointerId
-    );
+    renderer.domElement
+      .setPointerCapture(
+        event.pointerId
+      );
 
-    if(
-      pointers.size===1
-    ){
-
-      previousX =
-        event.clientX;
-
-      previousY =
-        event.clientY;
-
+    if(pointers.size===1){
+      previousX=event.clientX;
+      previousY=event.clientY;
     }
 
-    if(
-      pointers.size===2
-    ){
+    if(pointers.size===2){
 
-      const p =
+      const p=
         [...pointers.values()];
 
-      previousPinch =
+      previousPinch=
         Math.hypot(
           p[1].x-p[0].x,
           p[1].y-p[0].y
@@ -1734,9 +1402,7 @@ renderer.domElement.addEventListener(
       !pointers.has(
         event.pointerId
       )
-    ){
-      return;
-    }
+    ) return;
 
     pointers.set(
       event.pointerId,
@@ -1746,64 +1412,48 @@ renderer.domElement.addEventListener(
       }
     );
 
-    if(
-      pointers.size===1
-    ){
+    if(pointers.size===1){
 
-      const dx =
-        event.clientX -
-        previousX;
+      const dx=
+        event.clientX-previousX;
 
-      const dy =
-        event.clientY -
-        previousY;
+      const dy=
+        event.clientY-previousY;
 
-      targetRotationY +=
-        dx*.009;
+      targetRotationY+=dx*.009;
+      targetPitch+=dy*.0035;
 
-      targetPitch +=
-        dy*.0035;
-
-      targetPitch =
+      targetPitch=
         THREE.MathUtils.clamp(
           targetPitch,
           -.10,
           .60
         );
 
-      previousX =
-        event.clientX;
-
-      previousY =
-        event.clientY;
+      previousX=event.clientX;
+      previousY=event.clientY;
 
     }
 
-    if(
-      pointers.size===2
-    ){
+    if(pointers.size===2){
 
-      const p =
+      const p=
         [...pointers.values()];
 
-      const distance =
+      const distance=
         Math.hypot(
           p[1].x-p[0].x,
           p[1].y-p[0].y
         );
 
-      if(
-        previousPinch!==null
-      ){
+      if(previousPinch!==null){
 
-        const diff =
-          distance -
-          previousPinch;
+        const diff=
+          distance-previousPinch;
 
-        targetDistance -=
-          diff*.09;
+        targetDistance-=diff*.09;
 
-        targetDistance =
+        targetDistance=
           THREE.MathUtils.clamp(
             targetDistance,
             16,
@@ -1812,8 +1462,7 @@ renderer.domElement.addEventListener(
 
       }
 
-      previousPinch =
-        distance;
+      previousPinch=distance;
 
     }
 
@@ -1826,18 +1475,15 @@ function removePointer(event){
     event.pointerId
   );
 
-  previousPinch =
-    null;
+  previousPinch=null;
 
-  if(
-    pointers.size===1
-  ){
+  if(pointers.size===1){
 
-    const p =
+    const p=
       [...pointers.values()][0];
 
-    previousX = p.x;
-    previousY = p.y;
+    previousX=p.x;
+    previousY=p.y;
 
   }
 
@@ -1853,43 +1499,32 @@ renderer.domElement.addEventListener(
   removePointer
 );
 
-/* =========================================================
+/* =========================
    UI
-========================================================= */
+========================= */
 
-const resetBtn =
-  document.getElementById(
-    "resetBtn"
-  );
+const resetBtn=
+  document.getElementById("resetBtn");
 
-const autoBtn =
-  document.getElementById(
-    "autoBtn"
-  );
+const autoBtn=
+  document.getElementById("autoBtn");
 
-const degree =
-  document.getElementById(
-    "degree"
-  );
+const degree=
+  document.getElementById("degree");
 
-const zoomText =
-  document.getElementById(
-    "zoomText"
-  );
+const zoomText=
+  document.getElementById("zoomText");
 
 resetBtn.addEventListener(
   "click",
   ()=>{
 
-    autoRotate = false;
+    autoRotate=false;
+    targetRotationY=0;
+    targetPitch=.10;
+    targetDistance=38;
 
-    targetRotationY = 0;
-
-    targetPitch = .10;
-
-    targetDistance = 38;
-
-    autoBtn.textContent =
+    autoBtn.textContent=
       "자동회전";
 
   }
@@ -1899,26 +1534,26 @@ autoBtn.addEventListener(
   "click",
   ()=>{
 
-    autoRotate =
-      !autoRotate;
+    autoRotate=!autoRotate;
 
-    autoBtn.textContent =
+    autoBtn.textContent=
       autoRotate
-      ? "자동회전 중"
-      : "자동회전";
+        ? "자동회전 중"
+        : "자동회전";
 
   }
 );
 
-/* RESIZE */
+/* =========================
+   RESIZE
+========================= */
 
 window.addEventListener(
   "resize",
   ()=>{
 
-    camera.aspect =
-      innerWidth /
-      innerHeight;
+    camera.aspect=
+      innerWidth/innerHeight;
 
     camera.updateProjectionMatrix();
 
@@ -1930,9 +1565,11 @@ window.addEventListener(
   }
 );
 
-/* ANIMATION */
+/* =========================
+   ANIMATION
+========================= */
 
-const clock =
+const clock=
   new THREE.Clock();
 
 function animate(){
@@ -1941,63 +1578,50 @@ function animate(){
     animate
   );
 
-  const delta =
+  const delta=
     clock.getDelta();
 
-  if(
-    autoRotate
-  ){
-
-    targetRotationY +=
-      delta*.22;
-
+  if(autoRotate){
+    targetRotationY+=delta*.22;
   }
 
-  rotationY =
+  rotationY=
     THREE.MathUtils.lerp(
       rotationY,
       targetRotationY,
       .09
     );
 
-  cameraPitch =
+  cameraPitch=
     THREE.MathUtils.lerp(
       cameraPitch,
       targetPitch,
       .09
     );
 
-  cameraDistance =
+  cameraDistance=
     THREE.MathUtils.lerp(
       cameraDistance,
       targetDistance,
       .11
     );
 
-  building.rotation.y =
+  building.rotation.y=
     rotationY;
 
-  const lookY =
+  const lookY=
     ROOF_BASE_Y*.47;
 
-  const horizontal =
-    cameraDistance *
-    Math.cos(
-      cameraPitch
-    );
+  const horizontal=
+    cameraDistance*
+    Math.cos(cameraPitch);
 
   camera.position.set(
-
     0,
-
-    lookY +
-    cameraDistance *
-    Math.sin(
-      cameraPitch
-    ),
-
+    lookY+
+    cameraDistance*
+    Math.sin(cameraPitch),
     horizontal
-
   );
 
   camera.lookAt(
@@ -2006,22 +1630,19 @@ function animate(){
     0
   );
 
-  let deg =
+  let deg=
     THREE.MathUtils.radToDeg(
       rotationY
     );
 
-  deg =
-    ((deg%360)+360)%360;
+  deg=((deg%360)+360)%360;
 
-  degree.textContent =
+  degree.textContent=
     `${Math.round(deg)}°`;
 
-  zoomText.textContent =
+  zoomText.textContent=
     `${Math.round(
-      38 /
-      cameraDistance *
-      100
+      38/cameraDistance*100
     )}%`;
 
   renderer.render(
