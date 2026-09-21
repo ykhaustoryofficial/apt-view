@@ -1,5 +1,4 @@
 export const UNIT_B = {
-
   id:"055.9500B",
   code:"B",
   area:55.9500,
@@ -11,31 +10,21 @@ export const UNIT_B = {
     wall:0.18
   },
 
-  /*
-    B 정면 실루엣
-
-    거실~작은방 구간 = 기본 전면
-    안방 구간        = 0.50m 후퇴
-  */
+  /* 정면 오른쪽 안방 매스만 뒤로 후퇴 */
   frontProfile:[
     {
       xMin:-4.70,
-      xMax: 2.20,
+      xMax:2.15,
       offset:0
     },
     {
-      xMin:2.20,
+      xMin:2.15,
       xMax:4.70,
-      offset:-0.50
+      offset:-0.90
     }
   ],
 
-  /*
-    FRONT
-    거실 → 작은방 → 작은방 → 안방
-  */
   frontOpenings:[
-
     {
       id:"F01",
       name:"livingRoomWindow",
@@ -45,7 +34,6 @@ export const UNIT_B = {
       h:1.45,
       sill:.62
     },
-
     {
       id:"F02",
       name:"smallRoomWindow1",
@@ -55,7 +43,6 @@ export const UNIT_B = {
       h:1.10,
       sill:.97
     },
-
     {
       id:"F03",
       name:"smallRoomWindow2",
@@ -65,7 +52,6 @@ export const UNIT_B = {
       h:1.10,
       sill:.97
     },
-
     {
       id:"F04",
       name:"masterRoomWindow",
@@ -75,19 +61,11 @@ export const UNIT_B = {
       h:1.35,
       sill:.72
     }
-
   ],
 
-  /* REAR = 창 없음 */
   rearOpenings:[],
 
-  /*
-    LEFT
-    뒤쪽 → 앞쪽
-    루버 → 주방창
-  */
   leftOpenings:[
-
     {
       id:"L01",
       name:"outdoorUnitLouver",
@@ -97,7 +75,6 @@ export const UNIT_B = {
       h:1.45,
       sill:.68
     },
-
     {
       id:"L02",
       name:"kitchenWindow",
@@ -107,9 +84,7 @@ export const UNIT_B = {
       h:.56,
       sill:1.24
     }
-
   ],
 
   rightOpenings:[]
-
 };
