@@ -1,42 +1,54 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-export function createUnitViewer(unitData) {
+export function createUnitViewer(data){
 
   const {
     width,
     depth,
-    floorHeight,
-    wall
-  } = unitData.size;
+    floorHeight:H,
+    wall:T
+  }=data.size;
 
-  const frontOpenings = unitData.frontOpenings ?? [];
-  const rearOpenings  = unitData.rearOpenings  ?? [];
-  const leftOpenings  = unitData.leftOpenings  ?? [];
-  const rightOpenings = unitData.rightOpenings ?? [];
+  const front=data.frontOpenings??[];
+  const rear=data.rearOpenings??[];
+  const left=data.leftOpenings??[];
+  const right=data.rightOpenings??[];
 
-  /* =====================================================
-     SCENE
-  ===================================================== */
+  const rearZ=-depth/2;
+  const baseFrontZ=depth/2;
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xdce9ed);
+  /* 기본은 평평한 정면 */
+  const profile=(
+    data.frontProfile ?? [
+      {
+        xMin:-width/2,
+        xMax: width/2,
+        offset:0
+      }
+    ]
+  ).slice().sort((a,b)=>a.xMin-b.xMin);
 
-  const camera = new THREE.PerspectiveCamera(
+  /* ================= SCENE ================= */
+
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xdce9ed);
+
+  const camera=new THREE.PerspectiveCamera(
     38,
-    innerWidth / innerHeight,
-    0.1,
+    innerWidth/innerHeight,
+    .1,
     100
   );
 
-  camera.position.set(10, 8, 13);
+  camera.position.set(10,8,13);
 
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true
+  const renderer=new THREE.WebGLRenderer({
+    antialias:true
   });
 
   renderer.setPixelRatio(
-    Math.min(devicePixelRatio, 2)
+    Math.min(devicePixelRatio,2)
   );
 
   renderer.setSize(
@@ -44,38 +56,26 @@ export function createUnitViewer(unitData) {
     innerHeight
   );
 
-  renderer.shadowMap.enabled = true;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled=true;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
 
   document
     .getElementById("view")
     .appendChild(renderer.domElement);
 
-  /* =====================================================
-     CONTROLS
-  ===================================================== */
-
-  const controls = new OrbitControls(
+  const controls=new OrbitControls(
     camera,
     renderer.domElement
   );
 
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.07;
+  controls.enableDamping=true;
+  controls.dampingFactor=.07;
+  controls.target.set(0,1.2,0);
+  controls.minDistance=7;
+  controls.maxDistance=30;
+  controls.maxPolarAngle=Math.PI/2.02;
 
-  controls.target.set(
-    0,
-    1.2,
-    0
-  );
-
-  controls.minDistance = 7;
-  controls.maxDistance = 30;
-  controls.maxPolarAngle = Math.PI / 2.02;
-
-  /* =====================================================
-     LIGHT
-  ===================================================== */
+  /* ================= LIGHT ================= */
 
   scene.add(
     new THREE.HemisphereLight(
@@ -85,900 +85,658 @@ export function createUnitViewer(unitData) {
     )
   );
 
-  const sun = new THREE.DirectionalLight(
+  const sun=new THREE.DirectionalLight(
     0xffffff,
     2.6
   );
 
-  sun.position.set(-8, 12, 10);
-  sun.castShadow = true;
-
+  sun.position.set(-8,12,10);
+  sun.castShadow=true;
   scene.add(sun);
 
-  /* =====================================================
-     MATERIALS
-  ===================================================== */
+  /* ================= MATERIAL ================= */
 
-  const wallMat = new THREE.MeshStandardMaterial({
-    color: 0xe9ece9,
-    roughness: 0.72
+  const wallMat=new THREE.MeshStandardMaterial({
+    color:0xe9ece9,
+    roughness:.72
   });
 
-  const slabMat = new THREE.MeshStandardMaterial({
-    color: 0xcfd4d2,
-    roughness: 0.82
+  const slabMat=new THREE.MeshStandardMaterial({
+    color:0xcfd4d2,
+    roughness:.82
   });
 
-  const glassMat = new THREE.MeshStandardMaterial({
-    color: 0x6b8798,
-    roughness: 0.18,
-    metalness: 0.08
+  const glassMat=new THREE.MeshStandardMaterial({
+    color:0x6b8798,
+    roughness:.18,
+    metalness:.08
   });
 
-  const frameMat = new THREE.MeshStandardMaterial({
-    color: 0xe8ecec,
-    roughness: 0.42
+  const frameMat=new THREE.MeshStandardMaterial({
+    color:0xe8ecec,
+    roughness:.42
   });
 
-  const socketMat = new THREE.MeshStandardMaterial({
-    color: 0x89969c,
-    transparent: true,
-    opacity: 0.32,
-    roughness: 0.7
+  const louverMat=new THREE.MeshStandardMaterial({
+    color:0x7f8a90,
+    roughness:.66,
+    metalness:.35
   });
 
-  const louverMat = new THREE.MeshStandardMaterial({
-    color: 0x7f8a90,
-    roughness: 0.66,
-    metalness: 0.35
+  const darkMat=new THREE.MeshStandardMaterial({
+    color:0x505c62,
+    roughness:.95
   });
 
-  const louverInsideMat = new THREE.MeshStandardMaterial({
-    color: 0x505c62,
-    roughness: 0.95
-  });
+  /* ================= ROOT ================= */
 
-  /* =====================================================
-     ROOT
-  ===================================================== */
-
-  const unit = new THREE.Group();
-  unit.name = `UNIT_${unitData.code}`;
-
+  const unit=new THREE.Group();
+  unit.name=`UNIT_${data.code}`;
   scene.add(unit);
 
-  function box(
-    w,
-    h,
-    d,
-    material,
-    x,
-    y,
-    z
-  ) {
+  function box(w,h,d,mat,x,y,z){
 
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        w,
-        h,
-        d
-      ),
-      material
+    const mesh=new THREE.Mesh(
+      new THREE.BoxGeometry(w,h,d),
+      mat
     );
 
-    mesh.position.set(
-      x,
-      y,
-      z
-    );
-
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+    mesh.position.set(x,y,z);
+    mesh.castShadow=true;
+    mesh.receiveShadow=true;
 
     unit.add(mesh);
 
     return mesh;
   }
 
-  /* =====================================================
-     FLOOR
-  ===================================================== */
+  /* ================= FLOOR =================
+     frontProfile에 맞춰 바닥도 함께 후퇴
+  ========================================== */
 
-  box(
-    width,
-    0.12,
-    depth,
-    slabMat,
-    0,
-    0.06,
-    0
-  );
+  profile.forEach(zone=>{
 
-  /* =====================================================
-     FRONT / REAR WINDOW
-  ===================================================== */
+    const frontZ=
+      baseFrontZ+
+      (zone.offset??0);
 
-  function makeFrontRearWindow(
-    opening,
-    z,
-    isFront
-  ) {
-
-    const faceZ =
-      z + (isFront ? 0.012 : -0.012);
+    const zoneDepth=
+      frontZ-rearZ;
 
     box(
-      opening.w - 0.10,
-      opening.h - 0.10,
-      0.055,
+      zone.xMax-zone.xMin,
+      .12,
+      zoneDepth,
+      slabMat,
+      (zone.xMin+zone.xMax)/2,
+      .06,
+      (rearZ+frontZ)/2
+    );
+  });
+
+  /* ================= FRONT/REAR WINDOW ================= */
+
+  function frontRearWindow(o,z,isFront){
+
+    const faceZ=
+      z+(isFront?.012:-.012);
+
+    box(
+      o.w-.10,
+      o.h-.10,
+      .055,
       glassMat,
-      opening.x,
-      opening.sill + opening.h / 2,
+      o.x,
+      o.sill+o.h/2,
+      faceZ
+    );
+
+    box(o.w,.055,.07,frameMat,o.x,o.sill,faceZ);
+    box(o.w,.055,.07,frameMat,o.x,o.sill+o.h,faceZ);
+
+    box(
+      .055,o.h,.07,
+      frameMat,
+      o.x-o.w/2,
+      o.sill+o.h/2,
       faceZ
     );
 
     box(
-      opening.w,
-      0.055,
-      0.07,
+      .055,o.h,.07,
       frameMat,
-      opening.x,
-      opening.sill,
+      o.x+o.w/2,
+      o.sill+o.h/2,
       faceZ
     );
 
-    box(
-      opening.w,
-      0.055,
-      0.07,
-      frameMat,
-      opening.x,
-      opening.sill + opening.h,
-      faceZ
-    );
+    const bars=
+      o.type==="largeWindow"
+        ?2
+        :1;
 
-    box(
-      0.055,
-      opening.h,
-      0.07,
-      frameMat,
-      opening.x - opening.w / 2,
-      opening.sill + opening.h / 2,
-      faceZ
-    );
+    for(let i=1;i<=bars;i++){
 
-    box(
-      0.055,
-      opening.h,
-      0.07,
-      frameMat,
-      opening.x + opening.w / 2,
-      opening.sill + opening.h / 2,
-      faceZ
-    );
-
-    const mullionCount =
-      opening.type === "largeWindow"
-        ? 2
-        : 1;
-
-    for (
-      let i = 1;
-      i <= mullionCount;
-      i++
-    ) {
-
-      const mullionX =
-        opening.x -
-        opening.w / 2 +
-        (
-          opening.w /
-          (mullionCount + 1)
-        ) * i;
+      const x=
+        o.x-o.w/2+
+        o.w/(bars+1)*i;
 
       box(
-        0.04,
-        opening.h - 0.06,
-        0.05,
+        .04,
+        o.h-.06,
+        .05,
         frameMat,
-        mullionX,
-        opening.sill + opening.h / 2,
+        x,
+        o.sill+o.h/2,
         faceZ
       );
     }
   }
 
-  /* =====================================================
-     FRONT / REAR LOUVER
-  ===================================================== */
+  /* ================= FRONT/REAR LOUVER ================= */
 
-  function makeFrontRearLouver(
-    opening,
-    z,
-    isFront
-  ) {
+  function frontRearLouver(o,z,isFront){
 
-    const insideZ =
-      z + (isFront ? -0.05 : 0.05);
+    const faceZ=
+      z+(isFront?.015:-.015);
 
-    const faceZ =
-      z + (isFront ? 0.015 : -0.015);
+    const insideZ=
+      z+(isFront?-.05:.05);
 
     box(
-      opening.w - 0.06,
-      opening.h - 0.06,
-      0.12,
-      louverInsideMat,
-      opening.x,
-      opening.sill + opening.h / 2,
+      o.w-.06,
+      o.h-.06,
+      .12,
+      darkMat,
+      o.x,
+      o.sill+o.h/2,
       insideZ
     );
 
+    box(o.w,.05,.07,frameMat,o.x,o.sill,faceZ);
+    box(o.w,.05,.07,frameMat,o.x,o.sill+o.h,faceZ);
+
     box(
-      opening.w,
-      0.05,
-      0.07,
+      .05,o.h,.07,
       frameMat,
-      opening.x,
-      opening.sill,
+      o.x-o.w/2,
+      o.sill+o.h/2,
       faceZ
     );
 
     box(
-      opening.w,
-      0.05,
-      0.07,
+      .05,o.h,.07,
       frameMat,
-      opening.x,
-      opening.sill + opening.h,
+      o.x+o.w/2,
+      o.sill+o.h/2,
       faceZ
     );
 
-    box(
-      0.05,
-      opening.h,
-      0.07,
-      frameMat,
-      opening.x - opening.w / 2,
-      opening.sill + opening.h / 2,
-      faceZ
-    );
+    const count=10;
 
-    box(
-      0.05,
-      opening.h,
-      0.07,
-      frameMat,
-      opening.x + opening.w / 2,
-      opening.sill + opening.h / 2,
-      faceZ
-    );
+    for(let i=0;i<count;i++){
 
-    const slatCount = 10;
+      const y=
+        o.sill+.12+
+        i*((o.h-.24)/(count-1));
 
-    for (
-      let i = 0;
-      i < slatCount;
-      i++
-    ) {
-
-      const yy =
-        opening.sill +
-        0.12 +
-        i *
-        (
-          (opening.h - 0.24) /
-          (slatCount - 1)
-        );
-
-      const slat = new THREE.Mesh(
+      const slat=new THREE.Mesh(
         new THREE.BoxGeometry(
-          opening.w - 0.14,
-          0.028,
-          0.075
+          o.w-.14,
+          .028,
+          .075
         ),
         louverMat
       );
 
       slat.position.set(
-        opening.x,
-        yy,
+        o.x,
+        y,
         faceZ
       );
 
-      slat.rotation.x =
-        isFront ? -0.28 : 0.28;
+      slat.rotation.x=
+        isFront?-.28:.28;
 
-      slat.castShadow = true;
+      slat.castShadow=true;
       unit.add(slat);
     }
 
-    for (
-      let i = 1;
-      i <= 2;
-      i++
-    ) {
+    for(let i=1;i<=2;i++){
 
-      const xx =
-        opening.x -
-        opening.w / 2 +
-        (opening.w / 3) * i;
+      const x=
+        o.x-o.w/2+
+        o.w/3*i;
 
       box(
-        0.03,
-        opening.h - 0.08,
-        0.05,
+        .03,
+        o.h-.08,
+        .05,
         louverMat,
-        xx,
-        opening.sill + opening.h / 2,
+        x,
+        o.sill+o.h/2,
         faceZ
       );
     }
   }
 
-  /* =====================================================
-     SIDE WINDOW
-  ===================================================== */
+  /* ================= SIDE WINDOW ================= */
 
-  function makeSideWindow(
-    opening,
-    x,
-    isLeft
-  ) {
+  function sideWindow(o,x,isLeft){
 
-    const faceX =
-      x + (isLeft ? -0.012 : 0.012);
+    const faceX=
+      x+(isLeft?-.012:.012);
 
     box(
-      0.055,
-      opening.h - 0.10,
-      opening.w - 0.10,
+      .055,
+      o.h-.10,
+      o.w-.10,
       glassMat,
       faceX,
-      opening.sill + opening.h / 2,
-      opening.z
+      o.sill+o.h/2,
+      o.z
+    );
+
+    box(.07,.055,o.w,frameMat,faceX,o.sill,o.z);
+    box(.07,.055,o.w,frameMat,faceX,o.sill+o.h,o.z);
+
+    box(
+      .07,o.h,.055,
+      frameMat,
+      faceX,
+      o.sill+o.h/2,
+      o.z-o.w/2
     );
 
     box(
-      0.07,
-      0.055,
-      opening.w,
+      .07,o.h,.055,
       frameMat,
       faceX,
-      opening.sill,
-      opening.z
+      o.sill+o.h/2,
+      o.z+o.w/2
     );
 
     box(
-      0.07,
-      0.055,
-      opening.w,
+      .05,
+      o.h-.06,
+      .04,
       frameMat,
       faceX,
-      opening.sill + opening.h,
-      opening.z
+      o.sill+o.h/2,
+      o.z
     );
-
-    box(
-      0.07,
-      opening.h,
-      0.055,
-      frameMat,
-      faceX,
-      opening.sill + opening.h / 2,
-      opening.z - opening.w / 2
-    );
-
-    box(
-      0.07,
-      opening.h,
-      0.055,
-      frameMat,
-      faceX,
-      opening.sill + opening.h / 2,
-      opening.z + opening.w / 2
-    );
-
-    const mullionCount =
-      opening.type === "largeWindow"
-        ? 2
-        : 1;
-
-    for (
-      let i = 1;
-      i <= mullionCount;
-      i++
-    ) {
-
-      const mullionZ =
-        opening.z -
-        opening.w / 2 +
-        (
-          opening.w /
-          (mullionCount + 1)
-        ) * i;
-
-      box(
-        0.05,
-        opening.h - 0.06,
-        0.04,
-        frameMat,
-        faceX,
-        opening.sill + opening.h / 2,
-        mullionZ
-      );
-    }
   }
 
-  /* =====================================================
-     SIDE LOUVER
-  ===================================================== */
+  /* ================= SIDE LOUVER ================= */
 
-  function makeSideLouver(
-    opening,
-    x,
-    isLeft
-  ) {
+  function sideLouver(o,x,isLeft){
 
-    const insideX =
-      x + (isLeft ? 0.05 : -0.05);
+    const faceX=
+      x+(isLeft?-.015:.015);
 
-    const faceX =
-      x + (isLeft ? -0.015 : 0.015);
+    const insideX=
+      x+(isLeft?.05:-.05);
 
     box(
-      0.12,
-      opening.h - 0.06,
-      opening.w - 0.06,
-      louverInsideMat,
+      .12,
+      o.h-.06,
+      o.w-.06,
+      darkMat,
       insideX,
-      opening.sill + opening.h / 2,
-      opening.z
+      o.sill+o.h/2,
+      o.z
+    );
+
+    box(.07,.05,o.w,frameMat,faceX,o.sill,o.z);
+    box(.07,.05,o.w,frameMat,faceX,o.sill+o.h,o.z);
+
+    box(
+      .07,o.h,.05,
+      frameMat,
+      faceX,
+      o.sill+o.h/2,
+      o.z-o.w/2
     );
 
     box(
-      0.07,
-      0.05,
-      opening.w,
+      .07,o.h,.05,
       frameMat,
       faceX,
-      opening.sill,
-      opening.z
+      o.sill+o.h/2,
+      o.z+o.w/2
     );
 
-    box(
-      0.07,
-      0.05,
-      opening.w,
-      frameMat,
-      faceX,
-      opening.sill + opening.h,
-      opening.z
-    );
+    const count=10;
 
-    box(
-      0.07,
-      opening.h,
-      0.05,
-      frameMat,
-      faceX,
-      opening.sill + opening.h / 2,
-      opening.z - opening.w / 2
-    );
+    for(let i=0;i<count;i++){
 
-    box(
-      0.07,
-      opening.h,
-      0.05,
-      frameMat,
-      faceX,
-      opening.sill + opening.h / 2,
-      opening.z + opening.w / 2
-    );
+      const y=
+        o.sill+.12+
+        i*((o.h-.24)/(count-1));
 
-    const slatCount = 10;
-
-    for (
-      let i = 0;
-      i < slatCount;
-      i++
-    ) {
-
-      const yy =
-        opening.sill +
-        0.12 +
-        i *
-        (
-          (opening.h - 0.24) /
-          (slatCount - 1)
-        );
-
-      const slat = new THREE.Mesh(
+      const slat=new THREE.Mesh(
         new THREE.BoxGeometry(
-          0.075,
-          0.028,
-          opening.w - 0.14
+          .075,
+          .028,
+          o.w-.14
         ),
         louverMat
       );
 
       slat.position.set(
         faceX,
-        yy,
-        opening.z
+        y,
+        o.z
       );
 
-      slat.rotation.z =
-        isLeft ? -0.28 : 0.28;
+      slat.rotation.z=
+        isLeft?-.28:.28;
 
-      slat.castShadow = true;
+      slat.castShadow=true;
       unit.add(slat);
     }
 
-    for (
-      let i = 1;
-      i <= 2;
-      i++
-    ) {
+    for(let i=1;i<=2;i++){
 
-      const zz =
-        opening.z -
-        opening.w / 2 +
-        (opening.w / 3) * i;
+      const z=
+        o.z-o.w/2+
+        o.w/3*i;
 
       box(
-        0.05,
-        opening.h - 0.08,
-        0.03,
+        .05,
+        o.h-.08,
+        .03,
         louverMat,
         faceX,
-        opening.sill + opening.h / 2,
-        zz
-      );
-    }
-  }
-
-  /* =====================================================
-     FRONT / REAR WALL BUILDER
-  ===================================================== */
-
-  function buildFrontRearWall(
-    z,
-    openings,
-    isFront
-  ) {
-
-    const sorted = [...openings]
-      .sort((a, b) => a.x - b.x);
-
-    let cursor = -width / 2;
-
-    sorted.forEach(opening => {
-
-      const left =
-        opening.x - opening.w / 2;
-
-      const right =
-        opening.x + opening.w / 2;
-
-      if (left > cursor) {
-
-        box(
-          left - cursor,
-          floorHeight,
-          wall,
-          wallMat,
-          (cursor + left) / 2,
-          floorHeight / 2,
-          z
-        );
-      }
-
-      if (opening.sill > 0) {
-
-        box(
-          opening.w,
-          opening.sill,
-          wall,
-          wallMat,
-          opening.x,
-          opening.sill / 2,
-          z
-        );
-      }
-
-      const topY =
-        opening.sill + opening.h;
-
-      if (topY < floorHeight) {
-
-        box(
-          opening.w,
-          floorHeight - topY,
-          wall,
-          wallMat,
-          opening.x,
-          topY +
-          (floorHeight - topY) / 2,
-          z
-        );
-      }
-
-      if (opening.type === "louver") {
-
-        makeFrontRearLouver(
-          opening,
-          z,
-          isFront
-        );
-
-      } else {
-
-        makeFrontRearWindow(
-          opening,
-          z,
-          isFront
-        );
-      }
-
-      cursor = right;
-    });
-
-    if (cursor < width / 2) {
-
-      box(
-        width / 2 - cursor,
-        floorHeight,
-        wall,
-        wallMat,
-        (cursor + width / 2) / 2,
-        floorHeight / 2,
+        o.sill+o.h/2,
         z
       );
     }
   }
 
-  /* =====================================================
-     SIDE WALL BUILDER
-  ===================================================== */
+  /* ================= HORIZONTAL WALL ================= */
 
-  function buildSideWall(
-    x,
+  function horizontalWall(
+    z,
+    xMin,
+    xMax,
     openings,
-    isLeft
-  ) {
+    isFront
+  ){
 
-    const sorted = [...openings]
-      .sort((a, b) => a.z - b.z);
+    const sorted=[...openings]
+      .sort((a,b)=>a.x-b.x);
 
-    let cursor = -depth / 2;
+    let cursor=xMin;
 
-    sorted.forEach(opening => {
+    sorted.forEach(o=>{
 
-      const rearEdge =
-        opening.z - opening.w / 2;
+      const L=o.x-o.w/2;
+      const R=o.x+o.w/2;
 
-      const frontEdge =
-        opening.z + opening.w / 2;
-
-      if (rearEdge > cursor) {
+      if(L>cursor){
 
         box(
-          wall,
-          floorHeight,
-          rearEdge - cursor,
+          L-cursor,
+          H,
+          T,
           wallMat,
-          x,
-          floorHeight / 2,
-          (cursor + rearEdge) / 2
+          (cursor+L)/2,
+          H/2,
+          z
         );
       }
 
-      if (opening.sill > 0) {
+      if(o.sill>0){
 
         box(
-          wall,
-          opening.sill,
-          opening.w,
+          o.w,
+          o.sill,
+          T,
           wallMat,
-          x,
-          opening.sill / 2,
-          opening.z
+          o.x,
+          o.sill/2,
+          z
         );
       }
 
-      const topY =
-        opening.sill + opening.h;
+      const top=o.sill+o.h;
 
-      if (topY < floorHeight) {
+      if(top<H){
 
         box(
-          wall,
-          floorHeight - topY,
-          opening.w,
+          o.w,
+          H-top,
+          T,
           wallMat,
-          x,
-          topY +
-          (floorHeight - topY) / 2,
-          opening.z
+          o.x,
+          top+(H-top)/2,
+          z
         );
       }
 
-      if (opening.type === "louver") {
-
-        makeSideLouver(
-          opening,
-          x,
-          isLeft
-        );
-
-      } else {
-
-        makeSideWindow(
-          opening,
-          x,
-          isLeft
-        );
+      if(o.type==="louver"){
+        frontRearLouver(o,z,isFront);
+      }else{
+        frontRearWindow(o,z,isFront);
       }
 
-      cursor = frontEdge;
+      cursor=R;
     });
 
-    if (cursor < depth / 2) {
+    if(cursor<xMax){
 
       box(
-        wall,
-        floorHeight,
-        depth / 2 - cursor,
+        xMax-cursor,
+        H,
+        T,
         wallMat,
-        x,
-        floorHeight / 2,
-        (cursor + depth / 2) / 2
+        (cursor+xMax)/2,
+        H/2,
+        z
       );
     }
   }
 
-  /* =====================================================
-     BUILD FOUR SIDES
-  ===================================================== */
+  /* ================= FRONT PROFILE ================= */
 
-  buildFrontRearWall(
-    depth / 2,
-    frontOpenings,
-    true
-  );
+  profile.forEach((zone,index)=>{
 
-  buildFrontRearWall(
-    -depth / 2,
-    rearOpenings,
+    const z=
+      baseFrontZ+
+      (zone.offset??0);
+
+    const openings=front.filter(o=>
+      o.x>=zone.xMin &&
+      o.x<=zone.xMax
+    );
+
+    horizontalWall(
+      z,
+      zone.xMin,
+      zone.xMax,
+      openings,
+      true
+    );
+
+    /* 단차가 생기는 세로 리턴벽 */
+    if(index<profile.length-1){
+
+      const next=profile[index+1];
+
+      const nextZ=
+        baseFrontZ+
+        (next.offset??0);
+
+      if(Math.abs(nextZ-z)>.001){
+
+        box(
+          T,
+          H,
+          Math.abs(nextZ-z),
+          wallMat,
+          zone.xMax,
+          H/2,
+          (z+nextZ)/2
+        );
+      }
+    }
+  });
+
+  /* ================= REAR ================= */
+
+  horizontalWall(
+    rearZ,
+    -width/2,
+    width/2,
+    rear,
     false
   );
 
-  buildSideWall(
-    -width / 2,
-    leftOpenings,
+  /* ================= SIDE WALL ================= */
+
+  function sideWall(
+    x,
+    zMin,
+    zMax,
+    openings,
+    isLeft
+  ){
+
+    const valid=openings
+      .filter(o=>
+        o.z>=zMin &&
+        o.z<=zMax
+      )
+      .sort((a,b)=>a.z-b.z);
+
+    let cursor=zMin;
+
+    valid.forEach(o=>{
+
+      const A=o.z-o.w/2;
+      const B=o.z+o.w/2;
+
+      if(A>cursor){
+
+        box(
+          T,
+          H,
+          A-cursor,
+          wallMat,
+          x,
+          H/2,
+          (cursor+A)/2
+        );
+      }
+
+      if(o.sill>0){
+
+        box(
+          T,
+          o.sill,
+          o.w,
+          wallMat,
+          x,
+          o.sill/2,
+          o.z
+        );
+      }
+
+      const top=o.sill+o.h;
+
+      if(top<H){
+
+        box(
+          T,
+          H-top,
+          o.w,
+          wallMat,
+          x,
+          top+(H-top)/2,
+          o.z
+        );
+      }
+
+      if(o.type==="louver"){
+        sideLouver(o,x,isLeft);
+      }else{
+        sideWindow(o,x,isLeft);
+      }
+
+      cursor=B;
+    });
+
+    if(cursor<zMax){
+
+      box(
+        T,
+        H,
+        zMax-cursor,
+        wallMat,
+        x,
+        H/2,
+        (cursor+zMax)/2
+      );
+    }
+  }
+
+  const leftFrontZ=
+    baseFrontZ+
+    (profile[0].offset??0);
+
+  const rightFrontZ=
+    baseFrontZ+
+    (profile[profile.length-1].offset??0);
+
+  sideWall(
+    -width/2,
+    rearZ,
+    leftFrontZ,
+    left,
     true
   );
 
-  buildSideWall(
-    width / 2,
-    rightOpenings,
+  sideWall(
+    width/2,
+    rearZ,
+    rightFrontZ,
+    right,
     false
   );
 
-  /* =====================================================
-     SOCKET MARKERS
-  ===================================================== */
+  /* ================= GROUND ================= */
 
-  box(
-    0.03,
-    1.20,
-    2.2,
-    socketMat,
-    -width / 2 - 0.11,
-    1.10,
-    0
-  );
-
-  box(
-    0.03,
-    1.20,
-    2.2,
-    socketMat,
-    width / 2 + 0.11,
-    1.10,
-    0
-  );
-
-  /* =====================================================
-     ORIENTATION MARKERS
-  ===================================================== */
-
-  const frontMarker = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      2.1,
-      0.035,
-      0.18
-    ),
+  const ground=new THREE.Mesh(
+    new THREE.PlaneGeometry(40,40),
     new THREE.MeshStandardMaterial({
-      color: 0x4b88aa
+      color:0xaab7a6,
+      roughness:1
     })
   );
 
-  frontMarker.position.set(
-    0,
-    0.15,
-    depth / 2 + 0.38
-  );
-
-  unit.add(frontMarker);
-
-  const rearMarker = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      2.1,
-      0.035,
-      0.18
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x7f8b90
-    })
-  );
-
-  rearMarker.position.set(
-    0,
-    0.15,
-    -depth / 2 - 0.38
-  );
-
-  unit.add(rearMarker);
-
-  /* =====================================================
-     GROUND
-  ===================================================== */
-
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(
-      40,
-      40
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0xaab7a6,
-      roughness: 1
-    })
-  );
-
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-
+  ground.rotation.x=-Math.PI/2;
+  ground.receiveShadow=true;
   scene.add(ground);
 
-  /* =====================================================
-     UI
-  ===================================================== */
+  /* ================= UI ================= */
 
-  const title =
-    document.getElementById("unitTitle");
+  const title=document.getElementById("unitTitle");
+  const subtitle=document.getElementById("unitSubtitle");
 
-  const subtitle =
-    document.getElementById("unitSubtitle");
-
-  if (title) {
-
-    title.textContent =
-      `UNIT_${unitData.code} · ${unitData.id}`;
+  if(title){
+    title.textContent=
+      `UNIT_${data.code} · ${data.id}`;
   }
 
-  if (subtitle) {
-
-    subtitle.textContent =
-      `전용면적 ${unitData.area.toFixed(4)}㎡ · 모듈러 UNIT`;
+  if(subtitle){
+    subtitle.textContent=
+      `전용면적 ${data.area.toFixed(4)}㎡ · 모듈러 UNIT`;
   }
 
-  /* =====================================================
-     LOOP
-  ===================================================== */
+  /* ================= LOOP ================= */
 
-  function animate() {
+  function animate(){
 
     requestAnimationFrame(animate);
 
@@ -992,27 +750,20 @@ export function createUnitViewer(unitData) {
 
   animate();
 
-  /* =====================================================
-     RESIZE
-  ===================================================== */
+  addEventListener("resize",()=>{
 
-  addEventListener(
-    "resize",
-    () => {
+    camera.aspect=
+      innerWidth/innerHeight;
 
-      camera.aspect =
-        innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
 
-      camera.updateProjectionMatrix();
+    renderer.setSize(
+      innerWidth,
+      innerHeight
+    );
+  });
 
-      renderer.setSize(
-        innerWidth,
-        innerHeight
-      );
-    }
-  );
-
-  return {
+  return{
     scene,
     camera,
     renderer,
