@@ -19,19 +19,17 @@ export const UNIT_D={
   ],
 
   /*
-    REAR를 밖에서 정면으로 바라볼 때
-    LEFT → RIGHT
+    REAR를 밖에서 바라봤을 때 LEFT → RIGHT
+    다용도실창 → 주방창 → 다용도실창 → 루버
 
-    루버 → 다용도실창 → 주방창 → 다용도실창
-
-    ※ REAR는 화면 좌우와 X축이 반대로 보이므로
-       왼쪽 요소일수록 +X 값 사용
+    주방창 x:-0.65
+    = FRONT 거실창 x:-0.65와 동일 축
   */
   rearOpenings:[
-    {id:"R01",name:"outdoorUnitLouver",type:"louver",x:3.30,w:.72,h:1.45,sill:.68},
-    {id:"R02",name:"utilityRoomWindow1",type:"window",x:1.85,w:.72,h:.78,sill:1.13},
-    {id:"R03",name:"kitchenWindow",type:"kitchenWindow",x:.45,w:.72,h:.56,sill:1.24},
-    {id:"R04",name:"utilityRoomWindow2",type:"window",x:-1.05,w:.72,h:.78,sill:1.13}
+    {id:"R01",name:"utilityRoomWindow1",type:"window",x:1.25,w:.72,h:.78,sill:1.13},
+    {id:"R02",name:"kitchenWindow",type:"kitchenWindow",x:-.65,w:.72,h:.56,sill:1.24},
+    {id:"R03",name:"utilityRoomWindow2",type:"window",x:-2.10,w:.72,h:.78,sill:1.13},
+    {id:"R04",name:"outdoorUnitLouver",type:"louver",x:-3.55,w:.72,h:1.45,sill:.68}
   ],
 
   leftOpenings:[],
