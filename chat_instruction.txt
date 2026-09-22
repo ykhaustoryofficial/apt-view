@@ -1,0 +1,9126 @@
+# =============================================================================
+# [AI 어시스턴트 필독 지침 / LLM System Instructions]
+#
+# 1. 문서 목적:
+#    본 문서는 웹사이트 유지보수, 신규 기능 구현, 버그 수정을 위해 프로젝트 파일 시스템에서
+#    추출된 소스 코드 번들입니다. AI는 프로젝트 전체 맥락과 개별 코드를 분석해 최적의
+#    코드와 해결책을 제시해야 합니다.
+#
+# 2. 컨텍스트 구성:
+#    - [1. 프로젝트 전체 디렉터리 구조 트리]: 프로젝트의 전체 폴더 및 파일 구성 현황입니다.
+#    - [2. 소스 코드 본문]: 사용자가 직접 선택한 파일들입니다.
+#
+# 3. 필수 준수 사항 (미첨부 파일 코드 요구 원칙):
+#    - 사용자의 질문을 분석할 때 전체 디렉터리 트리를 반드시 참고하십시오.
+#    - 질문 의도를 충족하거나 연계 기능을 수정하는 데 있어, 트리에 명시되어 있으나 아래 본문에
+#      첨부되지 않은 파일의 내부 코드가 필요한 경우가 있습니다.
+#    - 이 경우 절대로 코드를 임의로 추측(Hallucination)하여 불완전한 답변을 내놓지 마십시오.
+#    - 반드시 질문자에게 "완벽한 코드 작성을 위해 전체 트리 목록 중 [정확한 파일 경로]의 코드가
+#      추가로 필요하니, 번들러에서 해당 파일을 선택해 전달해 달라"고 명확히 요구하십시오.
+# =============================================================================
+
+# 생성 일시       : 2026. 9. 22. 오후 12:31:38
+# 분석 대상 파일  : 전체 32개 중 26개 포함됨
+
+# [1. 프로젝트 전체 디렉터리 구조 트리]
+/ (프로젝트 루트 디렉터리)
+├── assets/
+│   ├── css/
+│   │   ├── a
+│   │   └── cyber-tour.css
+│   ├── images/
+│   │   ├── cyber-tour/
+│   │   │   ├── a
+│   │   │   ├── aerial.jpg
+│   │   │   └── site-map.jpg
+│   │   └── a
+│   └── js/
+│       ├── a
+│       ├── cyber-tour-data.js
+│       └── cyber-tour.js
+├── prototype/
+│   ├── builders/
+│   │   ├── building-layout-builder.js
+│   │   └── unit-catalog.js
+│   ├── css/
+│   │   └── unit-viewer.css
+│   ├── js/
+│   │   ├── units/
+│   │   │   ├── unit-a.js
+│   │   │   ├── unit-b.js
+│   │   │   ├── unit-c.js
+│   │   │   ├── unit-d.js
+│   │   │   ├── unit-e.js
+│   │   │   └── unit-f.js
+│   │   ├── building-bundle.js
+│   │   ├── floor-builder.js
+│   │   ├── opening-presets.js
+│   │   ├── unit-model.js
+│   │   └── unit-viewer.js
+│   ├── building-bundle.html
+│   ├── building-bundle.js
+│   ├── unit-a.html
+│   ├── unit-b.html
+│   ├── unit-c.html
+│   ├── unit-d.html
+│   ├── unit-e.html
+│   └── unit-f.html
+└── cyber-tour.html
+
+# =============================================================================
+# [2. 선택된 파일 소스 코드 본문]
+# =============================================================================
+
+================================================================================
+FILE: /assets/css/cyber-tour.css
+================================================================================
+/* =========================================================
+   BASIC
+========================================================= */
+
+:root {
+
+    --white: #ffffff;
+
+    --glass:
+        rgba(13, 25, 34, .42);
+
+    --glass-line:
+        rgba(255,255,255,.18);
+
+    --shadow:
+        0 24px 70px rgba(0,0,0,.28);
+
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+
+    overflow: hidden;
+
+    background: #10171f;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Apple SD Gothic Neo",
+        "Pretendard",
+        sans-serif;
+
+}
+
+button {
+    font: inherit;
+}
+
+
+
+/* =========================================================
+   SCENE SYSTEM
+========================================================= */
+
+.tour-app,
+.scene {
+
+    width: 100%;
+
+    height: 100dvh;
+
+    min-height: 100svh;
+
+}
+
+.scene {
+
+    position: fixed;
+
+    inset: 0;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity .8s ease,
+        visibility .8s ease;
+
+}
+
+.scene.is-active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+}
+
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero-scene {
+
+    overflow: hidden;
+
+    color: white;
+
+    background: #16212a;
+
+}
+
+.hero-image {
+
+    position: absolute;
+
+    inset: -4%;
+
+}
+
+.hero-image img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    filter:
+        brightness(.88)
+        saturate(.92)
+        contrast(1.04);
+
+    animation:
+        heroCamera 18s ease-out forwards;
+
+}
+
+@keyframes heroCamera {
+
+    from {
+
+        transform:
+            scale(1.02)
+            translate3d(0,0,0);
+
+    }
+
+    to {
+
+        transform:
+            scale(1.12)
+            translate3d(-1%,-1%,0);
+
+    }
+
+}
+
+.hero-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(6,12,18,.25),
+            transparent 38%,
+            rgba(4,10,15,.67)
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(4,9,14,.46),
+            transparent 65%
+        );
+
+    box-shadow:
+
+        inset 0 0 180px
+        rgba(0,0,0,.18);
+
+}
+
+.hero-content {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: clamp(23px,7vw,100px);
+
+    bottom:
+        max(
+            90px,
+            calc(env(safe-area-inset-bottom) + 68px)
+        );
+
+}
+
+.eyebrow {
+
+    margin-bottom: 13px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: .28em;
+
+    color:
+        rgba(255,255,255,.7);
+
+}
+
+.hero-content h1 {
+
+    margin: 0;
+
+    font-size:
+        clamp(44px,7vw,88px);
+
+    line-height: .95;
+
+    letter-spacing: -.06em;
+
+}
+
+.hero-content p {
+
+    margin: 25px 0 0;
+
+    font-size:
+        clamp(17px,2vw,23px);
+
+    line-height: 1.65;
+
+    color:
+        rgba(255,255,255,.8);
+
+}
+
+.enter-button {
+
+    margin-top: 30px;
+
+    padding:
+        15px 18px 15px 21px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 27px;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.25);
+
+    border-radius: 999px;
+
+    background:
+        rgba(13,24,32,.32);
+
+    color: white;
+
+    backdrop-filter:
+        blur(16px);
+
+    -webkit-backdrop-filter:
+        blur(16px);
+
+}
+
+.hero-guide {
+
+    position: absolute;
+
+    right: 25px;
+
+    bottom: 28px;
+
+    font-size: 9px;
+
+    letter-spacing: .25em;
+
+    color:
+        rgba(255,255,255,.55);
+
+}
+
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.map-scene {
+
+    overflow: hidden;
+
+    color: white;
+
+    background:
+        #111820;
+
+}
+
+.map-scene::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 5;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(5,10,15,.43),
+            transparent 25%,
+            transparent 65%,
+            rgba(5,10,15,.68)
+        ),
+
+        radial-gradient(
+            circle at center,
+            transparent 35%,
+            rgba(3,8,12,.28)
+        );
+
+}
+
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar {
+
+    position: absolute;
+
+    z-index: 30;
+
+    left:
+        max(
+            16px,
+            env(safe-area-inset-left)
+        );
+
+    right:
+        max(
+            16px,
+            env(safe-area-inset-right)
+        );
+
+    top:
+        max(
+            14px,
+            env(safe-area-inset-top)
+        );
+
+    display: grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+.topbar-title strong {
+
+    display: block;
+
+    font-size: 15px;
+
+}
+
+.topbar-title span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color:
+        rgba(255,255,255,.6);
+
+}
+
+.glass-button,
+.round-button {
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.17);
+
+    color: white;
+
+    background:
+        rgba(15,27,36,.43);
+
+    backdrop-filter:
+        blur(17px);
+
+    -webkit-backdrop-filter:
+        blur(17px);
+
+}
+
+.glass-button {
+
+    height: 42px;
+
+    padding: 0 14px;
+
+    border-radius: 14px;
+
+    font-size: 12px;
+
+}
+
+.icon-button {
+
+    width: 42px;
+
+    padding: 0;
+
+    font-size: 20px;
+
+}
+
+
+
+/* =========================================================
+   MAP IMAGE
+========================================================= */
+
+.map-viewport {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+}
+
+.map-stage {
+
+    position: absolute;
+
+    inset: 0;
+
+    transition:
+
+        transform
+        1.2s
+        cubic-bezier(.16,.76,.18,1);
+
+    transform-origin: center;
+
+}
+
+.site-map {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    user-select: none;
+
+    filter:
+
+        brightness(.83)
+        saturate(.84);
+
+}
+
+
+
+/* =========================================================
+   MAP POINT
+========================================================= */
+
+.map-point {
+
+    position: absolute;
+
+    z-index: 15;
+
+    left: var(--x);
+
+    top: var(--y);
+
+    width: 38px;
+
+    height: 38px;
+
+    margin:
+
+        -19px
+        0
+        0
+        -19px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: white;
+
+}
+
+.point-ring {
+
+    position: absolute;
+
+    inset: 2px;
+
+    border-radius: 50%;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.9);
+
+    background:
+        rgba(210,239,255,.13);
+
+    box-shadow:
+
+        0 0 0 8px
+        rgba(220,245,255,.07),
+
+        0 7px 20px
+        rgba(0,0,0,.2);
+
+    animation:
+        pointPulse
+        2s
+        infinite;
+
+}
+
+.point-core {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    transform:
+        translate(-50%,-50%);
+
+    box-shadow:
+        0 0 15px white;
+
+}
+
+.point-label {
+
+    position: absolute;
+
+    top: 43px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    white-space: nowrap;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-shadow:
+        0 3px 10px
+        rgba(0,0,0,.8);
+
+}
+
+.map-point.is-active
+.point-ring {
+
+    background:
+        rgba(222,245,255,.35);
+
+    box-shadow:
+
+        0 0 0 12px
+        rgba(220,245,255,.12),
+
+        0 0 35px
+        rgba(218,244,255,.45);
+
+}
+
+@keyframes pointPulse {
+
+    50% {
+
+        transform:
+            scale(1.08);
+
+        box-shadow:
+
+            0 0 0 14px
+            rgba(220,245,255,0);
+
+    }
+
+}
+
+
+
+/* =========================================================
+   MAP CARD
+========================================================= */
+
+.location-card {
+
+    position: absolute;
+
+    z-index: 30;
+
+    left:
+        max(
+            16px,
+            env(safe-area-inset-left)
+        );
+
+    right:
+        max(
+            16px,
+            env(safe-area-inset-right)
+        );
+
+    bottom:
+        max(
+            17px,
+            calc(
+                env(safe-area-inset-bottom)
+                + 8px
+            )
+        );
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    gap: 15px;
+
+    padding: 17px;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.16);
+
+    border-radius: 23px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(19,31,41,.65),
+            rgba(10,20,28,.38)
+        );
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+
+    box-shadow:
+        0 24px 70px
+        rgba(0,0,0,.27);
+
+}
+
+.location-kicker {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .22em;
+
+    color:
+        rgba(220,243,255,.65);
+
+}
+
+.location-card h2 {
+
+    margin: 0;
+
+    font-size:
+        clamp(24px,4vw,37px);
+
+    letter-spacing: -.045em;
+
+}
+
+.location-card p {
+
+    margin: 7px 0 0;
+
+    max-width: 550px;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    color:
+        rgba(255,255,255,.65);
+
+}
+
+.location-navigation {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+.round-button {
+
+    width: 38px;
+
+    height: 38px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    font-size: 17px;
+
+}
+
+.counter {
+
+    min-width: 48px;
+
+    text-align: center;
+
+    font-size: 11px;
+
+    color:
+        rgba(255,255,255,.7);
+
+}
+
+.virtual-walk-button {
+
+    display: none;
+
+    margin-top: 13px;
+
+    height: 39px;
+
+    padding: 0 15px;
+
+    align-items: center;
+
+    gap: 10px;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.2);
+
+    border-radius: 13px;
+
+    color: white;
+
+    background:
+        rgba(207,241,255,.16);
+
+}
+
+.virtual-walk-button.is-visible {
+
+    display:
+        inline-flex;
+
+}
+
+.map-hint {
+
+    position: absolute;
+
+    z-index: 25;
+
+    top: 77px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    padding:
+        8px 12px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(8,18,25,.42);
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.12);
+
+    backdrop-filter:
+        blur(14px);
+
+    color:
+        rgba(255,255,255,.72);
+
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    transition:
+        opacity .3s;
+
+}
+
+.map-hint.is-hidden {
+
+    opacity: 0;
+
+}
+
+
+
+/* =========================================================
+   VIRTUAL WALK
+========================================================= */
+
+.walk-scene {
+
+    overflow: hidden;
+
+    color: #1b3035;
+
+    --look-x: 0px;
+
+    --look-y: 0px;
+
+}
+
+
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+.walk-world {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    perspective: 1000px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #a8d6e8 0%,
+            #dceee9 48%,
+            #a8c994 49%,
+            #719b62 100%
+        );
+
+    transition:
+        background 1s ease;
+
+}
+
+.walk-scene.is-night
+.walk-world {
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #101e31,
+            #203447 47%,
+            #314739 48%,
+            #17291e
+        );
+
+}
+
+
+
+/* =========================================================
+   SUN
+========================================================= */
+
+.sun {
+
+    position: absolute;
+
+    right: 12%;
+
+    top: 11%;
+
+    width: 85px;
+
+    height: 85px;
+
+    border-radius: 50%;
+
+    background:
+        #fff8cf;
+
+    box-shadow:
+
+        0 0 55px
+        rgba(255,243,184,.65),
+
+        0 0 130px
+        rgba(255,230,151,.3);
+
+    transition: 1s;
+
+}
+
+.walk-scene.is-night
+.sun {
+
+    width: 55px;
+
+    height: 55px;
+
+    background:
+        #edf5ff;
+
+    box-shadow:
+
+        0 0 35px
+        rgba(211,231,255,.45);
+
+}
+
+
+
+/* =========================================================
+   CLOUD
+========================================================= */
+
+.cloud {
+
+    position: absolute;
+
+    width: 170px;
+
+    height: 45px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.44);
+
+    filter: blur(3px);
+
+}
+
+.cloud::before,
+.cloud::after {
+
+    content: "";
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    background:
+        inherit;
+
+}
+
+.cloud::before {
+
+    width: 85px;
+
+    height: 80px;
+
+    left: 26px;
+
+    bottom: 0;
+
+}
+
+.cloud::after {
+
+    width: 72px;
+
+    height: 64px;
+
+    right: 23px;
+
+    bottom: 0;
+
+}
+
+.cloud-1 {
+
+    left: 10%;
+
+    top: 14%;
+
+}
+
+.cloud-2 {
+
+    left: 57%;
+
+    top: 24%;
+
+    transform:
+        scale(.6);
+
+    opacity: .55;
+
+}
+
+.walk-scene.is-night
+.cloud {
+
+    opacity: .08;
+
+}
+
+
+
+/* =========================================================
+   MOUNTAINS
+========================================================= */
+
+.mountain {
+
+    position: absolute;
+
+    bottom: 40%;
+
+    width: 60%;
+
+    height: 25%;
+
+    background:
+        #739376;
+
+    clip-path:
+
+        polygon(
+            0 100%,
+            20% 42%,
+            34% 68%,
+            52% 22%,
+            67% 61%,
+            78% 34%,
+            100% 100%
+        );
+
+    opacity: .5;
+
+    transition:
+        filter 1s;
+
+}
+
+.mountain-1 {
+
+    left: -5%;
+
+}
+
+.mountain-2 {
+
+    right: -15%;
+
+    transform:
+        scaleX(-1);
+
+    opacity: .3;
+
+}
+
+.walk-scene.is-night
+.mountain {
+
+    filter:
+        brightness(.35)
+        saturate(.6);
+
+}
+
+
+
+/* =========================================================
+   FOREST
+========================================================= */
+
+.forest-back {
+
+    position: absolute;
+
+    left: -10%;
+
+    right: -10%;
+
+    bottom: 37%;
+
+    height: 17%;
+
+    background:
+
+        radial-gradient(
+            ellipse at 5% 100%,
+            #537951 0 35px,
+            transparent 36px
+        ),
+
+        radial-gradient(
+            ellipse at 15% 100%,
+            #63885b 0 50px,
+            transparent 51px
+        ),
+
+        radial-gradient(
+            ellipse at 26% 100%,
+            #4f7850 0 43px,
+            transparent 44px
+        ),
+
+        radial-gradient(
+            ellipse at 39% 100%,
+            #5e8656 0 55px,
+            transparent 56px
+        ),
+
+        radial-gradient(
+            ellipse at 53% 100%,
+            #4c744c 0 46px,
+            transparent 47px
+        ),
+
+        radial-gradient(
+            ellipse at 67% 100%,
+            #628a59 0 53px,
+            transparent 54px
+        ),
+
+        radial-gradient(
+            ellipse at 80% 100%,
+            #4e7550 0 48px,
+            transparent 49px
+        ),
+
+        radial-gradient(
+            ellipse at 92% 100%,
+            #61875a 0 58px,
+            transparent 59px
+        );
+
+    transform:
+        translateX(
+            calc(var(--look-x) * -.08)
+        );
+
+    transition:
+        filter 1s;
+
+}
+
+.walk-scene.is-night
+.forest-back {
+
+    filter:
+        brightness(.33)
+        saturate(.55);
+
+}
+
+
+
+/* =========================================================
+   APARTMENTS
+========================================================= */
+
+.apartment {
+
+    position: absolute;
+
+    z-index: 4;
+
+    width:
+        clamp(
+            150px,
+            23vw,
+            265px
+        );
+
+    height:
+        clamp(
+            300px,
+            48vh,
+            520px
+        );
+
+    bottom: 35%;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #e5e8e5,
+            #f7f7f2 46%,
+            #d8deda
+        );
+
+    border-radius:
+        4px 4px 0 0;
+
+    box-shadow:
+        0 25px 35px
+        rgba(30,52,52,.14);
+
+    transform:
+        translateX(
+            calc(var(--look-x) * -.12)
+        );
+
+    transition:
+        filter 1s;
+
+}
+
+.apartment::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 8% 10%;
+
+    background:
+
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 18px,
+            rgba(55,82,91,.17)
+            19px 22px
+        ),
+
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 20px,
+            rgba(56,81,91,.18)
+            20px 24px
+        );
+
+}
+
+.apt-roof {
+
+    position: absolute;
+
+    left: -3%;
+
+    right: -3%;
+
+    top: -13px;
+
+    height: 16px;
+
+    background:
+        #bfc7c6;
+
+}
+
+.apt-side {
+
+    position: absolute;
+
+    right: -18px;
+
+    top: 9px;
+
+    width: 18px;
+
+    height: 100%;
+
+    background:
+        #b7c2c0;
+
+    transform:
+        skewY(-31deg);
+
+    transform-origin:
+        left top;
+
+}
+
+.apartment-left {
+
+    left: 4%;
+
+    transform:
+
+        translateX(
+            calc(var(--look-x) * -.14)
+        )
+
+        rotateY(8deg);
+
+}
+
+.apartment-center {
+
+    left: 50%;
+
+    bottom: 40%;
+
+    transform:
+
+        translateX(
+            calc(
+                -50%
+                + var(--look-x) * -.07
+            )
+        )
+
+        scale(.78);
+
+}
+
+.apartment-right {
+
+    right: 3%;
+
+    transform:
+
+        translateX(
+            calc(var(--look-x) * -.14)
+        )
+
+        rotateY(-8deg);
+
+}
+
+.walk-scene.is-night
+.apartment {
+
+    filter:
+        brightness(.35)
+        saturate(.55);
+
+}
+
+.walk-scene.is-night
+.apartment::before {
+
+    background:
+
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 18px,
+            rgba(255,203,112,.45)
+            19px 22px
+        ),
+
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 20px,
+            rgba(43,58,61,.5)
+            20px 24px
+        );
+
+}
+
+
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+.garden-ground {
+
+    position: absolute;
+
+    left: -15%;
+
+    right: -15%;
+
+    bottom: -14%;
+
+    height: 60%;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #92be7c,
+            #6fa25f 55%,
+            #487646
+        );
+
+    transform:
+        rotateX(58deg);
+
+    transform-origin:
+        center bottom;
+
+}
+
+
+
+/* =========================================================
+   PATH
+========================================================= */
+
+.walk-path {
+
+    position: absolute;
+
+    z-index: 6;
+
+    left: 50%;
+
+    bottom: -15%;
+
+    width:
+        min(
+            76vw,
+            700px
+        );
+
+    height: 75%;
+
+    transform:
+
+        translateX(-50%)
+
+        perspective(800px)
+
+        rotateX(65deg);
+
+    transform-origin:
+        center bottom;
+
+    clip-path:
+
+        polygon(
+            44% 0,
+            56% 0,
+            94% 100%,
+            6% 100%
+        );
+
+    background:
+
+        repeating-linear-gradient(
+            0deg,
+            #d7d4c7 0 29px,
+            #c7c5b9 29px 31px
+        );
+
+    box-shadow:
+
+        inset 0 0 30px
+        rgba(70,75,70,.18);
+
+    transition:
+        filter 1s;
+
+}
+
+.walk-scene.is-night
+.walk-path {
+
+    filter:
+        brightness(.38)
+        saturate(.5);
+
+}
+
+
+
+/* =========================================================
+   LAWN
+========================================================= */
+
+.central-lawn {
+
+    position: absolute;
+
+    z-index: 7;
+
+    left: 50%;
+
+    top: 58%;
+
+    width:
+        clamp(
+            190px,
+            40vw,
+            450px
+        );
+
+    height:
+        clamp(
+            80px,
+            15vh,
+            145px
+        );
+
+    border-radius: 50%;
+
+    transform:
+
+        translateX(
+            calc(
+                -50%
+                + var(--look-x) * -.12
+            )
+        );
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 36%,
+            #a8d989,
+            #70a65e 70%
+        );
+
+    box-shadow:
+
+        0 15px 25px
+        rgba(52,88,48,.22),
+
+        inset 0 9px 15px
+        rgba(255,255,255,.15);
+
+    transition:
+        filter 1s;
+
+}
+
+.walk-scene.is-night
+.central-lawn {
+
+    filter:
+        brightness(.37)
+        saturate(.65);
+
+}
+
+
+
+/* =========================================================
+   TREES
+========================================================= */
+
+.tree {
+
+    position: absolute;
+
+    z-index: 12;
+
+    width: 70px;
+
+    height: 130px;
+
+    transform:
+
+        translateX(
+            calc(
+                var(--look-x)
+                * var(--move)
+            )
+        )
+
+        scale(
+            var(--scale)
+        );
+
+    transform-origin:
+        center bottom;
+
+    filter:
+
+        drop-shadow(
+            0 15px 11px
+            rgba(36,69,38,.2)
+        );
+
+}
+
+.tree-crown {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 0;
+
+    width: 70px;
+
+    height: 80px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius:
+        54% 46% 52% 48%;
+
+    background:
+
+        radial-gradient(
+            circle at 30% 30%,
+            #93c67b 0 19%,
+            transparent 20%
+        ),
+
+        radial-gradient(
+            circle at 65% 32%,
+            #77ae64 0 27%,
+            transparent 28%
+        ),
+
+        radial-gradient(
+            circle at 46% 67%,
+            #5d9855,
+            #417345 80%
+        );
+
+}
+
+.tree-trunk {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 0;
+
+    width: 12px;
+
+    height: 58px;
+
+    border-radius: 5px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #674a34,
+            #987052,
+            #60442f
+        );
+
+    z-index: -1;
+
+}
+
+.tree-1 {
+
+    left: 6%;
+
+    bottom: 12%;
+
+    --scale: 1.3;
+
+    --move: -.46;
+
+}
+
+.tree-2 {
+
+    left: 23%;
+
+    bottom: 28%;
+
+    --scale: .78;
+
+    --move: -.28;
+
+}
+
+.tree-3 {
+
+    left: 40%;
+
+    bottom: 37%;
+
+    --scale: .59;
+
+    --move: -.16;
+
+}
+
+.tree-4 {
+
+    right: 37%;
+
+    bottom: 37%;
+
+    --scale: .6;
+
+    --move: -.17;
+
+}
+
+.tree-5 {
+
+    right: 20%;
+
+    bottom: 27%;
+
+    --scale: .82;
+
+    --move: -.3;
+
+}
+
+.tree-6 {
+
+    right: 5%;
+
+    bottom: 11%;
+
+    --scale: 1.34;
+
+    --move: -.47;
+
+}
+
+.walk-scene.is-night
+.tree {
+
+    filter:
+
+        brightness(.4)
+
+        saturate(.6)
+
+        drop-shadow(
+            0 15px 15px
+            rgba(0,0,0,.35)
+        );
+
+}
+
+
+
+/* =========================================================
+   FLOWERS
+========================================================= */
+
+.flower-bed {
+
+    position: absolute;
+
+    z-index: 9;
+
+    bottom: 19%;
+
+    width: 140px;
+
+    height: 62px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle at 15% 46%,
+            #f4bfc9 0 4%,
+            transparent 5%
+        ),
+
+        radial-gradient(
+            circle at 30% 65%,
+            #f7df8e 0 4%,
+            transparent 5%
+        ),
+
+        radial-gradient(
+            circle at 48% 37%,
+            #d6c7ee 0 4%,
+            transparent 5%
+        ),
+
+        radial-gradient(
+            circle at 65% 60%,
+            #f5b89e 0 4%,
+            transparent 5%
+        ),
+
+        radial-gradient(
+            circle at 82% 38%,
+            #ffe08c 0 4%,
+            transparent 5%
+        ),
+
+        #527e48;
+
+}
+
+.flower-bed-left {
+
+    left: 12%;
+
+}
+
+.flower-bed-right {
+
+    right: 10%;
+
+}
+
+.walk-scene.is-night
+.flower-bed {
+
+    filter:
+        brightness(.4);
+
+}
+
+
+
+/* =========================================================
+   BENCH
+========================================================= */
+
+.bench {
+
+    position: absolute;
+
+    z-index: 14;
+
+    left: 20%;
+
+    bottom: 21%;
+
+    width: 100px;
+
+    height: 58px;
+
+    transform:
+
+        translateX(
+            calc(
+                var(--look-x)
+                * -.36
+            )
+        );
+
+}
+
+.bench-back,
+.bench-seat {
+
+    position: absolute;
+
+    left: 0;
+
+    width: 100%;
+
+    border-radius: 4px;
+
+    background:
+
+        repeating-linear-gradient(
+            90deg,
+            #76553b 0 11px,
+            #9a7450 11px 15px
+        );
+
+}
+
+.bench-back {
+
+    top: 7px;
+
+    height: 20px;
+
+}
+
+.bench-seat {
+
+    top: 31px;
+
+    height: 13px;
+
+}
+
+.bench-leg {
+
+    position: absolute;
+
+    bottom: 0;
+
+    width: 6px;
+
+    height: 18px;
+
+    background:
+        #4a5655;
+
+}
+
+.leg-left {
+
+    left: 17px;
+
+}
+
+.leg-right {
+
+    right: 17px;
+
+}
+
+.walk-scene.is-night
+.bench {
+
+    filter:
+        brightness(.45);
+
+}
+
+
+
+/* =========================================================
+   LAMPS
+========================================================= */
+
+.lamp {
+
+    position: absolute;
+
+    z-index: 15;
+
+    bottom: 24%;
+
+    width: 10px;
+
+    height: 140px;
+
+}
+
+.lamp::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 4px;
+
+    bottom: 0;
+
+    width: 3px;
+
+    height: 120px;
+
+    border-radius: 3px;
+
+    background:
+        #394b50;
+
+}
+
+.lamp-head {
+
+    position: absolute;
+
+    left: -9px;
+
+    top: 7px;
+
+    width: 28px;
+
+    height: 16px;
+
+    border-radius:
+        50% 50% 45% 45%;
+
+    background:
+        #43545b;
+
+}
+
+.lamp-light {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 21px;
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        #fff0b8;
+
+    opacity: .05;
+
+    transition:
+        opacity .8s,
+        box-shadow .8s;
+
+}
+
+.lamp-left {
+
+    left: 33%;
+
+}
+
+.lamp-right {
+
+    right: 31%;
+
+}
+
+.walk-scene.is-night
+.lamp-light {
+
+    opacity: 1;
+
+    box-shadow:
+
+        0 0 12px 5px
+        rgba(255,225,142,.75),
+
+        0 0 48px 22px
+        rgba(255,212,101,.2);
+
+}
+
+
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+.particles {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 18;
+
+    pointer-events: none;
+
+}
+
+.particles i {
+
+    position: absolute;
+
+    width: 4px;
+
+    height: 4px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.75);
+
+    box-shadow:
+        0 0 10px
+        rgba(255,255,255,.7);
+
+    animation:
+        floatingParticle
+        7s
+        infinite
+        ease-in-out;
+
+}
+
+.particles i:nth-child(1) {
+    left: 17%;
+    top: 42%;
+}
+
+.particles i:nth-child(2) {
+    left: 33%;
+    top: 58%;
+    animation-delay: -2s;
+}
+
+.particles i:nth-child(3) {
+    left: 48%;
+    top: 39%;
+    animation-delay: -4s;
+}
+
+.particles i:nth-child(4) {
+    left: 65%;
+    top: 60%;
+    animation-delay: -1s;
+}
+
+.particles i:nth-child(5) {
+    left: 80%;
+    top: 43%;
+    animation-delay: -5s;
+}
+
+.particles i:nth-child(6) {
+    left: 57%;
+    top: 70%;
+    animation-delay: -3s;
+}
+
+@keyframes floatingParticle {
+
+    50% {
+
+        transform:
+            translate(
+                12px,
+                -25px
+            );
+
+        opacity: .25;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   VIGNETTE
+========================================================= */
+
+.world-vignette {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 20;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.04),
+            transparent 30%,
+            transparent 70%,
+            rgba(18,44,34,.18)
+        ),
+
+        radial-gradient(
+            circle at center,
+            transparent 46%,
+            rgba(25,47,41,.12)
+        );
+
+}
+
+
+
+/* =========================================================
+   WALK TOP UI
+========================================================= */
+
+.walk-topbar {
+
+    position: absolute;
+
+    z-index: 40;
+
+    left:
+        max(
+            16px,
+            env(safe-area-inset-left)
+        );
+
+    right:
+        max(
+            16px,
+            env(safe-area-inset-right)
+        );
+
+    top:
+        max(
+            14px,
+            env(safe-area-inset-top)
+        );
+
+    display: grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+.walk-button {
+
+    min-width: 42px;
+
+    height: 42px;
+
+    padding: 0 13px;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.5);
+
+    border-radius: 14px;
+
+    color:
+        #173139;
+
+    background:
+        rgba(255,255,255,.44);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+}
+
+.walk-title {
+
+    text-align: center;
+
+}
+
+.walk-title strong {
+
+    display: block;
+
+    font-size: 15px;
+
+}
+
+.walk-title span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    letter-spacing: .18em;
+
+    opacity: .58;
+
+}
+
+.walk-scene.is-night
+.walk-button {
+
+    color: white;
+
+    border-color:
+        rgba(255,255,255,.15);
+
+    background:
+        rgba(13,27,38,.45);
+
+}
+
+.walk-scene.is-night
+.walk-title {
+
+    color: white;
+
+}
+
+
+
+/* =========================================================
+   WALK INFO
+========================================================= */
+
+.walk-description {
+
+    position: absolute;
+
+    z-index: 40;
+
+    left:
+        max(
+            16px,
+            env(safe-area-inset-left)
+        );
+
+    right:
+        max(
+            16px,
+            env(safe-area-inset-right)
+        );
+
+    bottom:
+        max(
+            16px,
+            env(safe-area-inset-bottom)
+        );
+
+    padding:
+        15px 17px;
+
+    border:
+
+        1px solid
+        rgba(255,255,255,.52);
+
+    border-radius: 22px;
+
+    background:
+        rgba(251,254,252,.45);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+
+    box-shadow:
+
+        0 18px 45px
+        rgba(29,59,50,.16);
+
+}
+
+.walk-description > span {
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .2em;
+
+    opacity: .55;
+
+}
+
+.walk-description h2 {
+
+    margin:
+        6px 0 5px;
+
+    font-size: 21px;
+
+    letter-spacing: -.04em;
+
+}
+
+.walk-description p {
+
+    margin: 0;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    opacity: .7;
+
+}
+
+.drag-guide {
+
+    margin-top: 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 10px;
+
+    opacity: .5;
+
+}
+
+.walk-scene.is-night
+.walk-description {
+
+    color: white;
+
+    border-color:
+        rgba(255,255,255,.14);
+
+    background:
+        rgba(14,29,38,.48);
+
+}
+
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .hero-image {
+
+        inset: 0;
+
+    }
+
+    .hero-image img {
+
+        object-position:
+            48% center;
+
+    }
+
+    .hero-content {
+
+        left: 22px;
+
+        right: 20px;
+
+    }
+
+    .hero-content h1 {
+
+        font-size:
+            clamp(
+                43px,
+                13vw,
+                58px
+            );
+
+    }
+
+    .hero-content p {
+
+        margin-top: 18px;
+
+        font-size: 16px;
+
+    }
+
+    .hero-guide {
+
+        display: none;
+
+    }
+
+
+    .topbar-title span {
+
+        display: none;
+
+    }
+
+
+    .site-map {
+
+        object-position: center;
+
+    }
+
+
+    .location-card {
+
+        align-items: center;
+
+        padding: 14px;
+
+        border-radius: 21px;
+
+    }
+
+    .location-card h2 {
+
+        font-size: 22px;
+
+    }
+
+    .location-card p {
+
+        display: none;
+
+    }
+
+    .location-kicker {
+
+        margin-bottom: 4px;
+
+    }
+
+    .round-button {
+
+        width: 35px;
+
+        height: 35px;
+
+    }
+
+    .counter {
+
+        min-width: 40px;
+
+    }
+
+
+    .apartment {
+
+        width: 180px;
+
+    }
+
+    .apartment-left {
+
+        left: -13%;
+
+    }
+
+    .apartment-center {
+
+        left: 50%;
+
+        bottom: 43%;
+
+    }
+
+    .apartment-right {
+
+        right: -14%;
+
+    }
+
+
+    .walk-path {
+
+        width: 90vw;
+
+    }
+
+
+    .tree-1 {
+
+        left: -3%;
+
+    }
+
+    .tree-2 {
+
+        left: 14%;
+
+    }
+
+    .tree-5 {
+
+        right: 14%;
+
+    }
+
+    .tree-6 {
+
+        right: -3%;
+
+    }
+
+
+    .bench {
+
+        left: 12%;
+
+        transform:
+
+            translateX(
+                calc(
+                    var(--look-x)
+                    * -.36
+                )
+            )
+
+            scale(.82);
+
+    }
+
+    .flower-bed-left {
+
+        left: 3%;
+
+    }
+
+    .flower-bed-right {
+
+        right: 2%;
+
+    }
+
+
+    .walk-description {
+
+        padding:
+            13px 15px;
+
+    }
+
+    .walk-description h2 {
+
+        font-size: 19px;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (
+    prefers-reduced-motion:
+    reduce
+) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration:
+            .001ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+    }
+
+}
+
+.building-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.generated-building {
+    position: absolute;
+    width: clamp(70px, 8vw, 115px);
+    transform-origin: center bottom;
+}
+
+.building-face {
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(70,95,105,.12) 0 7px,
+            transparent 7px 17px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(70,95,105,.10) 0 8px,
+            transparent 8px 21px
+        ),
+        linear-gradient(
+            90deg,
+            #dde3e1,
+            #f7f8f5 48%,
+            #c9d1cf
+        );
+
+    border-radius: 3px 3px 0 0;
+
+    box-shadow:
+        0 18px 30px rgba(25,45,45,.16);
+}
+
+.building-side {
+    position: absolute;
+    top: 7px;
+    right: -15px;
+    width: 15px;
+    height: calc(100% - 7px);
+
+    background:
+        linear-gradient(
+            180deg,
+            #b8c2c0,
+            #9ca8a6
+        );
+
+    transform:
+        skewY(-28deg);
+
+    transform-origin:
+        left top;
+}
+
+.building-roof {
+    position: absolute;
+    top: -9px;
+    left: -3px;
+    right: -3px;
+    height: 10px;
+
+    background:
+        #bfc9c7;
+
+    transform:
+        skewX(-20deg);
+}
+
+.building-label {
+    position: absolute;
+    left: 50%;
+    bottom: -24px;
+
+    transform:
+        translateX(-50%);
+
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+
+    color:
+        rgba(255,255,255,.78);
+
+    text-shadow:
+        0 2px 7px rgba(0,0,0,.45);
+}
+
+/* ===== 실제 조감도 느낌 보강 ===== */
+
+.building{
+  width:min(62vw,360px);
+  height:min(84vh,790px);
+}
+
+.tower{
+  transform:
+    perspective(1400px)
+    rotateY(-6deg);
+
+  transform-style:preserve-3d;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e6e9e8 0 7%,
+      #344047 7% 93%,
+      #e9eceb 93% 100%
+    );
+}
+
+/* 중앙부를 조금 더 어둡게 */
+.floor-zone{
+  left:25px;
+  right:25px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #263239,
+      #3a464c 18%,
+      #2f3b42 50%,
+      #3a464c 82%,
+      #263239
+    );
+}
+
+/* 흰색 세로 프레임을 실제 조감도처럼 슬림하게 */
+.vertical-frame{
+  width:6.5%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #cfd5d4,
+      #f6f7f5 48%,
+      #d1d7d6
+    );
+
+  box-shadow:
+    2px 0 5px rgba(0,0,0,.08);
+}
+
+.frame-left{
+  left:9%;
+}
+
+.frame-center{
+  left:47%;
+}
+
+.frame-right{
+  right:8%;
+}
+
+/* 가로띠를 얇게 */
+.band{
+  height:4px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f5f6f4,
+      #cbd2d1
+    );
+}
+
+/* 창 깊이감 */
+.window{
+  border:
+    1px solid #202b30;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7e9299,
+      #405259 62%,
+      #29383e
+    );
+
+  box-shadow:
+    inset 2px 2px 5px rgba(255,255,255,.13),
+    inset -2px -2px 5px rgba(0,0,0,.18);
+}
+
+/* 측면을 훨씬 깊게 */
+.deep-side{
+  position:absolute;
+
+  z-index:-3;
+
+  top:18px;
+  right:-68px;
+  bottom:8px;
+
+  width:72px;
+
+  transform:
+    rotateY(72deg);
+
+  transform-origin:left center;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.07) 0 2px,
+      transparent 2px 19px
+    ),
+    linear-gradient(
+      90deg,
+      #57666b,
+      #303e44
+    );
+
+  border-right:
+    5px solid #cfd4d4;
+
+  box-shadow:
+    13px 15px 24px rgba(0,0,0,.16);
+}
+
+/* 기존 가짜 측면 약화 */
+.tower::after{
+  opacity:.25;
+}
+
+/* ===== 옥상 ===== */
+
+.roof-unit{
+  position:absolute;
+
+  z-index:8;
+
+  left:12%;
+  right:9%;
+  top:-22px;
+
+  height:34px;
+
+  transform:
+    translateZ(-6px);
+
+  pointer-events:none;
+}
+
+.roof-box{
+  position:absolute;
+
+  right:6%;
+  bottom:0;
+
+  width:22%;
+  height:30px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #c8cecd,
+      #e4e7e5,
+      #abb4b4
+    );
+
+  box-shadow:
+    4px 5px 7px rgba(0,0,0,.16);
+}
+
+.solar{
+  position:absolute;
+
+  top:8px;
+
+  height:14px;
+
+  transform:
+    skewX(-24deg);
+
+  border:
+    1px solid #4d626b;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #526d79 0 8px,
+      #354d58 8px 10px
+    );
+
+  box-shadow:
+    2px 3px 4px rgba(0,0,0,.14);
+}
+
+.solar-1{
+  left:5%;
+  width:30%;
+}
+
+.solar-2{
+  left:40%;
+  width:23%;
+}
+
+/* 하우스토리 패널도 조금 더 현실적으로 */
+.signature{
+  height:92px;
+
+  background:
+    linear-gradient(
+      110deg,
+      #dfe5e5,
+      #f4f6f5 60%,
+      #cfd6d6
+    );
+
+  box-shadow:
+    0 5px 9px rgba(0,0,0,.12);
+}
+
+.signature span{
+  font-size:
+    clamp(22px,4.5vw,38px);
+
+  letter-spacing:-.055em;
+
+  color:#263037;
+}
+
+
+================================================================================
+FILE: /assets/js/cyber-tour-data.js
+================================================================================
+const CYBER_TOUR_DATA = {
+  site: {
+    name: "역곡지구 하우스토리",
+
+    /*
+      배치도 원본 기준 좌표.
+      x, y는 이미지 좌측 상단을 0,0
+      우측 하단을 100,100으로 본 비율값.
+    */
+
+    buildings: [
+      {
+        id: "B01",
+        name: "동 미지정 01",
+        x: 31.5,
+        y: 38.5,
+        rotation: -4,
+        floors: null
+      },
+      {
+        id: "B02",
+        name: "동 미지정 02",
+        x: 40.0,
+        y: 42.5,
+        rotation: 2,
+        floors: null
+      },
+      {
+        id: "B03",
+        name: "동 미지정 03",
+        x: 49.0,
+        y: 43.5,
+        rotation: -3,
+        floors: null
+      },
+      {
+        id: "B04",
+        name: "동 미지정 04",
+        x: 60.5,
+        y: 50.0,
+        rotation: 3,
+        floors: null
+      },
+      {
+        id: "B05",
+        name: "동 미지정 05",
+        x: 33.5,
+        y: 54.5,
+        rotation: -4,
+        floors: null
+      },
+      {
+        id: "B06",
+        name: "동 미지정 06",
+        x: 47.0,
+        y: 60.5,
+        rotation: 1,
+        floors: null
+      },
+      {
+        id: "B07",
+        name: "동 미지정 07",
+        x: 60.5,
+        y: 64.0,
+        rotation: 2,
+        floors: null
+      },
+      {
+        id: "B08",
+        name: "동 미지정 08",
+        x: 42.0,
+        y: 70.0,
+        rotation: -4,
+        floors: null
+      }
+    ],
+
+    facilities: {
+      centralGarden: {
+        id: "central-garden",
+        name: "중앙정원",
+        x: 42.5,
+        y: 52.0
+      },
+
+      playgroundNorth: {
+        id: "playground-north",
+        name: "북측 놀이터",
+        x: 36.0,
+        y: 39.0
+      },
+
+      playgroundSouth: {
+        id: "playground-south",
+        name: "남측 놀이터",
+        x: 52.0,
+        y: 65.0
+      },
+
+      community: {
+        id: "community",
+        name: "커뮤니티",
+        x: 57.0,
+        y: 55.5
+      },
+
+      entranceEast: {
+        id: "entrance-east",
+        name: "동측 주출입구",
+        x: 66.5,
+        y: 56.0
+      }
+    },
+
+    paths: [
+      {
+        id: "main-walk-01",
+        name: "중앙 산책로",
+        points: [
+          [42, 76],
+          [41, 70],
+          [40, 64],
+          [41, 58],
+          [43, 52],
+          [46, 47],
+          [49, 43]
+        ]
+      },
+
+      {
+        id: "west-walk-01",
+        name: "서측 산책로",
+        points: [
+          [32, 76],
+          [29, 68],
+          [27, 60],
+          [28, 51],
+          [30, 43],
+          [33, 36]
+        ]
+      },
+
+      {
+        id: "east-walk-01",
+        name: "동측 산책로",
+        points: [
+          [56, 70],
+          [59, 64],
+          [61, 57],
+          [61, 50],
+          [58, 45],
+          [54, 41]
+        ]
+      }
+    ]
+  },
+
+  scenes: {
+    centralGarden: {
+      id: "central-garden",
+      name: "중앙정원",
+
+      camera: {
+        x: 42.5,
+        y: 59.0,
+        direction: -8,
+        eyeHeight: 1.65
+      },
+
+      visibleBuildings: [
+        "B02",
+        "B03",
+        "B05",
+        "B06"
+      ]
+    }
+  }
+};
+
+
+================================================================================
+FILE: /assets/js/cyber-tour.js
+================================================================================
+(() => {
+
+    /* =====================================================
+       ELEMENTS
+    ====================================================== */
+
+const buildingLayer =
+    document.getElementById("buildingLayer");
+
+    const heroScene =
+        document.getElementById("heroScene");
+
+    const mapScene =
+        document.getElementById("mapScene");
+
+    const walkScene =
+        document.getElementById("walkScene");
+
+
+    const enterTour =
+        document.getElementById("enterTour");
+
+    const backToHero =
+        document.getElementById("backToHero");
+
+    const resetMap =
+        document.getElementById("resetMap");
+
+
+    const mapStage =
+        document.getElementById("mapStage");
+
+    const mapPoints = [
+        ...document.querySelectorAll(".map-point")
+    ];
+
+
+    const locationKicker =
+        document.getElementById("locationKicker");
+
+    const locationName =
+        document.getElementById("locationName");
+
+    const locationDescription =
+        document.getElementById("locationDescription");
+
+    const pointCounter =
+        document.getElementById("pointCounter");
+
+
+    const prevPoint =
+        document.getElementById("prevPoint");
+
+    const nextPoint =
+        document.getElementById("nextPoint");
+
+
+    const openVirtualWalk =
+        document.getElementById("openVirtualWalk");
+
+    const backToMap =
+        document.getElementById("backToMap");
+
+    const toggleDayNight =
+        document.getElementById("toggleDayNight");
+
+
+    const mapHint =
+        document.getElementById("mapHint");
+
+
+
+    /* =====================================================
+       LOCATION DATA
+    ====================================================== */
+
+    const locations = [
+
+        {
+
+            name:
+                "주출입구",
+
+            label:
+                "ENTRANCE",
+
+            description:
+                "단지의 첫인상을 만나는 주출입구 주변입니다.",
+
+            x: 73,
+
+            y: 58,
+
+            scale: 2.15,
+
+            walk: false
+
+        },
+
+
+        {
+
+            name:
+                "중앙정원",
+
+            label:
+                "CENTRAL GARDEN",
+
+            description:
+                "단지 중심의 녹지와 산책 공간을 둘러봅니다.",
+
+            x: 50,
+
+            y: 49,
+
+            scale: 2,
+
+            walk: true
+
+        },
+
+
+        {
+
+            name:
+                "어린이놀이터",
+
+            label:
+                "PLAYGROUND",
+
+            description:
+                "어린이 놀이시설과 주변 녹지 공간입니다.",
+
+            x: 39,
+
+            y: 38,
+
+            scale: 2.15,
+
+            walk: false
+
+        },
+
+
+        {
+
+            name:
+                "커뮤니티",
+
+            label:
+                "COMMUNITY",
+
+            description:
+                "커뮤니티 시설과 주변 보행 공간입니다.",
+
+            x: 60,
+
+            y: 50,
+
+            scale: 2.2,
+
+            walk: false
+
+        },
+
+
+        {
+
+            name:
+                "남측정원",
+
+            label:
+                "SOUTH GARDEN",
+
+            description:
+                "남측 녹지와 산책 공간을 살펴봅니다.",
+
+            x: 36,
+
+            y: 67,
+
+            scale: 2.05,
+
+            walk: false
+
+        },
+
+
+        {
+
+            name:
+                "북측정원",
+
+            label:
+                "NORTH GARDEN",
+
+            description:
+                "북측 조경 공간과 휴식 공간입니다.",
+
+            x: 37,
+
+            y: 23,
+
+            scale: 2.05,
+
+            walk: false
+
+        }
+
+    ];
+
+
+    let activeIndex = -1;
+
+
+
+    /* =====================================================
+       SCENE
+    ====================================================== */
+
+    function setScene(targetScene) {
+
+        [
+            heroScene,
+            mapScene,
+            walkScene
+
+        ].forEach(scene => {
+
+            scene.classList.toggle(
+                "is-active",
+                scene === targetScene
+            );
+
+        });
+
+    }
+
+
+
+    /* =====================================================
+       HERO → MAP
+    ====================================================== */
+
+    enterTour.addEventListener(
+        "click",
+        () => {
+
+            setScene(mapScene);
+
+        }
+    );
+
+
+    backToHero.addEventListener(
+        "click",
+        () => {
+
+            resetMapView();
+
+            setScene(heroScene);
+
+        }
+    );
+
+
+
+    /* =====================================================
+       MAP CARD
+    ====================================================== */
+
+    function updateLocationCard(index) {
+
+        if (index < 0) {
+
+            locationKicker.textContent =
+                "EXPLORE MAP";
+
+            locationName.textContent =
+                "단지 전체보기";
+
+            locationDescription.textContent =
+                "배치도의 포인트를 눌러 단지 곳곳을 살펴보세요.";
+
+            pointCounter.textContent =
+                `0 / ${locations.length}`;
+
+            openVirtualWalk.classList.remove(
+                "is-visible"
+            );
+
+            return;
+
+        }
+
+
+        const location =
+            locations[index];
+
+
+        locationKicker.textContent =
+            location.label;
+
+        locationName.textContent =
+            location.name;
+
+        locationDescription.textContent =
+            location.description;
+
+        pointCounter.textContent =
+            `${index + 1} / ${locations.length}`;
+
+
+        openVirtualWalk.classList.toggle(
+            "is-visible",
+            location.walk
+        );
+
+    }
+
+
+
+    /* =====================================================
+       MAP FOCUS
+    ====================================================== */
+
+    function focusPoint(index) {
+
+        const location =
+            locations[index];
+
+        if (!location) return;
+
+
+        activeIndex =
+            index;
+
+
+        mapPoints.forEach(
+            (point, i) => {
+
+                point.classList.toggle(
+                    "is-active",
+                    i === index
+                );
+
+            }
+        );
+
+
+        const scale =
+            location.scale;
+
+
+        const offsetX =
+            (50 - location.x)
+            * scale
+            * .17;
+
+
+        const offsetY =
+            (50 - location.y)
+            * scale
+            * .17;
+
+
+        mapStage.style.transformOrigin =
+            `${location.x}% ${location.y}%`;
+
+
+        mapStage.style.transform =
+
+            `translate(
+                ${offsetX}vw,
+                ${offsetY}vh
+            )
+            scale(${scale})`;
+
+
+        updateLocationCard(index);
+
+
+        mapHint.classList.add(
+            "is-hidden"
+        );
+
+    }
+
+
+
+    /* =====================================================
+       RESET MAP
+    ====================================================== */
+
+    function resetMapView() {
+
+        activeIndex = -1;
+
+
+        mapPoints.forEach(
+            point => {
+
+                point.classList.remove(
+                    "is-active"
+                );
+
+            }
+        );
+
+
+        mapStage.style.transformOrigin =
+            "50% 50%";
+
+
+        mapStage.style.transform =
+            "translate(0,0) scale(1)";
+
+
+        updateLocationCard(-1);
+
+
+        mapHint.classList.remove(
+            "is-hidden"
+        );
+
+    }
+
+
+    resetMap.addEventListener(
+        "click",
+        resetMapView
+    );
+
+
+
+    /* =====================================================
+       POINT CLICK
+    ====================================================== */
+
+    mapPoints.forEach(
+        (point,index) => {
+
+            point.addEventListener(
+                "click",
+                () => {
+
+                    focusPoint(index);
+
+                }
+            );
+
+        }
+    );
+
+
+
+    /* =====================================================
+       PREVIOUS / NEXT
+    ====================================================== */
+
+    function movePoint(direction) {
+
+        if (activeIndex < 0) {
+
+            focusPoint(
+                direction > 0
+                    ? 0
+                    : locations.length - 1
+            );
+
+            return;
+
+        }
+
+
+        const nextIndex =
+
+            (
+                activeIndex
+                + direction
+                + locations.length
+            )
+
+            % locations.length;
+
+
+        focusPoint(nextIndex);
+
+    }
+
+
+    prevPoint.addEventListener(
+        "click",
+        () => movePoint(-1)
+    );
+
+
+    nextPoint.addEventListener(
+        "click",
+        () => movePoint(1)
+    );
+
+
+
+    /* =====================================================
+       OPEN VIRTUAL WALK
+    ====================================================== */
+
+    openVirtualWalk.addEventListener(
+        "click",
+        () => {
+
+            if (activeIndex !== 1) {
+
+                return;
+
+            }
+
+
+            setScene(
+                walkScene
+            );
+
+        }
+    );
+
+
+
+    /* =====================================================
+       BACK TO MAP
+    ====================================================== */
+
+    backToMap.addEventListener(
+        "click",
+        () => {
+
+            setScene(
+                mapScene
+            );
+
+        }
+    );
+
+
+
+    /* =====================================================
+       DAY / NIGHT
+    ====================================================== */
+
+    toggleDayNight.addEventListener(
+        "click",
+        () => {
+
+            const isNight =
+                walkScene.classList.toggle(
+                    "is-night"
+                );
+
+
+            toggleDayNight.textContent =
+                isNight
+                    ? "주간"
+                    : "야간";
+
+
+            const themeColor =
+                document.querySelector(
+                    'meta[name="theme-color"]'
+                );
+
+
+            if (themeColor) {
+
+                themeColor.setAttribute(
+
+                    "content",
+
+                    isNight
+                        ? "#101e31"
+                        : "#a8d6e8"
+
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       WALK PARALLAX
+    ====================================================== */
+
+    function setLookPosition(
+        clientX,
+        clientY
+    ) {
+
+        const x =
+
+            (
+                clientX
+                / window.innerWidth
+                - .5
+            )
+
+            * 2;
+
+
+        const y =
+
+            (
+                clientY
+                / window.innerHeight
+                - .5
+            )
+
+            * 2;
+
+
+        walkScene.style.setProperty(
+
+            "--look-x",
+
+            `${x * 35}px`
+
+        );
+
+
+        walkScene.style.setProperty(
+
+            "--look-y",
+
+            `${y * 15}px`
+
+        );
+
+    }
+
+
+
+    /* =====================================================
+       POINTER
+    ====================================================== */
+
+    walkScene.addEventListener(
+        "pointermove",
+        event => {
+
+            setLookPosition(
+                event.clientX,
+                event.clientY
+            );
+
+        }
+    );
+
+
+    walkScene.addEventListener(
+        "pointerleave",
+        () => {
+
+            walkScene.style.setProperty(
+                "--look-x",
+                "0px"
+            );
+
+            walkScene.style.setProperty(
+                "--look-y",
+                "0px"
+            );
+
+        }
+    );
+
+
+
+    /* =====================================================
+       MOBILE TOUCH
+    ====================================================== */
+
+    let touchStartX = 0;
+
+
+    walkScene.addEventListener(
+        "touchstart",
+        event => {
+
+            touchStartX =
+                event.touches[0].clientX;
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+    walkScene.addEventListener(
+        "touchmove",
+        event => {
+
+            const touch =
+                event.touches[0];
+
+
+            let diff =
+                touch.clientX
+                - touchStartX;
+
+
+            diff =
+                Math.max(
+                    -140,
+                    Math.min(
+                        140,
+                        diff
+                    )
+                );
+
+
+            const ratio =
+                diff / 140;
+
+
+            walkScene.style.setProperty(
+
+                "--look-x",
+
+                `${ratio * 42}px`
+
+            );
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+    walkScene.addEventListener(
+        "touchend",
+        () => {
+
+            walkScene.style.setProperty(
+                "--look-x",
+                "0px"
+            );
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+
+    /* =====================================================
+       MAP SWIPE
+    ====================================================== */
+
+    let mapTouchX = 0;
+
+    let mapTouchY = 0;
+
+
+    mapScene.addEventListener(
+        "touchstart",
+        event => {
+
+            mapTouchX =
+                event.changedTouches[0]
+                .clientX;
+
+            mapTouchY =
+                event.changedTouches[0]
+                .clientY;
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+    mapScene.addEventListener(
+        "touchend",
+        event => {
+
+            const touch =
+                event.changedTouches[0];
+
+
+            const diffX =
+                touch.clientX
+                - mapTouchX;
+
+
+            const diffY =
+                touch.clientY
+                - mapTouchY;
+
+
+            if (
+                Math.abs(diffX) > 60
+                &&
+                Math.abs(diffX)
+                >
+                Math.abs(diffY) * 1.4
+            ) {
+
+                movePoint(
+                    diffX < 0
+                        ? 1
+                        : -1
+                );
+
+            }
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+
+    /* =====================================================
+       KEYBOARD
+    ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                mapScene.classList.contains(
+                    "is-active"
+                )
+            ) {
+
+                if (
+                    event.key ===
+                    "ArrowRight"
+                ) {
+
+                    movePoint(1);
+
+                }
+
+
+                if (
+                    event.key ===
+                    "ArrowLeft"
+                ) {
+
+                    movePoint(-1);
+
+                }
+
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    resetMapView();
+
+                }
+
+            }
+
+
+            if (
+                walkScene.classList.contains(
+                    "is-active"
+                )
+                &&
+                event.key ===
+                "Escape"
+            ) {
+
+                setScene(
+                    mapScene
+                );
+
+            }
+
+        }
+    );
+    
+    function renderBuildings() {
+    buildingLayer.innerHTML = "";
+
+    const buildings =
+        CYBER_TOUR_DATA.site.buildings;
+
+    buildings.forEach(building => {
+        const el =
+            document.createElement("div");
+
+        el.className = "generated-building";
+
+        const floors =
+            building.floors ?? 20;
+
+        const height =
+            Math.max(180, floors * 11);
+
+        el.style.left =
+            `${building.x}%`;
+
+        el.style.top =
+            `${building.y}%`;
+
+        el.style.height =
+            `${height}px`;
+
+        el.style.transform =
+            `translate(-50%, -100%)
+             rotate(${building.rotation}deg)`;
+
+        el.innerHTML = `
+            <div class="building-face"></div>
+            <div class="building-side"></div>
+            <div class="building-roof"></div>
+            <span class="building-label">
+                ${building.name}
+            </span>
+        `;
+
+        buildingLayer.appendChild(el);
+    });
+}
+renderBuildings();
+
+})();
+
+================================================================================
+FILE: /cyber-tour.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#10171f">
+
+  <title>역곡지구 하우스토리 | 사이버 단지 산책</title>
+
+  <link
+    rel="stylesheet"
+    href="assets/css/cyber-tour.css"
+  >
+</head>
+
+<body>
+
+<main class="tour-app">
+
+  <!-- =====================================================
+       01. INTRO
+  ====================================================== -->
+
+  <section
+    class="scene hero-scene is-active"
+    id="heroScene"
+  >
+
+    <div class="hero-image">
+      <img
+        src="assets/images/cyber-tour/aerial.jpg"
+        alt="역곡지구 하우스토리 조감도"
+      >
+    </div>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+
+      <div class="eyebrow">
+        CYBER WALK
+      </div>
+
+      <h1>
+        역곡지구<br>
+        하우스토리
+      </h1>
+
+      <p>
+        우리가 살아갈 단지를<br>
+        미리 둘러봅니다.
+      </p>
+
+      <button
+        class="enter-button"
+        id="enterTour"
+        type="button"
+      >
+        <span>단지 둘러보기</span>
+        <span>→</span>
+      </button>
+
+    </div>
+
+    <div class="hero-guide">
+      EXPLORE
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       02. MAP
+  ====================================================== -->
+
+  <section
+    class="scene map-scene"
+    id="mapScene"
+  >
+
+    <header class="topbar">
+
+      <button
+        class="glass-button icon-button"
+        id="backToHero"
+        type="button"
+        aria-label="처음 화면"
+      >
+        ←
+      </button>
+
+      <div class="topbar-title">
+        <strong>단지 산책</strong>
+        <span>원하는 장소를 선택해보세요.</span>
+      </div>
+
+      <button
+        class="glass-button"
+        id="resetMap"
+        type="button"
+      >
+        전체지도
+      </button>
+
+    </header>
+
+
+    <div class="map-viewport">
+
+      <div
+        class="map-stage"
+        id="mapStage"
+      >
+
+        <img
+          class="site-map"
+          src="assets/images/cyber-tour/site-map.jpg"
+          alt="단지 배치도"
+        >
+
+
+        <!-- 주출입구 -->
+
+        <button
+          class="map-point"
+          style="--x:73%; --y:58%;"
+          data-index="0"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            주출입구
+          </span>
+        </button>
+
+
+        <!-- 중앙정원 -->
+
+        <button
+          class="map-point"
+          style="--x:50%; --y:49%;"
+          data-index="1"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            중앙정원
+          </span>
+        </button>
+
+
+        <!-- 놀이터 -->
+
+        <button
+          class="map-point"
+          style="--x:39%; --y:38%;"
+          data-index="2"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            어린이놀이터
+          </span>
+        </button>
+
+
+        <!-- 커뮤니티 -->
+
+        <button
+          class="map-point"
+          style="--x:60%; --y:50%;"
+          data-index="3"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            커뮤니티
+          </span>
+        </button>
+
+
+        <!-- 남측정원 -->
+
+        <button
+          class="map-point"
+          style="--x:36%; --y:67%;"
+          data-index="4"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            남측정원
+          </span>
+        </button>
+
+
+        <!-- 북측정원 -->
+
+        <button
+          class="map-point"
+          style="--x:37%; --y:23%;"
+          data-index="5"
+          type="button"
+        >
+          <span class="point-ring"></span>
+          <span class="point-core"></span>
+          <span class="point-label">
+            북측정원
+          </span>
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- MAP INFO -->
+
+    <div
+      class="location-card"
+      id="locationCard"
+    >
+
+      <div class="location-text">
+
+        <span
+          class="location-kicker"
+          id="locationKicker"
+        >
+          EXPLORE MAP
+        </span>
+
+        <h2 id="locationName">
+          단지 전체보기
+        </h2>
+
+        <p id="locationDescription">
+          배치도의 포인트를 눌러 단지 곳곳을 살펴보세요.
+        </p>
+
+        <button
+          class="virtual-walk-button"
+          id="openVirtualWalk"
+          type="button"
+        >
+          가상 산책 시작
+          <span>→</span>
+        </button>
+
+      </div>
+
+
+      <div class="location-navigation">
+
+        <button
+          class="round-button"
+          id="prevPoint"
+          type="button"
+        >
+          ←
+        </button>
+
+        <span
+          class="counter"
+          id="pointCounter"
+        >
+          0 / 6
+        </span>
+
+        <button
+          class="round-button"
+          id="nextPoint"
+          type="button"
+        >
+          →
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="map-hint"
+      id="mapHint"
+    >
+      포인트를 눌러 장소를 선택해보세요.
+    </div>
+
+  </section>
+
+
+
+  <!-- =====================================================
+       03. CENTRAL GARDEN VIRTUAL WALK
+  ====================================================== -->
+
+  <section
+    class="scene walk-scene"
+    id="walkScene"
+  >
+
+    <div
+      class="walk-world"
+      id="walkWorld"
+    >
+
+      <!-- SKY -->
+
+      <div class="sun"></div>
+
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+
+
+      <!-- DISTANT MOUNTAIN / FOREST -->
+
+      <div class="mountain mountain-1"></div>
+      <div class="mountain mountain-2"></div>
+
+      <div class="forest-back"></div>
+
+
+      <!-- APARTMENTS -->
+
+ <div class="building-layer" id="buildingLayer"></div>
+
+
+      <!-- GROUND -->
+
+      <div class="garden-ground"></div>
+
+
+      <!-- WALK PATH -->
+
+      <div class="walk-path">
+
+        <div class="path-line line-left"></div>
+        <div class="path-line line-right"></div>
+
+      </div>
+
+
+      <!-- CENTER LAWN -->
+
+      <div class="central-lawn"></div>
+
+
+      <!-- FLOWER BED -->
+
+      <div class="flower-bed flower-bed-left"></div>
+
+      <div class="flower-bed flower-bed-right"></div>
+
+
+      <!-- TREES -->
+
+      <div class="tree tree-1">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree-2">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree-3">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree-4">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree-5">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="tree tree-6">
+        <div class="tree-crown"></div>
+        <div class="tree-trunk"></div>
+      </div>
+
+
+      <!-- BENCH -->
+
+      <div class="bench bench-left">
+        <div class="bench-back"></div>
+        <div class="bench-seat"></div>
+        <div class="bench-leg leg-left"></div>
+        <div class="bench-leg leg-right"></div>
+      </div>
+
+
+      <!-- LIGHT -->
+
+      <div class="lamp lamp-left">
+
+        <div class="lamp-head"></div>
+
+        <div class="lamp-light"></div>
+
+      </div>
+
+
+      <div class="lamp lamp-right">
+
+        <div class="lamp-head"></div>
+
+        <div class="lamp-light"></div>
+
+      </div>
+
+
+      <!-- PARTICLES -->
+
+      <div class="particles">
+
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+
+      </div>
+
+
+      <div class="world-vignette"></div>
+
+    </div>
+
+
+    <!-- WALK UI -->
+
+    <header class="walk-topbar">
+
+      <button
+        class="walk-button"
+        id="backToMap"
+        type="button"
+      >
+        ←
+      </button>
+
+
+      <div class="walk-title">
+
+        <strong>
+          중앙정원
+        </strong>
+
+        <span>
+          CENTRAL GARDEN
+        </span>
+
+      </div>
+
+
+      <button
+        class="walk-button day-button"
+        id="toggleDayNight"
+        type="button"
+      >
+        야간
+      </button>
+
+    </header>
+
+
+    <div class="walk-description">
+
+      <span>
+        VIRTUAL WALK · 01
+      </span>
+
+      <h2>
+        중앙정원을 걷다
+      </h2>
+
+      <p>
+        단지 배치도를 바탕으로 구성한
+        첫 번째 가상 산책 장면입니다.
+      </p>
+
+      <div class="drag-guide">
+
+        <span>←</span>
+
+        화면을 좌우로 움직여보세요
+
+        <span>→</span>
+
+      </div>
+
+    </div>
+
+
+  </section>
+
+
+</main>
+
+
+<script src="assets/js/cyber-tour-data.js"></script>
+<script src="assets/js/cyber-tour.js"></script>
+
+</body>
+</html>
+
+
+================================================================================
+FILE: /prototype/builders/building-layout-builder.js
+================================================================================
+import * as THREE from"three";
+import{createUnitModel}from"../unit-model.js";
+import{getUnitData}from"./unit-catalog.js";
+
+export const FLOOR_HEIGHT=2.85;
+
+export const FRONT_ROTATION=Object.freeze({
+  "+Z":0,
+  "+X":Math.PI/2,
+  "-Z":Math.PI,
+  "-X":-Math.PI/2
+});
+
+const round=(v,n=3)=>Number(Number(v).toFixed(n));
+
+const clampFloor=v=>
+  Math.max(1,Math.floor(Number(v)||1));
+
+function normalize(raw={}){
+  const type=String(raw.type??"A").toUpperCase();
+
+  getUnitData(type);
+
+  const startFloor=clampFloor(
+    raw.startFloor??(raw.piloti?2:1)
+  );
+
+  const topFloor=Math.max(
+    startFloor,
+    clampFloor(raw.topFloor??25)
+  );
+
+  return{
+    id:String(
+      raw.id??`LINE_${Date.now()}`
+    ),
+
+    type,
+
+    mirror:Boolean(raw.mirror),
+
+    front:
+      FRONT_ROTATION[raw.front]!=null
+        ?raw.front
+        :"+Z",
+
+    startFloor,
+    topFloor,
+
+    x:Number(raw.x)||0,
+    z:Number(raw.z)||0
+  };
+}
+
+function disposeObject(root){
+
+  const geometries=new Set();
+  const materials=new Set();
+
+  root.traverse(o=>{
+
+    if(o.geometry){
+      geometries.add(o.geometry);
+    }
+
+    if(Array.isArray(o.material)){
+      o.material.forEach(
+        m=>materials.add(m)
+      );
+    }
+    else if(o.material){
+      materials.add(o.material);
+    }
+
+  });
+
+  geometries.forEach(
+    g=>g.dispose?.()
+  );
+
+  materials.forEach(
+    m=>m.dispose?.()
+  );
+}
+
+function markStack(root,id,floor){
+
+  root.userData.stackId=id;
+  root.userData.floor=floor;
+
+  root.traverse(o=>{
+
+    o.userData.stackId=id;
+    o.userData.floor=floor;
+
+  });
+}
+
+export class BuildingLayoutBuilder{
+
+  constructor(scene){
+
+    this.scene=scene;
+
+    this.root=new THREE.Group();
+
+    this.root.name="BUILDING_LAYOUT";
+
+    this.scene.add(this.root);
+
+    this.items=new Map();
+  }
+
+
+  add(raw){
+
+    const item=normalize(raw);
+
+    if(this.items.has(item.id)){
+      throw new Error(
+        `Duplicate layout id: ${item.id}`
+      );
+    }
+
+    const root=this.#createStack(item);
+
+    this.items.set(
+      item.id,
+      {
+        data:item,
+        root
+      }
+    );
+
+    this.root.add(root);
+
+    return item;
+  }
+
+
+  update(id,patch={}){
+
+    const old=this.items.get(id);
+
+    if(!old){
+      return null;
+    }
+
+    const next=normalize({
+      ...old.data,
+      ...patch,
+      id
+    });
+
+    this.root.remove(old.root);
+
+    disposeObject(old.root);
+
+    const root=this.#createStack(next);
+
+    this.items.set(
+      id,
+      {
+        data:next,
+        root
+      }
+    );
+
+    this.root.add(root);
+
+    return next;
+  }
+
+
+  remove(id){
+
+    const old=this.items.get(id);
+
+    if(!old){
+      return false;
+    }
+
+    this.root.remove(old.root);
+
+    disposeObject(old.root);
+
+    this.items.delete(id);
+
+    return true;
+  }
+
+
+  clear(){
+
+    [...this.items.keys()]
+      .forEach(
+        id=>this.remove(id)
+      );
+  }
+
+
+  get(id){
+
+    return(
+      this.items
+        .get(id)
+        ?.data
+      ??null
+    );
+  }
+
+
+  getRoot(id){
+
+    return(
+      this.items
+        .get(id)
+        ?.root
+      ??null
+    );
+  }
+
+
+  getAll(){
+
+    return[
+      ...this.items.values()
+    ].map(
+      v=>({...v.data})
+    );
+  }
+
+
+  setPosition(id,x,z){
+
+    const entry=this.items.get(id);
+
+    if(!entry){
+      return null;
+    }
+
+    entry.data.x=round(x);
+    entry.data.z=round(z);
+
+    entry.root.position.x=
+      entry.data.x;
+
+    entry.root.position.z=
+      entry.data.z;
+
+    return{
+      ...entry.data
+    };
+  }
+
+
+  nudge(id,dx,dz){
+
+    const d=this.get(id);
+
+    return d
+      ?this.setPosition(
+          id,
+          d.x+dx,
+          d.z+dz
+        )
+      :null;
+  }
+
+
+  getBox(id){
+
+    const root=this.getRoot(id);
+
+    if(!root){
+      return null;
+    }
+
+    root.updateMatrixWorld(true);
+
+    return new THREE.Box3()
+      .setFromObject(root);
+  }
+
+
+  attach(
+    movingId,
+    targetId,
+    side,
+    gap=0
+  ){
+
+    if(movingId===targetId){
+      return null;
+    }
+
+    const moving=
+      this.items.get(movingId);
+
+    const target=
+      this.items.get(targetId);
+
+    if(!moving||!target){
+      return null;
+    }
+
+    let mb=
+      this.getBox(movingId);
+
+    let tb=
+      this.getBox(targetId);
+
+    const mc=
+      new THREE.Vector3();
+
+    const tc=
+      new THREE.Vector3();
+
+    mb.getCenter(mc);
+    tb.getCenter(tc);
+
+
+    /*
+      LEFT / RIGHT
+
+      먼저 Z 중앙 정렬 후
+      X 방향으로 정확히 붙인다.
+    */
+    if(
+      side==="left"||
+      side==="right"
+    ){
+
+      this.setPosition(
+        movingId,
+        moving.data.x,
+        moving.data.z+
+          (tc.z-mc.z)
+      );
+
+      mb=this.getBox(movingId);
+      tb=this.getBox(targetId);
+
+      const dx=
+        side==="right"
+
+        ?(
+          tb.max.x+
+          gap-
+          mb.min.x
+        )
+
+        :(
+          tb.min.x-
+          gap-
+          mb.max.x
+        );
+
+      this.setPosition(
+        movingId,
+        moving.data.x+dx,
+        moving.data.z
+      );
+    }
+
+
+    /*
+      FRONT / REAR
+
+      먼저 X 중앙 정렬 후
+      Z 방향으로 붙인다.
+    */
+    else if(
+      side==="front"||
+      side==="rear"
+    ){
+
+      this.setPosition(
+        movingId,
+        moving.data.x+
+          (tc.x-mc.x),
+        moving.data.z
+      );
+
+      mb=this.getBox(movingId);
+      tb=this.getBox(targetId);
+
+      const dz=
+        side==="front"
+
+        ?(
+          tb.max.z+
+          gap-
+          mb.min.z
+        )
+
+        :(
+          tb.min.z-
+          gap-
+          mb.max.z
+        );
+
+      this.setPosition(
+        movingId,
+        moving.data.x,
+        moving.data.z+dz
+      );
+    }
+
+    return this.get(movingId);
+  }
+
+
+  serialize(){
+
+    return this.getAll()
+      .map(
+        d=>({
+          ...d,
+          x:round(d.x),
+          z:round(d.z)
+        })
+      );
+  }
+
+
+  toModuleCode(
+    name="BUILDING_LAYOUT"
+  ){
+
+    const rows=
+      this.serialize()
+        .map(
+          d=>
+`  {id:${JSON.stringify(d.id)},type:${JSON.stringify(d.type)},mirror:${d.mirror},front:${JSON.stringify(d.front)},startFloor:${d.startFloor},topFloor:${d.topFloor},x:${d.x},z:${d.z}}`
+        );
+
+    return(
+`export const ${name}=[
+${rows.join(",\n")}
+];
+`
+    );
+  }
+
+
+  #createStack(item){
+
+    const data=
+      getUnitData(item.type);
+
+    const root=
+      new THREE.Group();
+
+    root.name=item.id;
+
+    root.userData={
+      stackId:item.id,
+      layoutItem:item
+    };
+
+    root.position.set(
+      item.x,
+      0,
+      item.z
+    );
+
+
+    /*
+      유닛 자체 크기는 절대 조정하지 않는다.
+
+      createUnitModel()이 생성한
+      A~F 원본 모델을 그대로 사용한다.
+    */
+    const template=
+      createUnitModel(
+        data,
+        {
+          instanceId:
+            `${item.id}-BASE`
+        }
+      );
+
+
+    /*
+      FRONT 방향만 회전
+    */
+    template.rotation.y=
+      FRONT_ROTATION[item.front];
+
+
+    /*
+      좌우 반전만 허용.
+
+      크기 축소/확대가 아니라
+      미러 처리다.
+    */
+    if(item.mirror){
+      template.scale.x=-1;
+    }
+
+
+    /*
+      층 적층
+
+      1F = Y 0
+      2F = Y 2.85
+      3F = Y 5.70
+      ...
+    */
+    for(
+      let floor=item.startFloor;
+      floor<=item.topFloor;
+      floor++
+    ){
+
+      const unit=
+        template.clone(true);
+
+      unit.name=
+        `${item.id}-${floor}F`;
+
+      unit.position.y=
+        (floor-1)*
+        FLOOR_HEIGHT;
+
+      markStack(
+        unit,
+        item.id,
+        floor
+      );
+
+      root.add(unit);
+    }
+
+    return root;
+  }
+}
+
+
+================================================================================
+FILE: /prototype/builders/unit-catalog.js
+================================================================================
+import{UNIT_A}from"../units/unit-a.js";
+import{UNIT_B}from"../units/unit-b.js";
+import{UNIT_C}from"../units/unit-c.js";
+import{UNIT_D}from"../units/unit-d.js";
+import{UNIT_E}from"../units/unit-e.js";
+import{UNIT_F}from"../units/unit-f.js";
+
+export const UNIT_CATALOG=Object.freeze({
+  A:UNIT_A,
+  B:UNIT_B,
+  C:UNIT_C,
+  D:UNIT_D,
+  E:UNIT_E,
+  F:UNIT_F
+});
+
+export const UNIT_TYPES=Object.freeze(
+  Object.keys(UNIT_CATALOG)
+);
+
+export function getUnitData(type){
+  const key=String(type??"").toUpperCase();
+  const data=UNIT_CATALOG[key];
+
+  if(!data){
+    throw new Error(`Unknown unit type: ${type}`);
+  }
+
+  return data;
+}
+
+
+================================================================================
+FILE: /prototype/building-bundle.html
+================================================================================
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>
+  Apartment Unit Bundle Builder
+</title>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+
+*{
+  box-sizing:border-box
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Pretendard",
+    "Noto Sans KR",
+    sans-serif;
+  color:#21313b;
+  background:#dfe8e5
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit
+}
+
+#view{
+  position:fixed;
+  inset:0
+}
+
+#view canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  touch-action:none
+}
+
+.panel{
+  position:fixed;
+  z-index:10;
+  left:18px;
+  top:18px;
+  width:340px;
+  max-height:
+    calc(100vh - 36px);
+  overflow:auto;
+  padding:16px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.65);
+
+  border-radius:22px;
+
+  background:
+    rgba(250,252,251,.88);
+
+  backdrop-filter:
+    blur(18px);
+
+  box-shadow:
+    0 18px 55px
+    rgba(38,53,47,.18)
+}
+
+h1{
+  font-size:18px;
+  margin:0 0 3px
+}
+
+.sub{
+  font-size:12px;
+  color:#6d7a80;
+  margin-bottom:14px
+}
+
+.section{
+  padding:12px 0;
+  border-top:
+    1px solid #dbe2df
+}
+
+.section:first-of-type{
+  border-top:0;
+  padding-top:0
+}
+
+.section-title{
+  display:flex;
+  justify-content:
+    space-between;
+  align-items:center;
+
+  font-size:12px;
+  font-weight:800;
+  color:#68767b;
+
+  margin-bottom:9px
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:
+    1fr 1fr;
+  gap:8px
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+
+  font-size:11px;
+  font-weight:700;
+  color:#68767b
+}
+
+.field input,
+.field select{
+  width:100%;
+  height:38px;
+
+  border:
+    1px solid #d7dfdc;
+
+  border-radius:11px;
+
+  background:#fff;
+  padding:0 10px;
+
+  color:#22333c
+}
+
+.checks{
+  display:flex;
+  gap:14px;
+  margin:11px 0;
+  font-size:13px
+}
+
+.checks label{
+  display:flex;
+  gap:6px;
+  align-items:center
+}
+
+.row{
+  display:flex;
+  gap:7px
+}
+
+.btn{
+  border:0;
+  border-radius:11px;
+
+  min-height:38px;
+  padding:0 12px;
+
+  background:#e6ece9;
+  color:#23343d;
+
+  font-weight:750;
+  cursor:pointer
+}
+
+.btn.primary{
+  background:#253b48;
+  color:#fff
+}
+
+.btn.danger{
+  background:#f5e5e2;
+  color:#8f4036
+}
+
+.btn.flex{
+  flex:1
+}
+
+.line-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+
+  max-height:190px;
+  overflow:auto
+}
+
+.line-item{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+
+  width:100%;
+  padding:9px 10px;
+
+  border:
+    1px solid #dbe2df;
+
+  border-radius:11px;
+
+  background:#fff;
+  text-align:left;
+  color:#263740
+}
+
+.line-item.active{
+  border-color:#4d6876;
+
+  box-shadow:
+    0 0 0 2px
+    rgba(77,104,118,.12)
+}
+
+.line-item b{
+  font-size:12px
+}
+
+.line-item span{
+  font-size:10px;
+  color:#77848a
+}
+
+.empty{
+  font-size:11px;
+  color:#899398;
+  padding:6px 1px
+}
+
+.pad{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:6px;
+
+  width:160px;
+  margin:0 auto
+}
+
+.pad .blank{
+  visibility:hidden
+}
+
+.attach{
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:6px;
+  margin-top:7px
+}
+
+.attach select{
+  grid-column:1/-1;
+
+  height:38px;
+
+  border:
+    1px solid #d7dfdc;
+
+  border-radius:11px;
+
+  background:white;
+
+  padding:0 9px
+}
+
+.code{
+  width:100%;
+  height:115px;
+  resize:vertical;
+
+  border:
+    1px solid #d7dfdc;
+
+  border-radius:11px;
+
+  background:#f8faf9;
+
+  padding:9px;
+
+  font:
+    11px
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+
+  color:#405159
+}
+
+.toolbar{
+  position:fixed;
+  z-index:9;
+
+  right:18px;
+  top:18px;
+
+  display:flex;
+  gap:7px
+}
+
+.toolbar .btn{
+  background:
+    rgba(250,252,251,.9);
+
+  box-shadow:
+    0 8px 28px
+    rgba(38,53,47,.12);
+
+  backdrop-filter:
+    blur(12px)
+}
+
+#selectedLabel{
+  font-weight:800;
+  color:#2c4350
+}
+
+#stats{
+  font-size:11px;
+  color:#758288;
+  font-weight:700
+}
+
+@media(max-width:720px){
+
+  .toolbar{
+    top:max(
+      12px,
+      env(safe-area-inset-top)
+    );
+
+    right:12px
+  }
+
+  .panel{
+    left:8px;
+    right:8px;
+    top:auto;
+    bottom:8px;
+
+    width:auto;
+
+    max-height:47vh;
+
+    border-radius:20px;
+
+    padding:13px
+  }
+
+  .line-list{
+    max-height:120px
+  }
+
+  .section{
+    padding:10px 0
+  }
+
+  h1{
+    font-size:16px
+  }
+
+  .sub{
+    margin-bottom:10px
+  }
+
+  .code{
+    height:90px
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="view"></div>
+
+
+<div class="toolbar">
+
+  <button
+    class="btn"
+    id="fitBtn"
+  >
+    3D 맞춤
+  </button>
+
+  <button
+    class="btn"
+    id="topBtn"
+  >
+    TOP
+  </button>
+
+</div>
+
+
+<aside class="panel">
+
+  <h1>
+    UNIT BUNDLE BUILDER
+  </h1>
+
+  <div class="sub">
+    <span id="stats">
+      라인 0 · 세대모듈 0 · 최고 0F
+    </span>
+  </div>
+
+
+  <div class="section">
+
+    <div class="section-title">
+
+      <span>
+        선택/배치
+      </span>
+
+      <span id="selectedLabel">
+        선택 없음
+      </span>
+
+    </div>
+
+
+    <div class="grid2">
+
+      <label class="field">
+
+        주택형
+
+        <select id="type"></select>
+
+      </label>
+
+
+      <label class="field">
+
+        FRONT
+
+        <select id="front">
+
+          <option>
+            +Z
+          </option>
+
+          <option>
+            +X
+          </option>
+
+          <option>
+            -Z
+          </option>
+
+          <option>
+            -X
+          </option>
+
+        </select>
+
+      </label>
+
+
+      <label class="field">
+
+        최고층
+
+        <input
+          id="topFloor"
+          type="number"
+          min="1"
+          max="60"
+          value="25"
+        >
+
+      </label>
+
+
+      <label class="field">
+
+        X 좌표
+
+        <input
+          id="x"
+          type="number"
+          step="0.1"
+          value="0"
+        >
+
+      </label>
+
+
+      <label class="field">
+
+        Z 좌표
+
+        <input
+          id="z"
+          type="number"
+          step="0.1"
+          value="0"
+        >
+
+      </label>
+
+    </div>
+
+
+    <div class="checks">
+
+      <label>
+
+        <input
+          id="mirror"
+          type="checkbox"
+        >
+
+        좌우반전
+
+      </label>
+
+
+      <label>
+
+        <input
+          id="piloti"
+          type="checkbox"
+        >
+
+        1층 필로티
+
+      </label>
+
+    </div>
+
+
+    <div class="row">
+
+      <button
+        class="btn primary flex"
+        id="addBtn"
+      >
+        새 라인 추가
+      </button>
+
+      <button
+        class="btn flex"
+        id="applyBtn"
+      >
+        선택 적용
+      </button>
+
+    </div>
+
+
+    <div
+      class="row"
+      style="margin-top:7px"
+    >
+
+      <button
+        class="btn flex"
+        id="duplicateBtn"
+      >
+        복제
+      </button>
+
+      <button
+        class="btn danger flex"
+        id="deleteBtn"
+      >
+        삭제
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="section">
+
+    <div class="section-title">
+
+      <span>
+        배치 라인
+      </span>
+
+      <span>
+        모델을 눌러도 선택됨
+      </span>
+
+    </div>
+
+    <div
+      id="lineList"
+      class="line-list"
+    ></div>
+
+  </div>
+
+
+  <div class="section">
+
+    <div class="section-title">
+
+      <span>
+        0.1m 이동
+      </span>
+
+      <span>
+        키보드 방향키도 지원
+      </span>
+
+    </div>
+
+
+    <div class="pad">
+
+      <span class="blank"></span>
+
+      <button
+        class="btn"
+        id="nRear"
+      >
+        -Z
+      </button>
+
+      <span class="blank"></span>
+
+
+      <button
+        class="btn"
+        id="nLeft"
+      >
+        -X
+      </button>
+
+      <span class="blank"></span>
+
+      <button
+        class="btn"
+        id="nRight"
+      >
+        +X
+      </button>
+
+
+      <span class="blank"></span>
+
+      <button
+        class="btn"
+        id="nFront"
+      >
+        +Z
+      </button>
+
+      <span class="blank"></span>
+
+    </div>
+
+  </div>
+
+
+  <div class="section">
+
+    <div class="section-title">
+
+      <span>
+        자동 붙이기
+      </span>
+
+      <span>
+        월드 X/Z 기준
+      </span>
+
+    </div>
+
+
+    <div class="attach">
+
+      <select id="attachTarget"></select>
+
+
+      <button
+        class="btn"
+        id="attachLeft"
+      >
+        대상 왼쪽
+      </button>
+
+
+      <button
+        class="btn"
+        id="attachRight"
+      >
+        대상 오른쪽
+      </button>
+
+
+      <button
+        class="btn"
+        id="attachFront"
+      >
+        대상 앞(+Z)
+      </button>
+
+
+      <button
+        class="btn"
+        id="attachRear"
+      >
+        대상 뒤(-Z)
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="section">
+
+    <div class="section-title">
+
+      <span>
+        배치 코드
+      </span>
+
+      <button
+        class="btn"
+        id="copyBtn"
+      >
+        코드 복사
+      </button>
+
+    </div>
+
+
+    <textarea
+      id="exportCode"
+      class="code"
+      readonly
+    ></textarea>
+
+
+    <div
+      class="row"
+      style="margin-top:7px"
+    >
+
+      <button
+        class="btn danger flex"
+        id="clearBtn"
+      >
+        전체 초기화
+      </button>
+
+    </div>
+
+  </div>
+
+</aside>
+
+
+<script
+  type="module"
+  src="./building-bundle.js"
+></script>
+
+</body>
+</html>
+
+
+================================================================================
+FILE: /prototype/building-bundle.js
+================================================================================
+import * as THREE from"three";
+
+import{
+  OrbitControls
+}from"three/addons/controls/OrbitControls.js";
+
+import{
+  BuildingLayoutBuilder
+}from"./builders/building-layout-builder.js";
+
+import{
+  UNIT_TYPES
+}from"./builders/unit-catalog.js";
+
+
+const $=
+  s=>document.querySelector(s);
+
+const view=$("#view");
+const typeEl=$("#type");
+const frontEl=$("#front");
+const mirrorEl=$("#mirror");
+const pilotiEl=$("#piloti");
+const topFloorEl=$("#topFloor");
+const xEl=$("#x");
+const zEl=$("#z");
+
+const selectedLabel=
+  $("#selectedLabel");
+
+const listEl=$("#lineList");
+const targetEl=$("#attachTarget");
+const codeEl=$("#exportCode");
+const statsEl=$("#stats");
+
+
+UNIT_TYPES.forEach(
+  t=>
+    typeEl.insertAdjacentHTML(
+      "beforeend",
+      `<option value="${t}">${t}형</option>`
+    )
+);
+
+
+/* =====================================================
+   THREE
+===================================================== */
+
+const scene=
+  new THREE.Scene();
+
+scene.background=
+  new THREE.Color(0xdfe8e5);
+
+
+const camera=
+  new THREE.PerspectiveCamera(
+    42,
+    innerWidth/innerHeight,
+    .1,
+    500
+  );
+
+camera.position.set(
+  28,
+  24,
+  34
+);
+
+
+const renderer=
+  new THREE.WebGLRenderer({
+    antialias:true
+  });
+
+renderer.setPixelRatio(
+  Math.min(
+    devicePixelRatio,
+    1.5
+  )
+);
+
+renderer.setSize(
+  innerWidth,
+  innerHeight
+);
+
+renderer.outputColorSpace=
+  THREE.SRGBColorSpace;
+
+view.appendChild(
+  renderer.domElement
+);
+
+
+const controls=
+  new OrbitControls(
+    camera,
+    renderer.domElement
+  );
+
+controls.enableDamping=true;
+controls.dampingFactor=.08;
+
+controls.target.set(
+  0,
+  8,
+  0
+);
+
+controls.maxPolarAngle=
+  Math.PI/2.02;
+
+
+scene.add(
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x9aa49f,
+    2.2
+  )
+);
+
+
+const sun=
+  new THREE.DirectionalLight(
+    0xffffff,
+    2.2
+  );
+
+sun.position.set(
+  -18,
+  35,
+  22
+);
+
+scene.add(sun);
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+const grid=
+  new THREE.GridHelper(
+    100,
+    100,
+    0x8d9994,
+    0xb7c1bd
+  );
+
+scene.add(grid);
+
+
+const ground=
+  new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      100,
+      100
+    ),
+    new THREE.MeshBasicMaterial({
+      transparent:true,
+      opacity:0,
+      depthWrite:false
+    })
+  );
+
+ground.rotation.x=
+  -Math.PI/2;
+
+ground.userData.ground=true;
+
+scene.add(ground);
+
+
+/* =====================================================
+   BUILDER
+===================================================== */
+
+const builder=
+  new BuildingLayoutBuilder(
+    scene
+  );
+
+let selectedId=null;
+
+let counter=1;
+
+let selectionHelper=null;
+
+
+/* =====================================================
+   ID
+===================================================== */
+
+function nextId(){
+
+  let id;
+
+  do{
+
+    id=
+      `L${
+        String(counter++)
+          .padStart(2,"0")
+      }`;
+
+  }
+  while(
+    builder.get(id)
+  );
+
+  return id;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+function readForm(
+  id=
+    selectedId??
+    nextId()
+){
+
+  return{
+
+    id,
+
+    type:
+      typeEl.value,
+
+    mirror:
+      mirrorEl.checked,
+
+    front:
+      frontEl.value,
+
+    startFloor:
+      pilotiEl.checked
+        ?2
+        :1,
+
+    topFloor:
+      Number(
+        topFloorEl.value
+      )||25,
+
+    x:
+      Number(
+        xEl.value
+      )||0,
+
+    z:
+      Number(
+        zEl.value
+      )||0
+
+  };
+}
+
+
+function writeForm(d){
+
+  if(!d){
+    return;
+  }
+
+  typeEl.value=
+    d.type;
+
+  frontEl.value=
+    d.front;
+
+  mirrorEl.checked=
+    d.mirror;
+
+  pilotiEl.checked=
+    d.startFloor>1;
+
+  topFloorEl.value=
+    d.topFloor;
+
+  xEl.value=
+    d.x;
+
+  zEl.value=
+    d.z;
+}
+
+
+/* =====================================================
+   SELECT
+===================================================== */
+
+function setSelected(id){
+
+  selectedId=
+    builder.get(id)
+      ?id
+      :null;
+
+
+  selectedLabel.textContent=
+    selectedId??
+    "선택 없음";
+
+
+  if(selectionHelper){
+
+    scene.remove(
+      selectionHelper
+    );
+
+    selectionHelper
+      .geometry
+      ?.dispose?.();
+
+    selectionHelper
+      .material
+      ?.dispose?.();
+
+    selectionHelper=null;
+  }
+
+
+  if(selectedId){
+
+    writeForm(
+      builder.get(selectedId)
+    );
+
+    selectionHelper=
+      new THREE.BoxHelper(
+        builder.getRoot(
+          selectedId
+        ),
+        0xf2a900
+      );
+
+    scene.add(
+      selectionHelper
+    );
+  }
+
+
+  renderUI();
+}
+
+
+function refreshHelper(){
+
+  selectionHelper
+    ?.update();
+}
+
+
+/* =====================================================
+   UI RENDER
+===================================================== */
+
+function renderUI(){
+
+  const all=
+    builder.getAll();
+
+
+  listEl.innerHTML=
+    all.length
+
+    ?all.map(
+      d=>
+`<button class="line-item ${d.id===selectedId?"active":""}" data-id="${d.id}">
+<b>${d.id} · ${d.type}형${d.mirror?" ↔":""}</b>
+<span>${d.front} · ${d.startFloor}~${d.topFloor}F · X ${d.x.toFixed(2)} / Z ${d.z.toFixed(2)}</span>
+</button>`
+    ).join("")
+
+    :`<div class="empty">
+      아직 배치된 유닛 라인이 없습니다.
+    </div>`;
+
+
+  listEl
+    .querySelectorAll(
+      "[data-id]"
+    )
+    .forEach(
+      el=>
+        el.onclick=
+          ()=>setSelected(
+            el.dataset.id
+          )
+    );
+
+
+  targetEl.innerHTML=
+    `<option value="">
+      붙일 대상 선택
+    </option>`
+
+    +
+
+    all
+      .filter(
+        d=>d.id!==selectedId
+      )
+      .map(
+        d=>
+`<option value="${d.id}">
+${d.id} · ${d.type}형
+</option>`
+      )
+      .join("");
+
+
+  const units=
+    all.reduce(
+      (n,d)=>
+        n+
+        (
+          d.topFloor-
+          d.startFloor+
+          1
+        ),
+      0
+    );
+
+
+  const maxF=
+    all.reduce(
+      (m,d)=>
+        Math.max(
+          m,
+          d.topFloor
+        ),
+      0
+    );
+
+
+  statsEl.textContent=
+    `라인 ${all.length} · 세대모듈 ${units} · 최고 ${maxF||0}F`;
+
+
+  codeEl.value=
+    builder.toModuleCode(
+      "BUILDING_LAYOUT"
+    );
+
+
+  saveLocal();
+}
+
+
+/* =====================================================
+   LOCAL SAVE
+===================================================== */
+
+function saveLocal(){
+
+  localStorage.setItem(
+    "apt-building-bundle-v1",
+    JSON.stringify(
+      builder.serialize()
+    )
+  );
+}
+
+
+function loadLocal(){
+
+  try{
+
+    const rows=
+      JSON.parse(
+        localStorage.getItem(
+          "apt-building-bundle-v1"
+        )||"[]"
+      );
+
+
+    if(Array.isArray(rows)){
+
+      rows.forEach(
+        r=>builder.add(r)
+      );
+
+    }
+
+
+    if(rows.length){
+
+      counter=
+        Math.max(
+          ...rows.map(
+            r=>
+              Number(
+                String(r.id)
+                  .replace(
+                    /\D/g,
+                    ""
+                  )
+              )||0
+          )
+        )+1;
+
+      setSelected(
+        rows[0].id
+      );
+    }
+    else{
+
+      renderUI();
+
+    }
+
+  }
+  catch(e){
+
+    console.warn(e);
+
+    renderUI();
+
+  }
+}
+
+
+/* =====================================================
+   CAMERA FIT
+===================================================== */
+
+function fitView(top=false){
+
+  const box=
+    new THREE.Box3()
+      .setFromObject(
+        builder.root
+      );
+
+
+  if(box.isEmpty()){
+
+    controls.target.set(
+      0,
+      5,
+      0
+    );
+
+    camera.position.set(
+      28,
+      24,
+      34
+    );
+
+    return;
+  }
+
+
+  const c=
+    new THREE.Vector3();
+
+  const s=
+    new THREE.Vector3();
+
+  box.getCenter(c);
+  box.getSize(s);
+
+  controls.target.copy(c);
+
+  camera.up.set(
+    0,
+    1,
+    0
+  );
+
+
+  if(top){
+
+    camera.up.set(
+      0,
+      0,
+      -1
+    );
+
+    camera.position.set(
+      c.x,
+      c.y+
+      Math.max(
+        35,
+        s.x,
+        s.z
+      )*1.6,
+      c.z+.01
+    );
+
+  }
+  else{
+
+    const d=
+      Math.max(
+        18,
+        s.x,
+        s.y,
+        s.z
+      )*1.25;
+
+    camera.position.set(
+      c.x+d*.85,
+      c.y+d*.62,
+      c.z+d
+    );
+
+  }
+}
+
+
+/* =====================================================
+   APPLY
+===================================================== */
+
+function applySelected(){
+
+  if(!selectedId){
+    return;
+  }
+
+  const d=
+    builder.update(
+      selectedId,
+      readForm(
+        selectedId
+      )
+    );
+
+  setSelected(d.id);
+}
+
+
+/* =====================================================
+   NUDGE
+===================================================== */
+
+function nudge(dx,dz){
+
+  if(!selectedId){
+    return;
+  }
+
+  const d=
+    builder.nudge(
+      selectedId,
+      dx,
+      dz
+    );
+
+  writeForm(d);
+
+  refreshHelper();
+
+  renderUI();
+}
+
+
+/* =====================================================
+   ATTACH
+===================================================== */
+
+function attach(side){
+
+  if(
+    !selectedId||
+    !targetEl.value
+  ){
+    return;
+  }
+
+  const d=
+    builder.attach(
+      selectedId,
+      targetEl.value,
+      side,
+      0
+    );
+
+
+  if(d){
+
+    writeForm(d);
+
+    refreshHelper();
+
+    renderUI();
+  }
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+$("#addBtn").onclick=()=>{
+
+  const id=
+    nextId();
+
+  const d=
+    builder.add(
+      readForm(id)
+    );
+
+  setSelected(d.id);
+
+  fitView(false);
+};
+
+
+$("#applyBtn").onclick=
+  applySelected;
+
+
+$("#duplicateBtn").onclick=()=>{
+
+  if(!selectedId){
+    return;
+  }
+
+  const src=
+    builder.get(
+      selectedId
+    );
+
+  const d=
+    builder.add({
+      ...src,
+
+      id:nextId(),
+
+      x:src.x+.5,
+      z:src.z+.5
+    });
+
+  setSelected(d.id);
+};
+
+
+$("#deleteBtn").onclick=()=>{
+
+  if(!selectedId){
+    return;
+  }
+
+  const id=
+    selectedId;
+
+  setSelected(null);
+
+  builder.remove(id);
+
+  renderUI();
+};
+
+
+$("#clearBtn").onclick=()=>{
+
+  if(
+    !confirm(
+      "현재 번들을 전부 비울까요?"
+    )
+  ){
+    return;
+  }
+
+  setSelected(null);
+
+  builder.clear();
+
+  counter=1;
+
+  renderUI();
+};
+
+
+$("#fitBtn").onclick=
+  ()=>fitView(false);
+
+$("#topBtn").onclick=
+  ()=>fitView(true);
+
+
+/* =====================================================
+   COPY CODE
+===================================================== */
+
+$("#copyBtn").onclick=
+  async()=>{
+
+    codeEl.value=
+      builder.toModuleCode(
+        "BUILDING_LAYOUT"
+      );
+
+    try{
+
+      await navigator
+        .clipboard
+        .writeText(
+          codeEl.value
+        );
+
+      $("#copyBtn")
+        .textContent=
+          "복사됨";
+
+      setTimeout(
+        ()=>{
+          $("#copyBtn")
+            .textContent=
+              "코드 복사";
+        },
+        900
+      );
+
+    }
+    catch{
+
+      codeEl.select();
+
+      document.execCommand(
+        "copy"
+      );
+    }
+  };
+
+
+/* =====================================================
+   NUDGE BUTTONS
+===================================================== */
+
+$("#nLeft").onclick=
+  ()=>nudge(-.1,0);
+
+$("#nRight").onclick=
+  ()=>nudge(.1,0);
+
+$("#nFront").onclick=
+  ()=>nudge(0,.1);
+
+$("#nRear").onclick=
+  ()=>nudge(0,-.1);
+
+
+/* =====================================================
+   ATTACH BUTTONS
+===================================================== */
+
+$("#attachLeft").onclick=
+  ()=>attach("left");
+
+$("#attachRight").onclick=
+  ()=>attach("right");
+
+$("#attachFront").onclick=
+  ()=>attach("front");
+
+$("#attachRear").onclick=
+  ()=>attach("rear");
+
+
+/* =====================================================
+   FORM AUTO APPLY
+===================================================== */
+
+[
+  xEl,
+  zEl,
+  topFloorEl,
+  typeEl,
+  frontEl,
+  mirrorEl,
+  pilotiEl
+]
+.forEach(
+  el=>
+    el.addEventListener(
+      "change",
+      ()=>{
+        if(selectedId){
+          applySelected();
+        }
+      }
+    )
+);
+
+
+/* =====================================================
+   3D PICK
+===================================================== */
+
+const raycaster=
+  new THREE.Raycaster();
+
+const pointer=
+  new THREE.Vector2();
+
+
+renderer.domElement
+  .addEventListener(
+    "pointerup",
+    e=>{
+
+      if(
+        e.target!==
+        renderer.domElement
+      ){
+        return;
+      }
+
+      const r=
+        renderer.domElement
+          .getBoundingClientRect();
+
+      pointer.x=
+        (
+          (
+            e.clientX-
+            r.left
+          )/
+          r.width
+        )*2-1;
+
+      pointer.y=
+        -(
+          (
+            e.clientY-
+            r.top
+          )/
+          r.height
+        )*2+1;
+
+
+      raycaster
+        .setFromCamera(
+          pointer,
+          camera
+        );
+
+
+      const hits=
+        raycaster
+          .intersectObjects(
+            builder.root.children,
+            true
+          );
+
+
+      const hit=
+        hits.find(
+          h=>
+            h.object
+              .userData
+              .stackId
+        );
+
+
+      if(hit){
+
+        setSelected(
+          hit.object
+            .userData
+            .stackId
+        );
+
+      }
+
+    }
+  );
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      !selectedId||
+      [
+        "INPUT",
+        "TEXTAREA",
+        "SELECT"
+      ]
+      .includes(
+        document
+          .activeElement
+          ?.tagName
+      )
+    ){
+      return;
+    }
+
+
+    const step=
+      e.shiftKey
+        ?.5
+        :.1;
+
+
+    if(e.key==="ArrowLeft"){
+      nudge(-step,0);
+    }
+
+    if(e.key==="ArrowRight"){
+      nudge(step,0);
+    }
+
+    if(e.key==="ArrowUp"){
+      nudge(0,step);
+    }
+
+    if(e.key==="ArrowDown"){
+      nudge(0,-step);
+    }
+
+  }
+);
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+addEventListener(
+  "resize",
+  ()=>{
+
+    camera.aspect=
+      innerWidth/
+      innerHeight;
+
+    camera
+      .updateProjectionMatrix();
+
+    renderer.setSize(
+      innerWidth,
+      innerHeight
+    );
+
+  }
+);
+
+
+/* =====================================================
+   LOOP
+===================================================== */
+
+function loop(){
+
+  requestAnimationFrame(loop);
+
+  controls.update();
+
+  refreshHelper();
+
+  renderer.render(
+    scene,
+    camera
+  );
+}
+
+
+loadLocal();
+
+loop();
+
+
+================================================================================
+FILE: /prototype/css/unit-viewer.css
+================================================================================
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+body{
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Pretendard",
+    sans-serif;
+
+  background:#dce9ed;
+}
+
+#view{
+  position:fixed;
+  inset:0;
+}
+
+canvas{
+  display:block;
+}
+
+.info{
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:10;
+
+  padding:14px 16px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,.74);
+
+  backdrop-filter:
+    blur(16px);
+
+  color:#26363d;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0,0,0,.08);
+}
+
+.info strong{
+  display:block;
+  font-size:17px;
+  letter-spacing:.02em;
+}
+
+.info span{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  opacity:.62;
+}
+
+.legend{
+  position:fixed;
+
+  bottom:24px;
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  padding:
+    12px 18px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,.78);
+
+  backdrop-filter:
+    blur(16px);
+
+  font-size:12px;
+
+  color:#31434a;
+
+  text-align:center;
+
+  white-space:nowrap;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0,0,0,.08);
+}
+
+
+================================================================================
+FILE: /prototype/js/building-bundle.js
+================================================================================
+import * as THREE from"three";
+import{OrbitControls}from"three/addons/controls/OrbitControls.js";
+import{BuildingLayoutBuilder}from"./builders/building-layout-builder.js";
+import{UNIT_TYPES}from"./builders/unit-catalog.js";
+
+const $=s=>document.querySelector(s),view=$("#view"),typeEl=$("#type"),frontEl=$("#front"),mirrorEl=$("#mirror"),pilotiEl=$("#piloti"),topFloorEl=$("#topFloor"),xEl=$("#x"),zEl=$("#z"),selectedLabel=$("#selectedLabel"),listEl=$("#lineList"),targetEl=$("#attachTarget"),codeEl=$("#exportCode"),statsEl=$("#stats");
+UNIT_TYPES.forEach(t=>typeEl.insertAdjacentHTML("beforeend",`<option value="${t}">${t}형</option>`));
+
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xdfe8e5);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,500);camera.position.set(28,24,34);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;view.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.target.set(0,8,0);controls.maxPolarAngle=Math.PI/2.02;
+scene.add(new THREE.HemisphereLight(0xffffff,0x9aa49f,2.2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-18,35,22);scene.add(sun);
+const grid=new THREE.GridHelper(100,100,0x8d9994,0xb7c1bd);scene.add(grid);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));ground.rotation.x=-Math.PI/2;ground.userData.ground=true;scene.add(ground);
+const builder=new BuildingLayoutBuilder(scene);
+let selectedId=null,counter=1,selectionHelper=null;
+
+function nextId(){let id;do{id=`L${String(counter++).padStart(2,"0")}`;}while(builder.get(id));return id;}
+function readForm(id=selectedId??nextId()){return{id,type:typeEl.value,mirror:mirrorEl.checked,front:frontEl.value,startFloor:pilotiEl.checked?2:1,topFloor:Number(topFloorEl.value)||25,x:Number(xEl.value)||0,z:Number(zEl.value)||0};}
+function writeForm(d){if(!d)return;typeEl.value=d.type;frontEl.value=d.front;mirrorEl.checked=d.mirror;pilotiEl.checked=d.startFloor>1;topFloorEl.value=d.topFloor;xEl.value=d.x;zEl.value=d.z;}
+function setSelected(id){selectedId=builder.get(id)?id:null;selectedLabel.textContent=selectedId??"선택 없음";if(selectionHelper){scene.remove(selectionHelper);selectionHelper.geometry?.dispose?.();selectionHelper.material?.dispose?.();selectionHelper=null;}if(selectedId){writeForm(builder.get(selectedId));selectionHelper=new THREE.BoxHelper(builder.getRoot(selectedId),0xf2a900);scene.add(selectionHelper);}renderUI();}
+function refreshHelper(){selectionHelper?.update();}
+function renderUI(){
+  const all=builder.getAll();listEl.innerHTML=all.length?all.map(d=>`<button class="line-item ${d.id===selectedId?"active":""}" data-id="${d.id}"><b>${d.id} · ${d.type}형${d.mirror?" ↔":""}</b><span>${d.front} · ${d.startFloor}~${d.topFloor}F · X ${d.x.toFixed(2)} / Z ${d.z.toFixed(2)}</span></button>`).join(""):`<div class="empty">아직 배치된 유닛 라인이 없습니다.</div>`;
+  listEl.querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>setSelected(el.dataset.id));
+  targetEl.innerHTML='<option value="">붙일 대상 선택</option>'+all.filter(d=>d.id!==selectedId).map(d=>`<option value="${d.id}">${d.id} · ${d.type}형</option>`).join("");
+  const units=all.reduce((n,d)=>n+(d.topFloor-d.startFloor+1),0),maxF=all.reduce((m,d)=>Math.max(m,d.topFloor),0);statsEl.textContent=`라인 ${all.length} · 세대모듈 ${units} · 최고 ${maxF||0}F`;
+  codeEl.value=builder.toModuleCode("BUILDING_LAYOUT");saveLocal();
+}
+function saveLocal(){localStorage.setItem("apt-building-bundle-v1",JSON.stringify(builder.serialize()));}
+function loadLocal(){try{const rows=JSON.parse(localStorage.getItem("apt-building-bundle-v1")||"[]");if(Array.isArray(rows))rows.forEach(r=>builder.add(r));if(rows.length){counter=Math.max(...rows.map(r=>Number(String(r.id).replace(/\D/g,""))||0))+1;setSelected(rows[0].id);}else renderUI();}catch(e){console.warn(e);renderUI();}}
+function fitView(top=false){const box=new THREE.Box3().setFromObject(builder.root);if(box.isEmpty()){controls.target.set(0,5,0);camera.position.set(28,24,34);return;}const c=new THREE.Vector3(),s=new THREE.Vector3();box.getCenter(c);box.getSize(s);controls.target.copy(c);camera.up.set(0,1,0);if(top){camera.up.set(0,0,-1);camera.position.set(c.x,c.y+Math.max(35,s.x,s.z)*1.6,c.z+.01);}else{const d=Math.max(18,s.x,s.y,s.z)*1.25;camera.position.set(c.x+d*.85,c.y+d*.62,c.z+d);}}
+function applySelected(){if(!selectedId)return;const d=builder.update(selectedId,readForm(selectedId));setSelected(d.id);}
+function nudge(dx,dz){if(!selectedId)return;const d=builder.nudge(selectedId,dx,dz);writeForm(d);refreshHelper();renderUI();}
+function attach(side){if(!selectedId||!targetEl.value)return;const d=builder.attach(selectedId,targetEl.value,side,0);if(d){writeForm(d);refreshHelper();renderUI();}}
+
+$("#addBtn").onclick=()=>{const id=nextId(),d=builder.add(readForm(id));setSelected(d.id);fitView(false);};
+$("#applyBtn").onclick=applySelected;
+$("#duplicateBtn").onclick=()=>{if(!selectedId)return;const src=builder.get(selectedId),d=builder.add({...src,id:nextId(),x:src.x+.5,z:src.z+.5});setSelected(d.id);};
+$("#deleteBtn").onclick=()=>{if(!selectedId)return;const id=selectedId;setSelected(null);builder.remove(id);renderUI();};
+$("#clearBtn").onclick=()=>{if(!confirm("현재 번들을 전부 비울까요?"))return;setSelected(null);builder.clear();counter=1;renderUI();};
+$("#fitBtn").onclick=()=>fitView(false);$("#topBtn").onclick=()=>fitView(true);
+$("#copyBtn").onclick=async()=>{codeEl.value=builder.toModuleCode("BUILDING_LAYOUT");try{await navigator.clipboard.writeText(codeEl.value);$("#copyBtn").textContent="복사됨";setTimeout(()=>$("#copyBtn").textContent="코드 복사",900);}catch{codeEl.select();document.execCommand("copy");}};
+$("#nLeft").onclick=()=>nudge(-.1,0);$("#nRight").onclick=()=>nudge(.1,0);$("#nFront").onclick=()=>nudge(0,.1);$("#nRear").onclick=()=>nudge(0,-.1);
+$("#attachLeft").onclick=()=>attach("left");$("#attachRight").onclick=()=>attach("right");$("#attachFront").onclick=()=>attach("front");$("#attachRear").onclick=()=>attach("rear");
+[xEl,zEl,topFloorEl,typeEl,frontEl,mirrorEl,pilotiEl].forEach(el=>el.addEventListener("change",()=>{if(selectedId)applySelected();}));
+
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+renderer.domElement.addEventListener("pointerup",e=>{if(e.target!==renderer.domElement)return;const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(builder.root.children,true);const hit=hits.find(h=>h.object.userData.stackId);if(hit)setSelected(hit.object.userData.stackId);});
+
+addEventListener("keydown",e=>{if(!selectedId||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;const step=e.shiftKey?.5:.1;if(e.key==="ArrowLeft")nudge(-step,0);if(e.key==="ArrowRight")nudge(step,0);if(e.key==="ArrowUp")nudge(0,step);if(e.key==="ArrowDown")nudge(0,-step);});
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+function loop(){requestAnimationFrame(loop);controls.update();refreshHelper();renderer.render(scene,camera);}loadLocal();loop();
+
+
+================================================================================
+FILE: /prototype/js/floor-builder.js
+================================================================================
+import * as THREE from "three";
+import {createUnitModel} from "../unit-model.js";
+
+export function buildFloor(recipe,unitMap){
+  const floor=new THREE.Group();
+  floor.name=`BUILDING_${recipe.id}_TYPICAL_FLOOR`;
+
+  recipe.units.forEach(item=>{
+    const data=unitMap[item.type];
+    if(!data)throw new Error(`Unknown UNIT type: ${item.type}`);
+
+    const model=createUnitModel(data,{instanceId:item.instance});
+    model.position.set(item.x,0,item.z);
+    model.rotation.y=THREE.MathUtils.degToRad(item.rotation??0);
+
+    model.userData.unitType=item.type;
+    model.userData.instanceId=item.instance;
+
+    floor.add(model);
+  });
+
+  return floor;
+}
+
+
+================================================================================
+FILE: /prototype/js/opening-presets.js
+================================================================================
+export const OPENING_PRESETS={
+  smallRoomWindow:{
+    type:"window",
+    w:1.00,
+    h:1.00,
+    sill:1.07
+  },
+
+  masterRoomWindow:{
+    type:"window",
+    w:1.20,
+    h:1.35,
+    sill:.72
+  },
+
+  livingRoomWindow:{
+    type:"largeWindow",
+    w:2.15,
+    h:1.45,
+    sill:.62
+  },
+
+  kitchenWindow:{
+    type:"kitchenWindow",
+    w:.72,
+    h:.56,
+    sill:1.24
+  },
+
+  utilityRoomWindow:{
+    type:"window",
+    w:.72,
+    h:.78,
+    sill:1.13
+  },
+
+  dressRoomWindow:{
+    type:"window",
+    w:.82,
+    h:.82,
+    sill:1.15
+  },
+
+  outdoorUnitLouver:{
+    type:"louver",
+    w:.72,
+    h:1.45,
+    sill:.68
+  }
+};
+
+export function opening(preset,options={}){
+  const base=OPENING_PRESETS[preset];
+
+  if(!base){
+    throw new Error(
+      `Unknown opening preset: ${preset}`
+    );
+  }
+
+  return{
+    ...base,
+    preset,
+    ...options
+  };
+}
+
+
+================================================================================
+FILE: /prototype/js/unit-model.js
+================================================================================
+import * as THREE from "three";
+
+export function createUnitModel(data,{instanceId=`UNIT_${data.code}`}={}){
+  const {width,depth,floorHeight:H,wall:T}=data.size;
+  const front=data.frontOpenings??[],rear=data.rearOpenings??[],left=data.leftOpenings??[],right=data.rightOpenings??[];
+  const rearZ=-depth/2,frontZ=depth/2,leftX=-width/2,rightX=width/2;
+  const fp=(data.frontProfile??[{xMin:leftX,xMax:rightX,offset:0}]).slice().sort((a,b)=>a.xMin-b.xMin);
+  const rp=(data.rearProfile??[{xMin:leftX,xMax:rightX,offset:0}]).slice().sort((a,b)=>a.xMin-b.xMin);
+  const inset=data.leftRearInset??null,group=new THREE.Group(); group.name=instanceId;
+
+  const wallMat=new THREE.MeshStandardMaterial({color:0xe9ece9,roughness:.72});
+  const slabMat=new THREE.MeshStandardMaterial({color:0xcfd4d2,roughness:.82});
+  const glassMat=new THREE.MeshStandardMaterial({color:0x6b8798,roughness:.18,metalness:.08});
+  const frameMat=new THREE.MeshStandardMaterial({color:0xe8ecec,roughness:.42});
+  const louverMat=new THREE.MeshStandardMaterial({color:0x7f8a90,roughness:.66,metalness:.35});
+  const darkMat=new THREE.MeshStandardMaterial({color:0x505c62,roughness:.95});
+
+  let wallNo=0;
+  const tag=(m,id,label,type)=>{m.userData={...m.userData,pickable:true,objectId:`${instanceId}-${id}`,objectLabel:label,objectType:type,unitId:instanceId};return m;};
+  const box=(w,h,d,mat,x,y,z,meta)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;if(meta)tag(m,...meta);group.add(m);return m;};
+  const WM=label=>[`W${String(++wallNo).padStart(2,"0")}`,label,"wall"];
+  const OM=o=>[o.id,o.name??o.preset??o.type,o.type];
+
+  const off=(p,x)=>(p.find(v=>x>=v.xMin&&x<=v.xMax)?.offset??0);
+  const fz=x=>frontZ+off(fp,x),rz=x=>rearZ+off(rp,x);
+
+  /* FLOOR */
+  const xs=[leftX,rightX,...fp.flatMap(v=>[v.xMin,v.xMax]),...rp.flatMap(v=>[v.xMin,v.xMax])].sort((a,b)=>a-b).filter((v,i,a)=>i===0||Math.abs(v-a[i-1])>.001);
+  for(let i=0;i<xs.length-1;i++){const a=xs[i],b=xs[i+1],x=(a+b)/2;let lx=leftX;if(inset&&x<leftX+inset.offset)continue;const z1=rz(x),z2=fz(x);box(b-a,.12,z2-z1,slabMat,x,.06,(z1+z2)/2);}
+
+  function winFR(o,z,frontSide){
+    const f=z+(frontSide?.012:-.012),M=OM(o);
+    box(o.w-.10,o.h-.10,.055,glassMat,o.x,o.sill+o.h/2,f,M);
+    box(o.w,.055,.07,frameMat,o.x,o.sill,f,M);box(o.w,.055,.07,frameMat,o.x,o.sill+o.h,f,M);
+    box(.055,o.h,.07,frameMat,o.x-o.w/2,o.sill+o.h/2,f,M);box(.055,o.h,.07,frameMat,o.x+o.w/2,o.sill+o.h/2,f,M);
+    const n=o.type==="largeWindow"?2:1;for(let i=1;i<=n;i++)box(.04,o.h-.06,.05,frameMat,o.x-o.w/2+o.w/(n+1)*i,o.sill+o.h/2,f,M);
+  }
+
+  function louverFR(o,z,frontSide){
+    const f=z+(frontSide?.015:-.015),inside=z+(frontSide?-.05:.05),M=OM(o);
+    box(o.w-.06,o.h-.06,.12,darkMat,o.x,o.sill+o.h/2,inside,M);
+    box(o.w,.05,.07,frameMat,o.x,o.sill,f,M);box(o.w,.05,.07,frameMat,o.x,o.sill+o.h,f,M);
+    box(.05,o.h,.07,frameMat,o.x-o.w/2,o.sill+o.h/2,f,M);box(.05,o.h,.07,frameMat,o.x+o.w/2,o.sill+o.h/2,f,M);
+    for(let i=0;i<10;i++){const y=o.sill+.12+i*((o.h-.24)/9),s=new THREE.Mesh(new THREE.BoxGeometry(o.w-.14,.028,.075),louverMat);s.position.set(o.x,y,f);s.rotation.x=frontSide?-.28:.28;s.castShadow=true;tag(s,...M);group.add(s);}
+  }
+
+  function winSide(o,x,isLeft){
+    const f=x+(isLeft?-.012:.012),M=OM(o);
+    box(.055,o.h-.10,o.w-.10,glassMat,f,o.sill+o.h/2,o.z,M);
+    box(.07,.055,o.w,frameMat,f,o.sill,o.z,M);box(.07,.055,o.w,frameMat,f,o.sill+o.h,o.z,M);
+    box(.07,o.h,.055,frameMat,f,o.sill+o.h/2,o.z-o.w/2,M);box(.07,o.h,.055,frameMat,f,o.sill+o.h/2,o.z+o.w/2,M);
+  }
+
+  function louverSide(o,x,isLeft){
+    const f=x+(isLeft?-.015:.015),inside=x+(isLeft?.05:-.05),M=OM(o);
+    box(.12,o.h-.06,o.w-.06,darkMat,inside,o.sill+o.h/2,o.z,M);
+    box(.07,.05,o.w,frameMat,f,o.sill,o.z,M);box(.07,.05,o.w,frameMat,f,o.sill+o.h,o.z,M);
+    box(.07,o.h,.05,frameMat,f,o.sill+o.h/2,o.z-o.w/2,M);box(.07,o.h,.05,frameMat,f,o.sill+o.h/2,o.z+o.w/2,M);
+  }
+
+  function wallFR(z,x1,x2,ops,isFront,label){
+    const M=WM(label),valid=[...ops].filter(o=>o.x>=x1&&o.x<=x2).sort((a,b)=>a.x-b.x);let c=x1;
+    valid.forEach(o=>{const l=o.x-o.w/2,r=o.x+o.w/2;if(l>c)box(l-c,H,T,wallMat,(c+l)/2,H/2,z,M);if(o.sill)box(o.w,o.sill,T,wallMat,o.x,o.sill/2,z,M);const top=o.sill+o.h;if(top<H)box(o.w,H-top,T,wallMat,o.x,top+(H-top)/2,z,M);o.type==="louver"?louverFR(o,z,isFront):winFR(o,z,isFront);c=r;});if(c<x2)box(x2-c,H,T,wallMat,(c+x2)/2,H/2,z,M);
+  }
+
+  function wallSide(x,z1,z2,ops,isLeft,label){
+    const M=WM(label),valid=[...ops].filter(o=>o.z>=z1&&o.z<=z2).sort((a,b)=>a.z-b.z);let c=z1;
+    valid.forEach(o=>{const a=o.z-o.w/2,b=o.z+o.w/2;if(a>c)box(T,H,a-c,wallMat,x,H/2,(c+a)/2,M);if(o.sill)box(T,o.sill,o.w,wallMat,x,o.sill/2,o.z,M);const top=o.sill+o.h;if(top<H)box(T,H-top,o.w,wallMat,x,top+(H-top)/2,o.z,M);o.type==="louver"?louverSide(o,x,isLeft):winSide(o,x,isLeft);c=b;});if(c<z2)box(T,H,z2-c,wallMat,x,H/2,(c+z2)/2,M);
+  }
+
+  fp.forEach((p,i)=>{const z=frontZ+(p.offset??0);wallFR(z,p.xMin,p.xMax,front,true,`FRONT ${i+1}`);if(i<fp.length-1){const nz=frontZ+(fp[i+1].offset??0);if(Math.abs(nz-z)>.001)box(T,H,Math.abs(nz-z),wallMat,p.xMax,H/2,(z+nz)/2,WM(`FRONT STEP ${i+1}`));}});
+  const rearMin=inset?leftX+inset.offset:leftX;
+  rp.forEach((p,i)=>{const a=Math.max(p.xMin,rearMin),b=p.xMax;if(b<=a)return;const z=rearZ+(p.offset??0);wallFR(z,a,b,rear,false,`REAR ${i+1}`);if(i<rp.length-1){const nz=rearZ+(rp[i+1].offset??0);if(Math.abs(nz-z)>.001)box(T,H,Math.abs(nz-z),wallMat,p.xMax,H/2,(z+nz)/2,WM(`REAR STEP ${i+1}`));}});
+
+  const lf=fz(leftX+.001),rf=fz(rightX-.001),rr=rz(rightX-.001);
+  if(inset){const ix=leftX+inset.offset,lr=rz(ix+.001);wallSide(ix,lr,inset.untilZ,left,true,"LEFT REAR INSET");box(inset.offset,H,T,wallMat,leftX+inset.offset/2,H/2,inset.untilZ,WM("LEFT CONNECTOR"));wallSide(leftX,inset.untilZ,lf,left,true,"LEFT FRONT");}
+  else wallSide(leftX,rz(leftX+.001),lf,left,true,"LEFT");
+  wallSide(rightX,rr,rf,right,false,"RIGHT");
+
+  return group;
+}
+
+================================================================================
+FILE: /prototype/js/unit-viewer.js
+================================================================================
+import * as THREE from "three";
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+
+export function createUnitViewer(data){
+  const {width,depth,floorHeight:H,wall:T}=data.size;
+  const front=data.frontOpenings??[],rear=data.rearOpenings??[],left=data.leftOpenings??[],right=data.rightOpenings??[];
+  const baseRearZ=-depth/2,baseFrontZ=depth/2,baseLeftX=-width/2,baseRightX=width/2;
+  const frontProfile=(data.frontProfile??[{xMin:baseLeftX,xMax:baseRightX,offset:0}]).slice().sort((a,b)=>a.xMin-b.xMin);
+  const rearProfile=(data.rearProfile??[{xMin:baseLeftX,xMax:baseRightX,offset:0}]).slice().sort((a,b)=>a.xMin-b.xMin);
+  const leftInset=data.leftRearInset??null;
+
+  const offsetAt=(profile,x)=>(profile.find(p=>x>=p.xMin&&x<=p.xMax)?.offset??0);
+  const frontZAt=x=>baseFrontZ+offsetAt(frontProfile,x);
+  const rearZAt=x=>baseRearZ+offsetAt(rearProfile,x);
+
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0xdce9ed);
+  const camera=new THREE.PerspectiveCamera(38,innerWidth/innerHeight,.1,100); camera.position.set(10,8,13);
+  const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.outputColorSpace=THREE.SRGBColorSpace;
+  document.getElementById("view").appendChild(renderer.domElement);
+
+  const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.target.set(0,1.2,0); controls.minDistance=7; controls.maxDistance=30; controls.maxPolarAngle=Math.PI/2.02;
+
+  scene.add(new THREE.HemisphereLight(0xf4f9ff,0xb7b9b5,2.1));
+  const sun=new THREE.DirectionalLight(0xffffff,2.6); sun.position.set(-8,12,10); sun.castShadow=true; scene.add(sun);
+
+  const wallMat=new THREE.MeshStandardMaterial({color:0xe9ece9,roughness:.72});
+  const slabMat=new THREE.MeshStandardMaterial({color:0xcfd4d2,roughness:.82});
+  const glassMat=new THREE.MeshStandardMaterial({color:0x6b8798,roughness:.18,metalness:.08});
+  const frameMat=new THREE.MeshStandardMaterial({color:0xe8ecec,roughness:.42});
+  const louverMat=new THREE.MeshStandardMaterial({color:0x7f8a90,roughness:.66,metalness:.35});
+  const darkMat=new THREE.MeshStandardMaterial({color:0x505c62,roughness:.95});
+
+  const unit=new THREE.Group(); unit.name=`UNIT_${data.code}`; scene.add(unit);
+
+  function box(w,h,d,mat,x,y,z){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+    m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; unit.add(m); return m;
+  }
+
+  /* 실제 외곽형상대로 바닥 생성 */
+  function makeBoundary(){
+    const pts=[];
+    frontProfile.forEach((p,i)=>{
+      const z=baseFrontZ+(p.offset??0);
+      if(!i)pts.push([p.xMin,z]);
+      pts.push([p.xMax,z]);
+      if(i<frontProfile.length-1){
+        const nz=baseFrontZ+(frontProfile[i+1].offset??0);
+        if(Math.abs(nz-z)>.001)pts.push([p.xMax,nz]);
+      }
+    });
+
+    const rightRearZ=rearZAt(baseRightX-.001);
+    if(Math.abs(pts.at(-1)[1]-rightRearZ)>.001)pts.push([baseRightX,rightRearZ]);
+
+    const rearLeftX=leftInset?baseLeftX+leftInset.offset:baseLeftX;
+    [...rearProfile].reverse().forEach((p,i,arr)=>{
+      const xMax=Math.min(p.xMax,baseRightX),xMin=Math.max(p.xMin,rearLeftX);
+      if(xMax<=xMin)return;
+      const z=baseRearZ+(p.offset??0);
+      if(!i&&Math.abs(pts.at(-1)[0]-xMax)>.001)pts.push([xMax,z]);
+      pts.push([xMin,z]);
+      const next=arr[i+1];
+      if(next&&xMin>rearLeftX){
+        const nz=baseRearZ+(next.offset??0);
+        if(Math.abs(nz-z)>.001)pts.push([xMin,nz]);
+      }
+    });
+
+    const frontLeftZ=frontZAt(baseLeftX+.001);
+    if(leftInset){
+      pts.push([rearLeftX,leftInset.untilZ]);
+      pts.push([baseLeftX,leftInset.untilZ]);
+      pts.push([baseLeftX,frontLeftZ]);
+    }else{
+      pts.push([baseLeftX,frontLeftZ]);
+    }
+    return pts;
+  }
+
+  const boundary=makeBoundary();
+  const shape=new THREE.Shape();
+  shape.moveTo(boundary[0][0],-boundary[0][1]);
+  for(let i=1;i<boundary.length;i++)shape.lineTo(boundary[i][0],-boundary[i][1]);
+  shape.closePath();
+
+  const floor=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false}),slabMat);
+  floor.rotation.x=-Math.PI/2; floor.castShadow=true; floor.receiveShadow=true; unit.add(floor);
+
+  function frontRearWindow(o,z,isFront){
+    const f=z+(isFront?.012:-.012);
+    box(o.w-.10,o.h-.10,.055,glassMat,o.x,o.sill+o.h/2,f);
+    box(o.w,.055,.07,frameMat,o.x,o.sill,f); box(o.w,.055,.07,frameMat,o.x,o.sill+o.h,f);
+    box(.055,o.h,.07,frameMat,o.x-o.w/2,o.sill+o.h/2,f); box(.055,o.h,.07,frameMat,o.x+o.w/2,o.sill+o.h/2,f);
+    const n=o.type==="largeWindow"?2:1;
+    for(let i=1;i<=n;i++)box(.04,o.h-.06,.05,frameMat,o.x-o.w/2+o.w/(n+1)*i,o.sill+o.h/2,f);
+  }
+
+  function frontRearLouver(o,z,isFront){
+    const f=z+(isFront?.015:-.015),inside=z+(isFront?-.05:.05);
+    box(o.w-.06,o.h-.06,.12,darkMat,o.x,o.sill+o.h/2,inside);
+    box(o.w,.05,.07,frameMat,o.x,o.sill,f); box(o.w,.05,.07,frameMat,o.x,o.sill+o.h,f);
+    box(.05,o.h,.07,frameMat,o.x-o.w/2,o.sill+o.h/2,f); box(.05,o.h,.07,frameMat,o.x+o.w/2,o.sill+o.h/2,f);
+    for(let i=0;i<10;i++){const y=o.sill+.12+i*((o.h-.24)/9); const s=new THREE.Mesh(new THREE.BoxGeometry(o.w-.14,.028,.075),louverMat); s.position.set(o.x,y,f); s.rotation.x=isFront?-.28:.28; s.castShadow=true; unit.add(s);}
+  }
+
+  function sideWindow(o,x,isLeft){
+    const f=x+(isLeft?-.012:.012);
+    box(.055,o.h-.10,o.w-.10,glassMat,f,o.sill+o.h/2,o.z);
+    box(.07,.055,o.w,frameMat,f,o.sill,o.z); box(.07,.055,o.w,frameMat,f,o.sill+o.h,o.z);
+    box(.07,o.h,.055,frameMat,f,o.sill+o.h/2,o.z-o.w/2); box(.07,o.h,.055,frameMat,f,o.sill+o.h/2,o.z+o.w/2);
+    box(.05,o.h-.06,.04,frameMat,f,o.sill+o.h/2,o.z);
+  }
+
+  function sideLouver(o,x,isLeft){
+    const f=x+(isLeft?-.015:.015),inside=x+(isLeft?.05:-.05);
+    box(.12,o.h-.06,o.w-.06,darkMat,inside,o.sill+o.h/2,o.z);
+    box(.07,.05,o.w,frameMat,f,o.sill,o.z); box(.07,.05,o.w,frameMat,f,o.sill+o.h,o.z);
+    box(.07,o.h,.05,frameMat,f,o.sill+o.h/2,o.z-o.w/2); box(.07,o.h,.05,frameMat,f,o.sill+o.h/2,o.z+o.w/2);
+    for(let i=0;i<10;i++){const y=o.sill+.12+i*((o.h-.24)/9); const s=new THREE.Mesh(new THREE.BoxGeometry(.075,.028,o.w-.14),louverMat); s.position.set(f,y,o.z); s.rotation.z=isLeft?-.28:.28; s.castShadow=true; unit.add(s);}
+  }
+
+  function horizontalWall(z,xMin,xMax,openings,isFront){
+    const valid=[...openings].filter(o=>o.x>=xMin&&o.x<=xMax).sort((a,b)=>a.x-b.x); let c=xMin;
+    valid.forEach(o=>{
+      const l=o.x-o.w/2,r=o.x+o.w/2;
+      if(l>c)box(l-c,H,T,wallMat,(c+l)/2,H/2,z);
+      if(o.sill>0)box(o.w,o.sill,T,wallMat,o.x,o.sill/2,z);
+      const top=o.sill+o.h;
+      if(top<H)box(o.w,H-top,T,wallMat,o.x,top+(H-top)/2,z);
+      o.type==="louver"?frontRearLouver(o,z,isFront):frontRearWindow(o,z,isFront); c=r;
+    });
+    if(c<xMax)box(xMax-c,H,T,wallMat,(c+xMax)/2,H/2,z);
+  }
+
+  frontProfile.forEach((p,i)=>{
+    const z=baseFrontZ+(p.offset??0); horizontalWall(z,p.xMin,p.xMax,front,true);
+    if(i<frontProfile.length-1){const nz=baseFrontZ+(frontProfile[i+1].offset??0); if(Math.abs(nz-z)>.001)box(T,H,Math.abs(nz-z),wallMat,p.xMax,H/2,(z+nz)/2);}
+  });
+
+  const rearMinX=leftInset?baseLeftX+leftInset.offset:baseLeftX;
+  rearProfile.forEach((p,i)=>{
+    const x1=Math.max(p.xMin,rearMinX),x2=p.xMax;
+    if(x2<=x1)return;
+    const z=baseRearZ+(p.offset??0); horizontalWall(z,x1,x2,rear,false);
+    if(i<rearProfile.length-1){const nz=baseRearZ+(rearProfile[i+1].offset??0); if(Math.abs(nz-z)>.001)box(T,H,Math.abs(nz-z),wallMat,p.xMax,H/2,(z+nz)/2);}
+  });
+
+  function sideWall(x,zMin,zMax,openings,isLeft){
+    const valid=[...openings].filter(o=>o.z>=zMin&&o.z<=zMax).sort((a,b)=>a.z-b.z); let c=zMin;
+    valid.forEach(o=>{
+      const a=o.z-o.w/2,b=o.z+o.w/2;
+      if(a>c)box(T,H,a-c,wallMat,x,H/2,(c+a)/2);
+      if(o.sill>0)box(T,o.sill,o.w,wallMat,x,o.sill/2,o.z);
+      const top=o.sill+o.h;
+      if(top<H)box(T,H-top,o.w,wallMat,x,top+(H-top)/2,o.z);
+      o.type==="louver"?sideLouver(o,x,isLeft):sideWindow(o,x,isLeft); c=b;
+    });
+    if(c<zMax)box(T,H,zMax-c,wallMat,x,H/2,(c+zMax)/2);
+  }
+
+  const lf=frontZAt(baseLeftX+.001),rf=frontZAt(baseRightX-.001),rr=rearZAt(baseRightX-.001);
+
+  if(leftInset){
+    const insetX=baseLeftX+leftInset.offset;
+    const lr=rearZAt(insetX+.001);
+
+    /* 뒤쪽 들어간 왼쪽벽: 루버/주방창이 이 벽에 직접 붙음 */
+    sideWall(insetX,lr,leftInset.untilZ,left,true);
+
+    /* ㄱ자 연결벽 */
+    box(leftInset.offset,H,T,wallMat,baseLeftX+leftInset.offset/2,H/2,leftInset.untilZ);
+
+    /* 앞쪽 원래 왼쪽벽 */
+    sideWall(baseLeftX,leftInset.untilZ,lf,left,true);
+  }else{
+    const lr=rearZAt(baseLeftX+.001);
+    sideWall(baseLeftX,lr,lf,left,true);
+  }
+
+  sideWall(baseRightX,rr,rf,right,false);
+
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.MeshStandardMaterial({color:0xaab7a6,roughness:1}));
+  ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+
+  const title=document.getElementById("unitTitle"),subtitle=document.getElementById("unitSubtitle");
+  if(title)title.textContent=`UNIT_${data.code} · ${data.id}`;
+  if(subtitle)subtitle.textContent=`전용면적 ${data.area.toFixed(4)}㎡ · 모듈러 UNIT`;
+
+  function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);} animate();
+  addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+  return{scene,camera,renderer,controls,unit};
+}
+
+
+================================================================================
+FILE: /prototype/js/units/unit-a.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_A={
+  id:"055.9200A",
+  code:"A",
+  area:55.9200,
+
+  /*
+    A형 실제 비율 재설정
+
+    WIDTH  = 12.480m
+    DEPTH  =  8.450m
+    HEIGHT =  2.850m
+
+    LOCAL:
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size:{
+    width:12.48,
+    depth:8.45,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+  /*
+    FRONT
+    외부에서 보았을 때 왼쪽 → 오른쪽
+
+    침실3 → 침실2 → 거실 → 침실1
+
+    C형의 동일 방 치수/창 위치를
+    좌우 대칭시킨 기준.
+  */
+  frontOpenings:[
+
+    O("smallRoomWindow",{
+      id:"F01",
+      name:"bedroom3Window",
+      x:-4.91,
+      w:1.85
+    }),
+
+    O("smallRoomWindow",{
+      id:"F02",
+      name:"bedroom2Window",
+      x:-2.46,
+      w:1.70
+    }),
+
+    O("livingRoomWindow",{
+      id:"F03",
+      name:"livingRoomWindow",
+      x:.60,
+      w:2.55
+    }),
+
+    O("masterRoomWindow",{
+      id:"F04",
+      name:"bedroom1Window",
+      x:4.12,
+      w:1.95
+    })
+
+  ],
+
+  /*
+    A형 왼쪽 후면은 크게 안쪽으로 들어감.
+
+    leftX = -6.24
+    -6.24 + 3.70 = -2.54
+
+    즉 후면에서는 약 x=-2.54부터
+    본격적인 외벽이 시작되는 형태로 근사.
+  */
+  leftRearInset:{
+    offset:3.70,
+    untilZ:-2.05
+  },
+
+  /*
+    REAR PROFILE
+
+    주방 부분이 가장 뒤쪽.
+    다용도실과 실외기실/드레스룸 쪽은
+    약 0.28m 전진한 형태.
+  */
+  rearProfile:[
+
+    {
+      xMin:-2.54,
+      xMax:-.75,
+      offset:.28
+    },
+
+    {
+      xMin:-.75,
+      xMax:2.45,
+      offset:0
+    },
+
+    {
+      xMin:2.45,
+      xMax:6.24,
+      offset:.28
+    }
+
+  ],
+
+  /*
+    REAR
+    평면도상 왼쪽 → 오른쪽
+
+    다용도실창
+    주방창
+    실외기실 루버
+    드레스룸창
+  */
+  rearOpenings:[
+
+    O("utilityRoomWindow",{
+      id:"R01",
+      name:"utilityRoomWindow",
+      x:-1.48,
+      w:.85
+    }),
+
+    O("kitchenWindow",{
+      id:"R02",
+      name:"kitchenWindow",
+      x:1.40,
+      w:.95
+    }),
+
+    O("outdoorUnitLouver",{
+      id:"R03",
+      name:"outdoorUnitLouver",
+      x:3.52,
+      w:1.00
+    }),
+
+    O("dressRoomWindow",{
+      id:"R04",
+      name:"dressRoomWindow",
+      x:5.00,
+      w:.85
+    })
+
+  ],
+
+  leftOpenings:[],
+  rightOpenings:[]
+};
+
+
+================================================================================
+FILE: /prototype/js/units/unit-b.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_B={
+  id:"055.9500B",
+  code:"B",
+  area:55.9500,
+
+  /*
+    B형 실제 비율 재설정
+
+    WIDTH  = 12.805m
+    DEPTH  =  9.230m
+    HEIGHT =  2.850m
+
+    LOCAL
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size:{
+    width:12.805,
+    depth:9.23,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+  /*
+    FRONT
+
+    외부에서 왼쪽 → 오른쪽
+
+    거실
+    침실2
+    침실3
+    침실1
+
+    오른쪽 침실1 부분은
+    약 0.85m 뒤로 후퇴.
+  */
+  frontProfile:[
+    {
+      xMin:-6.4025,
+      xMax:2.78,
+      offset:0
+    },
+    {
+      xMin:2.78,
+      xMax:6.4025,
+      offset:-.85
+    }
+  ],
+
+  frontOpenings:[
+
+    O("livingRoomWindow",{
+      id:"F01",
+      name:"livingRoomWindow",
+      x:-4.20,
+      w:2.65
+    }),
+
+    O("smallRoomWindow",{
+      id:"F02",
+      name:"bedroom2Window",
+      x:-1.20,
+      w:1.57
+    }),
+
+    O("smallRoomWindow",{
+      id:"F03",
+      name:"bedroom3Window",
+      x:1.27,
+      w:1.57
+    }),
+
+    O("masterRoomWindow",{
+      id:"F04",
+      name:"bedroom1Window",
+      x:4.34,
+      w:1.96
+    })
+
+  ],
+
+  /*
+    REAR PROFILE
+
+    이미지 평면 외곽을 비례 환산한 값.
+
+    가장 왼쪽 후면부가 기준점이고
+    중앙부가 단계적으로 앞으로 들어옴.
+  */
+  rearProfile:[
+
+    {
+      xMin:-6.4025,
+      xMax:-2.87,
+      offset:0
+    },
+
+    {
+      xMin:-2.87,
+      xMax:.40,
+      offset:2.08
+    },
+
+    {
+      xMin:.40,
+      xMax:2.05,
+      offset:3.13
+    },
+
+    {
+      xMin:2.05,
+      xMax:6.4025,
+      offset:1.97
+    }
+
+  ],
+
+  /*
+    B형 REAR에는
+    현재 주요 외부 창호 없음.
+  */
+  rearOpenings:[],
+
+  /*
+    LEFT
+
+    도면 위쪽(후면) → 아래쪽(전면)
+
+    실외기실 루버
+    주방창
+
+    z=-4.615 = 최후면
+    z=+4.615 = 최전면
+  */
+  leftOpenings:[
+
+    O("outdoorUnitLouver",{
+      id:"L01",
+      name:"outdoorUnitLouver",
+      z:-3.39,
+      w:.95
+    }),
+
+    O("kitchenWindow",{
+      id:"L02",
+      name:"kitchenWindow",
+      z:-.91,
+      w:.95
+    })
+
+  ],
+
+  rightOpenings:[]
+};
+
+================================================================================
+FILE: /prototype/js/units/unit-c.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_C={
+  id:"055.9500C",
+  code:"C",
+  area:55.9500,
+
+  /*
+    실제 C형 평면 기준 외곽 크기
+
+    WIDTH  = 12.480m
+    DEPTH  =  8.890m
+    HEIGHT =  2.850m
+
+    LOCAL 방향:
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size:{
+    width:12.48,
+    depth:8.89,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+  /*
+    FRONT
+    도면 기준 왼쪽 → 오른쪽
+
+    침실1(안방)
+    거실
+    침실2
+    침실3
+
+    X는 유닛 중심 기준.
+    창 폭은 평면도 비례 측정값.
+    높이/창턱은 기존 opening preset 유지.
+  */
+  frontOpenings:[
+    O("masterRoomWindow",{
+      id:"F01",
+      name:"bedroom1Window",
+      x:-4.12,
+      w:1.95
+    }),
+
+    O("livingRoomWindow",{
+      id:"F02",
+      name:"livingRoomWindow",
+      x:-.60,
+      w:2.55
+    }),
+
+    O("smallRoomWindow",{
+      id:"F03",
+      name:"bedroom2Window",
+      x:2.46,
+      w:1.70
+    }),
+
+    O("smallRoomWindow",{
+      id:"F04",
+      name:"bedroom3Window",
+      x:4.91,
+      w:1.85
+    })
+  ],
+
+  /*
+    REAR 외벽은 직선이 아님.
+
+    baseRearZ = -4.445m
+
+    왼쪽 실외기실 부분:
+    약 +0.82m 전진
+
+    다용도실 부분:
+    약 +0.31m 전진
+
+    주방 부분:
+    가장 뒤쪽 기준면
+
+    오른쪽 현관/욕실 영역은
+    현재 UNIT 배치 확인용으로만 근사 처리.
+    최종 201동 SHELL 제작 때 다시 정밀 조정.
+  */
+  rearProfile:[
+    {
+      xMin:-6.24,
+      xMax:-4.31,
+      offset:.82
+    },
+
+    {
+      xMin:-4.31,
+      xMax:-2.70,
+      offset:.31
+    },
+
+    {
+      xMin:-2.70,
+      xMax:1.02,
+      offset:0
+    },
+
+    {
+      xMin:1.02,
+      xMax:6.24,
+      offset:2.75
+    }
+  ],
+
+  /*
+    REAR 개구부
+
+    도면의 평면 위치를
+    12.48m 전체 폭에 비례하여 환산.
+
+    드레스룸 외창 없음.
+  */
+  rearOpenings:[
+    O("outdoorUnitLouver",{
+      id:"R01",
+      name:"outdoorUnitLouver",
+      x:-4.99,
+      w:1.00
+    }),
+
+    O("utilityRoomWindow",{
+      id:"R02",
+      name:"utilityRoomWindow",
+      x:-3.62,
+      w:.85
+    }),
+
+    O("kitchenWindow",{
+      id:"R03",
+      name:"kitchenWindow",
+      x:-.98,
+      w:.95
+    })
+  ],
+
+  leftOpenings:[],
+  rightOpenings:[]
+};
+
+
+================================================================================
+FILE: /prototype/js/units/unit-d.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_D={
+  id:"055.9500D",
+  code:"D",
+  area:55.9500,
+
+  /*
+    D형 기준 크기
+
+    WIDTH  = 12.480m
+    DEPTH  =  8.800m
+    HEIGHT =  2.850m
+
+    LOCAL
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size:{
+    width:12.48,
+    depth:8.80,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+  /*
+    FRONT
+    왼쪽 → 오른쪽
+
+    침실1 → 거실 → 침실2 → 침실3
+
+    C형과 동일한 침실 크기와
+    거실 가로폭을 기준으로 사용.
+  */
+  frontOpenings:[
+
+    O("masterRoomWindow",{
+      id:"F01",
+      name:"bedroom1Window",
+      x:-4.12,
+      w:1.95
+    }),
+
+    O("livingRoomWindow",{
+      id:"F02",
+      name:"livingRoomWindow",
+      x:-.60,
+      w:2.55
+    }),
+
+    O("smallRoomWindow",{
+      id:"F03",
+      name:"bedroom2Window",
+      x:2.46,
+      w:1.70
+    }),
+
+    O("smallRoomWindow",{
+      id:"F04",
+      name:"bedroom3Window",
+      x:4.91,
+      w:1.85
+    })
+
+  ],
+
+  /*
+    REAR PROFILE
+
+    실제 평면 이미지의 외곽 비율 기준.
+
+    가장 뒤쪽 기준면 = offset 0
+
+    왼쪽 끝        +0.60m 전진
+    그 오른쪽      +0.30m 전진
+    주방 부분       기준면
+    오른쪽 부분     +2.08m 크게 전진
+
+             REAR
+
+       +0.60
+    ┌────────
+             └── +0.30
+                    └──────── 기준 0
+                                      │
+                                      │ 2.08m
+                                      └────────────
+  */
+  rearProfile:[
+
+    {
+      xMin:-6.24,
+      xMax:-4.50,
+      offset:.60
+    },
+
+    {
+      xMin:-4.50,
+      xMax:-2.75,
+      offset:.30
+    },
+
+    {
+      xMin:-2.75,
+      xMax:.86,
+      offset:0
+    },
+
+    {
+      xMin:.86,
+      xMax:6.24,
+      offset:2.08
+    }
+
+  ],
+
+  /*
+    REAR
+    외부에서 뒤쪽을 바라볼 때 왼쪽 → 오른쪽
+
+    루버
+    ↓
+    다용도실창1
+    ↓
+    주방창
+    ↓
+    다용도실창2
+
+    각 요소는 자신이 속한 rearProfile 벽면에
+    자동으로 붙는다.
+  */
+  rearOpenings:[
+
+    O("outdoorUnitLouver",{
+      id:"R01",
+      name:"outdoorUnitLouver",
+      x:-5.10,
+      w:1.00
+    }),
+
+    O("utilityRoomWindow",{
+      id:"R02",
+      name:"utilityRoomWindow1",
+      x:-3.30,
+      w:.85
+    }),
+
+    O("kitchenWindow",{
+      id:"R03",
+      name:"kitchenWindow",
+      x:-1.13,
+      w:.95
+    }),
+
+    O("utilityRoomWindow",{
+      id:"R04",
+      name:"utilityRoomWindow2",
+      x:1.31,
+      w:.85
+    })
+
+  ],
+
+  leftOpenings:[],
+  rightOpenings:[]
+};
+
+================================================================================
+FILE: /prototype/js/units/unit-e.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_E={
+  id:"055.9500E",
+  code:"E",
+  area:55.9500,
+
+  size:{
+    width:12.48,
+    depth:8.45,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+  frontProfile:[
+    {
+      xMin:-6.24,
+      xMax:6.24,
+      offset:0
+    }
+  ],
+
+  frontOpenings:[
+
+    O("smallRoomWindow",{
+      id:"F01",
+      name:"bedroom3Window",
+      x:-4.76,
+      w:1.61
+    }),
+
+    O("smallRoomWindow",{
+      id:"F02",
+      name:"bedroom2Window",
+      x:-2.24,
+      w:1.62
+    }),
+
+    O("livingRoomWindow",{
+      id:"F03",
+      name:"livingRoomWindow",
+      x:.84,
+      w:2.72
+    }),
+
+    O("masterRoomWindow",{
+      id:"F04",
+      name:"bedroom1Window",
+      x:4.42,
+      w:2.02
+    })
+
+  ],
+
+  rearProfile:[
+
+    {
+      xMin:-6.24,
+      xMax:-4.50,
+      offset:3.05
+    },
+
+    {
+      xMin:-4.50,
+      xMax:-1.14,
+      offset:.36
+    },
+
+    {
+      xMin:-1.14,
+      xMax:3.23,
+      offset:0
+    },
+
+    {
+      xMin:3.23,
+      xMax:6.24,
+      offset:.32
+    }
+
+  ],
+
+  rearOpenings:[
+
+    O("utilityRoomWindow",{
+      id:"R01",
+      name:"utilityRoomWindow",
+      x:-1.95,
+      w:.85
+    }),
+
+    O("kitchenWindow",{
+      id:"R02",
+      name:"kitchenWindow",
+      x:1.85,
+      w:.95
+    }),
+
+    O("outdoorUnitLouver",{
+      id:"R03",
+      name:"outdoorUnitLouver",
+      x:4.00,
+      w:1.00
+    }),
+
+    O("dressRoomWindow",{
+      id:"R04",
+      name:"dressRoomWindow",
+      x:5.40,
+      w:.85
+    })
+
+  ],
+
+  leftOpenings:[],
+  rightOpenings:[]
+};
+
+================================================================================
+FILE: /prototype/js/units/unit-f.js
+================================================================================
+import{opening as O}from"../opening-presets.js";
+
+export const UNIT_F={
+  id:"055.9600F",
+  code:"F",
+  area:55.9600,
+
+  /*
+    =====================================================
+    F TYPE
+    =====================================================
+
+    기준 방 크기
+
+    침실     2.70 × 2.98m
+    알파룸   2.10 × 2.98m
+    안방     3.30 × 3.38m
+    거실     가로 3.60m
+
+    전체 외곽은 평면도 비례 기준
+
+    WIDTH  = 12.805m
+    DEPTH  =  9.190m
+    HEIGHT =  2.850m
+
+    FRONT = +Z
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+
+    B형과 거의 동일하며
+    왼쪽 외벽의 1회 계단이 F형의 주요 차이점.
+  */
+
+  size:{
+    width:12.805,
+    depth:9.19,
+    floorHeight:2.85,
+    wall:.18
+  },
+
+
+  /*
+    =====================================================
+    FRONT PROFILE
+    =====================================================
+
+    B형과 동일한 전면 형태.
+
+    안방 부분만 다른 세 방보다
+    조금 REAR 방향으로 들어감.
+  */
+
+  frontProfile:[
+    {
+      xMin:-6.4025,
+      xMax:2.78,
+      offset:0
+    },
+    {
+      xMin:2.78,
+      xMax:6.4025,
+      offset:-.85
+    }
+  ],
+
+
+  /*
+    =====================================================
+    FRONT OPENINGS
+    =====================================================
+
+    왼쪽 → 오른쪽
+
+    거실
+    알파룸
+    침실
+    안방
+  */
+
+  frontOpenings:[
+
+    O("livingRoomWindow",{
+      id:"F01",
+      name:"livingRoomWindow",
+      x:-4.20,
+      w:2.65
+    }),
+
+    O("smallRoomWindow",{
+      id:"F02",
+      name:"alphaRoomWindow",
+      x:-1.20,
+      w:1.57
+    }),
+
+    O("smallRoomWindow",{
+      id:"F03",
+      name:"bedroomWindow",
+      x:1.27,
+      w:1.57
+    }),
+
+    O("masterRoomWindow",{
+      id:"F04",
+      name:"masterRoomWindow",
+      x:4.34,
+      w:1.96
+    })
+
+  ],
+
+
+  /*
+    =====================================================
+    REAR PROFILE
+    =====================================================
+
+    B형 계열의 후면 구조.
+
+    왼쪽부터 오른쪽으로
+    평면도의 깊이 차이를 직접 표현한다.
+
+    별도의 스케일 보정 없음.
+  */
+
+  rearProfile:[
+
+    {
+      xMin:-6.4025,
+      xMax:-2.87,
+      offset:0
+    },
+
+    {
+      xMin:-2.87,
+      xMax:.40,
+      offset:2.08
+    },
+
+    {
+      xMin:.40,
+      xMax:2.05,
+      offset:3.13
+    },
+
+    {
+      xMin:2.05,
+      xMax:6.4025,
+      offset:1.97
+    }
+
+  ],
+
+
+  /*
+    후면에 직접 붙는 창은 없음.
+
+    F형의 주방창과 루버는
+    LEFT 외벽에 위치.
+  */
+
+  rearOpenings:[],
+
+
+  /*
+    =====================================================
+    LEFT WALL STEP
+    =====================================================
+
+    F형의 특징.
+
+    REAR 쪽 왼쪽 외벽이
+    약 0.62m RIGHT 방향으로 들어와 있다가
+
+    z = -1.10m 부근에서
+    다시 원래 LEFT 외벽 위치로 나온다.
+
+
+    위에서 보면 대략:
+
+        REAR
+
+           │
+           │  ← 들어간 왼쪽 벽
+           │
+           └────
+                │
+                │  ← 원래 왼쪽 벽
+                │
+
+        FRONT
+  */
+
+  leftRearInset:{
+    offset:.62,
+    untilZ:-1.10
+  },
+
+
+  /*
+    =====================================================
+    LEFT OPENINGS
+    =====================================================
+
+    평면도 비례 기준.
+
+    REAR → FRONT
+
+    루버
+    주방창
+
+    둘 다 계단 들어간 LEFT 후면벽에 위치.
+  */
+
+  leftOpenings:[
+
+    O("outdoorUnitLouver",{
+      id:"L01",
+      name:"outdoorUnitLouver",
+      z:-3.53,
+      w:.95
+    }),
+
+    O("kitchenWindow",{
+      id:"L02",
+      name:"kitchenWindow",
+      z:-1.73,
+      w:.95
+    })
+
+  ],
+
+
+  rightOpenings:[]
+};
+
+================================================================================
+FILE: /prototype/unit-a.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>UNIT A</title>
+
+<link
+  rel="stylesheet"
+  href="./css/unit-viewer.css"
+>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+
+  <strong id="unitTitle">
+    UNIT_A
+  </strong>
+
+  <span id="unitSubtitle">
+    Loading...
+  </span>
+
+</div>
+
+<div class="legend">
+  FRONT ↓ · REAR ↑ · 회전 / 확대축소
+</div>
+
+<script type="module">
+
+import {
+  UNIT_A
+} from "./js/units/unit-a.js";
+
+import {
+  createUnitViewer
+} from "./js/unit-viewer.js";
+
+createUnitViewer(
+  UNIT_A
+);
+
+</script>
+
+</body>
+
+</html>
+
+
+================================================================================
+FILE: /prototype/unit-b.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>UNIT B</title>
+
+<link
+  rel="stylesheet"
+  href="./css/unit-viewer.css"
+>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+
+  <strong id="unitTitle">
+    UNIT_B
+  </strong>
+
+  <span id="unitSubtitle">
+    Loading...
+  </span>
+
+</div>
+
+<div class="legend">
+  FRONT ↓ · REAR ↑ · 회전 / 확대축소
+</div>
+
+<script type="module">
+
+import {
+  UNIT_B
+} from "./js/units/unit-b.js";
+
+import {
+  createUnitViewer
+} from "./js/unit-viewer.js";
+
+createUnitViewer(
+  UNIT_B
+);
+
+</script>
+
+</body>
+
+</html>
+
+
+================================================================================
+FILE: /prototype/unit-c.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>UNIT C</title>
+
+<link
+  rel="stylesheet"
+  href="./css/unit-viewer.css"
+>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+  <strong id="unitTitle">UNIT_C</strong>
+  <span id="unitSubtitle">Loading...</span>
+</div>
+
+<div class="legend">
+  FRONT ↓ · REAR ↑ · 회전 / 확대축소
+</div>
+
+<script type="module">
+
+import {
+  UNIT_C
+} from "./js/units/unit-c.js";
+
+import {
+  createUnitViewer
+} from "./js/unit-viewer.js";
+
+createUnitViewer(
+  UNIT_C
+);
+
+</script>
+
+</body>
+</html>
+
+
+================================================================================
+FILE: /prototype/unit-d.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UNIT D</title>
+<link rel="stylesheet" href="./css/unit-viewer.css">
+<script type="importmap">
+{"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+
+<div id="view"></div>
+
+<div class="info">
+<strong id="unitTitle">UNIT_D</strong>
+<span id="unitSubtitle">Loading...</span>
+</div>
+
+<div class="legend">FRONT ↓ · REAR ↑ · 회전 / 확대축소</div>
+
+<script type="module">
+import {UNIT_D} from "./js/units/unit-d.js";
+import {createUnitViewer} from "./js/unit-viewer.js";
+createUnitViewer(UNIT_D);
+</script>
+
+</body>
+</html>
+
+
+================================================================================
+FILE: /prototype/unit-e.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UNIT E</title>
+<link rel="stylesheet" href="./css/unit-viewer.css">
+
+<script type="importmap">
+{"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
+</head>
+
+<body>
+<div id="view"></div>
+
+<div class="info">
+  <strong id="unitTitle">UNIT_E</strong>
+  <span id="unitSubtitle">Loading...</span>
+</div>
+
+<div class="legend">FRONT ↓ · REAR ↑ · 회전 / 확대축소</div>
+
+<script type="module">
+import {UNIT_E} from "./js/units/unit-e.js";
+import {createUnitViewer} from "./js/unit-viewer.js";
+createUnitViewer(UNIT_E);
+</script>
+</body>
+</html>
+
+
+================================================================================
+FILE: /prototype/unit-f.html
+================================================================================
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UNIT F</title>
+<link rel="stylesheet" href="./css/unit-viewer.css">
+<script type="importmap">
+{"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="view"></div>
+<div class="info"><strong id="unitTitle">UNIT_F</strong><span id="unitSubtitle">Loading...</span></div>
+<div class="legend">FRONT ↓ · REAR ↑ · 회전 / 확대축소</div>
+<script type="module">
+import {UNIT_F} from "./js/units/unit-f.js";
+import {createUnitViewer} from "./js/unit-viewer.js";
+createUnitViewer(UNIT_F);
+</script>
+</body>
+</html>
+
+
