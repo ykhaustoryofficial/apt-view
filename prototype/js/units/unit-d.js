@@ -1,121 +1,168 @@
-import { opening as O } from "../opening-presets.js";
+import{opening as O}from"../opening-presets.js";
 
-export const UNIT_D = {
-  id: "055.9500D",
-  code: "D",
-  area: 55.9500,
+export const UNIT_D={
+  id:"055.9500D",
+  code:"D",
+  area:55.9500,
 
   /*
-    D형 재설정 기준
-    - 침실1/2/3 크기와 거실 가로폭은 C형과 동일 기준
-    - 전체 외곽은 도면 비율 기준 추정
-    - FRONT = 아래쪽(거실창 방향)
-    - REAR  = 위쪽
-    - LEFT  = 왼쪽
-    - RIGHT = 오른쪽
+    D형 기준 크기
+
+    WIDTH  = 12.480m
+    DEPTH  =  8.800m
+    HEIGHT =  2.850m
+
+    LOCAL
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
   */
-  size: {
-    width: 12.48,
-    depth: 8.80,
-    floorHeight: 2.85,
-    wall: 0.18
+  size:{
+    width:12.48,
+    depth:8.80,
+    floorHeight:2.85,
+    wall:.18
   },
 
   /*
     FRONT
-    외부에서 정면으로 봤을 때 왼쪽 -> 오른쪽
-    안방창 / 거실창 / 작은방창 / 작은방창
+    왼쪽 → 오른쪽
+
+    침실1 → 거실 → 침실2 → 침실3
+
+    C형과 동일한 침실 크기와
+    거실 가로폭을 기준으로 사용.
   */
-  frontOpenings: [
-    O("masterRoomWindow", {
-      id: "F01",
-      name: "masterRoomWindow",
-      x: -4.59
+  frontOpenings:[
+
+    O("masterRoomWindow",{
+      id:"F01",
+      name:"bedroom1Window",
+      x:-4.12,
+      w:1.95
     }),
 
-    O("livingRoomWindow", {
-      id: "F02",
-      name: "livingRoomWindow",
-      x: -1.14
+    O("livingRoomWindow",{
+      id:"F02",
+      name:"livingRoomWindow",
+      x:-.60,
+      w:2.55
     }),
 
-    O("smallRoomWindow", {
-      id: "F03",
-      name: "smallRoomWindow1",
-      x: 1.71
+    O("smallRoomWindow",{
+      id:"F03",
+      name:"bedroom2Window",
+      x:2.46,
+      w:1.70
     }),
 
-    O("smallRoomWindow", {
-      id: "F04",
-      name: "smallRoomWindow2",
-      x: 4.11
+    O("smallRoomWindow",{
+      id:"F04",
+      name:"bedroom3Window",
+      x:4.91,
+      w:1.85
     })
+
   ],
 
   /*
     REAR PROFILE
-    D형 특징:
-    - 좌측 후면이 계단형
-    - 우측은 좌측보다 얕음
-    offset = 후면 기준 앞으로 들어온 깊이
+
+    실제 평면 이미지의 외곽 비율 기준.
+
+    가장 뒤쪽 기준면 = offset 0
+
+    왼쪽 끝        +0.60m 전진
+    그 오른쪽      +0.30m 전진
+    주방 부분       기준면
+    오른쪽 부분     +2.08m 크게 전진
+
+             REAR
+
+       +0.60
+    ┌────────
+             └── +0.30
+                    └──────── 기준 0
+                                      │
+                                      │ 2.08m
+                                      └────────────
   */
-  rearProfile: [
+  rearProfile:[
+
     {
-      xMin: -6.24,
-      xMax: -4.70,
-      offset: 0.95
+      xMin:-6.24,
+      xMax:-4.50,
+      offset:.60
     },
+
     {
-      xMin: -4.70,
-      xMax: -2.55,
-      offset: 0.38
+      xMin:-4.50,
+      xMax:-2.75,
+      offset:.30
     },
+
     {
-      xMin: -2.55,
-      xMax: 2.35,
-      offset: 0.00
+      xMin:-2.75,
+      xMax:.86,
+      offset:0
     },
+
     {
-      xMin: 2.35,
-      xMax: 6.24,
-      offset: 1.15
+      xMin:.86,
+      xMax:6.24,
+      offset:2.08
     }
+
   ],
 
   /*
     REAR
-    후면에서 정면으로 봤을 때 왼쪽 -> 오른쪽
-    다용도실창 / 주방창 / 다용도실창 / 루버
+    외부에서 뒤쪽을 바라볼 때 왼쪽 → 오른쪽
 
-    - 주방창은 거실창과 같은 x축
-    - 루버는 가장 오른쪽 계단벽 중앙
+    루버
+    ↓
+    다용도실창1
+    ↓
+    주방창
+    ↓
+    다용도실창2
+
+    각 요소는 자신이 속한 rearProfile 벽면에
+    자동으로 붙는다.
   */
-  rearOpenings: [
-    O("utilityRoomWindow", {
-      id: "R01",
-      name: "utilityRoomWindow1",
-      x: -3.55
+  rearOpenings:[
+
+    O("outdoorUnitLouver",{
+      id:"R01",
+      name:"outdoorUnitLouver",
+      x:-5.10,
+      w:1.00
     }),
 
-    O("kitchenWindow", {
-      id: "R02",
-      name: "kitchenWindow",
-      x: -1.14
+    O("utilityRoomWindow",{
+      id:"R02",
+      name:"utilityRoomWindow1",
+      x:-3.30,
+      w:.85
     }),
 
-    O("utilityRoomWindow", {
-      id: "R03",
-      name: "utilityRoomWindow2",
-      x: 1.30
+    O("kitchenWindow",{
+      id:"R03",
+      name:"kitchenWindow",
+      x:-1.13,
+      w:.95
     }),
 
-    O("outdoorUnitLouver", {
-      id: "R04",
-      name: "outdoorUnitLouver",
-      x: 4.25
+    O("utilityRoomWindow",{
+      id:"R04",
+      name:"utilityRoomWindow2",
+      x:1.31,
+      w:.85
     })
+
   ],
 
-  leftOpenings: [],
-  rightOpenings: []
+  leftOpenings:[],
+  rightOpenings:[]
 };
