@@ -9,7 +9,6 @@ export function createUnitModel(data,{instanceId=`UNIT_${data.code}`}={}){
   const inset=data.leftRearInset??null,group=new THREE.Group(); group.name=instanceId;
 
   const wallMat=new THREE.MeshStandardMaterial({color:0xe9ece9,roughness:.72});
-  const slabMat=new THREE.MeshStandardMaterial({color:0xcfd4d2,roughness:.82});
   const glassMat=new THREE.MeshStandardMaterial({color:0x6b8798,roughness:.18,metalness:.08});
   const frameMat=new THREE.MeshStandardMaterial({color:0xe8ecec,roughness:.42});
   const louverMat=new THREE.MeshStandardMaterial({color:0x7f8a90,roughness:.66,metalness:.35});
@@ -23,10 +22,6 @@ export function createUnitModel(data,{instanceId=`UNIT_${data.code}`}={}){
 
   const off=(p,x)=>(p.find(v=>x>=v.xMin&&x<=v.xMax)?.offset??0);
   const fz=x=>frontZ+off(fp,x),rz=x=>rearZ+off(rp,x);
-
-  /* FLOOR */
-  const xs=[leftX,rightX,...fp.flatMap(v=>[v.xMin,v.xMax]),...rp.flatMap(v=>[v.xMin,v.xMax])].sort((a,b)=>a-b).filter((v,i,a)=>i===0||Math.abs(v-a[i-1])>.001);
-  for(let i=0;i<xs.length-1;i++){const a=xs[i],b=xs[i+1],x=(a+b)/2;let lx=leftX;if(inset&&x<leftX+inset.offset)continue;const z1=rz(x),z2=fz(x);box(b-a,.12,z2-z1,slabMat,x,.06,(z1+z2)/2);}
 
   function winFR(o,z,frontSide){
     const f=z+(frontSide?.012:-.012),M=OM(o);
