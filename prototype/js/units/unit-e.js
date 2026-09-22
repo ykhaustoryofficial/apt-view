@@ -8,8 +8,6 @@ export const UNIT_E={
   /*
     E TYPE
 
-    A/C/D 계열과 동일한 스케일 기준으로 재정리.
-
     WIDTH  = 12.480m
     DEPTH  =  8.450m
     HEIGHT =  2.850m
@@ -18,9 +16,6 @@ export const UNIT_E={
     REAR  = -Z
     LEFT  = -X
     RIGHT = +X
-
-    별도의 scale 함수나
-    모델 후처리 축소는 사용하지 않는다.
   */
   size:{
     width:12.48,
@@ -34,9 +29,12 @@ export const UNIT_E={
     FRONT
     =====================================================
 
-    정면 외곽만 새로운 전체 폭에 맞춤.
+    왼쪽 → 오른쪽
 
-    창문 위치와 크기는 이전 확정값 그대로 유지.
+    침실3
+    침실2
+    거실
+    침실1
   */
   frontProfile:[
     {
@@ -46,18 +44,6 @@ export const UNIT_E={
     }
   ],
 
-  /*
-    FRONT
-    왼쪽 → 오른쪽
-
-    침실3
-    침실2
-    거실
-    침실1
-
-    중요:
-    아래 창문의 x / w 값은 수정하지 않음.
-  */
   frontOpenings:[
 
     O("smallRoomWindow",{
@@ -95,59 +81,35 @@ export const UNIT_E={
     REAR OUTLINE
     =====================================================
 
-    이전에 확인한 E형 실루엣 유지.
+    기존 확정된 E형 후면 형상 그대로 유지.
 
-    단,
-    전체 width/depth가 줄었으므로
-    외곽 좌표와 단차 깊이만 직접 재설정.
+    ① 왼쪽 큰 후퇴부
+    ② 좌측 작은 단차
+    ③ 중앙 주방부
+    ④ 오른쪽 작은 단차
 
-    구조:
-
-    ① 왼쪽 가장 깊게 FRONT로 들어온 부분
-    ② 좌측 후면의 작은 단차
-    ③ 중앙 주방부 = 가장 REAR
-    ④ 오른쪽은 작은 단차 1번만 유지
-
-    깊은 홈은 없음.
+    오른쪽 깊은 홈은 없음.
   */
   rearProfile:[
 
-    /*
-      ① 왼쪽 큰 후퇴부
-    */
     {
       xMin:-6.24,
       xMax:-4.50,
       offset:3.05
     },
 
-    /*
-      ② 좌측 후면부
-    */
     {
       xMin:-4.50,
       xMax:-1.14,
       offset:.36
     },
 
-    /*
-      ③ 중앙 주방부
-      가장 REAR 쪽 기준면
-    */
     {
       xMin:-1.14,
       xMax:3.23,
       offset:0
     },
 
-    /*
-      ④ 오른쪽 후면부
-
-      주방벽에서 딱 한 번만
-      살짝 FRONT 방향으로 들어감.
-
-      이후 RIGHT 끝까지 직선.
-    */
     {
       xMin:3.23,
       xMax:6.24,
@@ -161,17 +123,60 @@ export const UNIT_E={
     REAR OPENINGS
     =====================================================
 
-    현재는 외곽 구조만 확정하는 단계.
+    왼쪽 → 오른쪽
 
-    후면 개구부는 아직 넣지 않음.
+    다용도실창
+    주방창
+    루버
+    드레스룸창
 
-    추후 추가:
-    - 다용도실창
-    - 주방창
-    - 루버
-    - 드레스룸창
+
+    위치 기준:
+
+    다용도실창
+    = 정면 침실2 창 중심(-2.24)보다 약간 오른쪽
+
+    주방창
+    = 정면 거실창 중심(+0.84)의 약 두 배보다
+      조금 더 오른쪽
+
+    루버
+    = 정면 침실1 창 중심(+4.42)보다 약간 왼쪽
+
+    드레스룸창
+    = 정면 침실1 창 중심(+4.42)보다 약간 오른쪽
   */
-  rearOpenings:[],
+  rearOpenings:[
+
+    O("utilityRoomWindow",{
+      id:"R01",
+      name:"utilityRoomWindow",
+      x:-1.70,
+      w:.85
+    }),
+
+    O("kitchenWindow",{
+      id:"R02",
+      name:"kitchenWindow",
+      x:1.85,
+      w:.95
+    }),
+
+    O("outdoorUnitLouver",{
+      id:"R03",
+      name:"outdoorUnitLouver",
+      x:3.75,
+      w:1.00
+    }),
+
+    O("dressRoomWindow",{
+      id:"R04",
+      name:"dressRoomWindow",
+      x:5.15,
+      w:.85
+    })
+
+  ],
 
   leftOpenings:[],
   rightOpenings:[]
