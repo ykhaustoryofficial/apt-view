@@ -1,5 +1,5 @@
 import * as THREE from"three";
-import{createUnitModel}from"../unit-model.js";
+import{createUnitModel}from"../js/unit-model.js";
 import{getUnitData}from"./unit-catalog.js";
 
 export const FLOOR_HEIGHT=2.85;
