@@ -1,35 +1,127 @@
-export const UNIT_E={
-  id:"055.9500E",code:"E",area:55.9500,
-  size:{width:9.40,depth:7.00,floorHeight:2.85,wall:.18},
+import { opening as O } from "../opening-presets.js";
 
-  // FRONT: A와 동일
-  // 작은방창 → 작은방창 → 거실창 → 안방창
-  frontOpenings:[
-    {id:"F01",name:"smallRoomWindow1",type:"window",x:-3.55,w:1.10,h:1.10,sill:.97},
-    {id:"F02",name:"smallRoomWindow2",type:"window",x:-2.05,w:1.10,h:1.10,sill:.97},
-    {id:"F03",name:"livingRoomWindow",type:"largeWindow",x:.65,w:2.15,h:1.45,sill:.62},
-    {id:"F04",name:"masterRoomWindow",type:"window",x:3.45,w:1.20,h:1.35,sill:.72}
+export const UNIT_E = {
+  id: "055.9200E",
+  code: "E",
+  area: 55.92,
+
+  /*
+    E형 기준
+    FRONT = +Z = 거실창 방향
+    REAR  = -Z
+    LEFT  = -X
+    RIGHT = +X
+  */
+  size: {
+    width: 12.48,
+    depth: 8.45,
+    floorHeight: 2.85,
+    wall: 0.18
+  },
+
+  /*
+    FRONT
+    왼쪽 → 오른쪽
+    작은방창 / 작은방창 / 거실창 / 안방창
+  */
+  frontOpenings: [
+    O("smallRoomWindow", {
+      id: "F01",
+      name: "bedroom3Window",
+      x: -4.91,
+      w: 1.85
+    }),
+
+    O("smallRoomWindow", {
+      id: "F02",
+      name: "bedroom2Window",
+      x: -2.46,
+      w: 1.70
+    }),
+
+    O("livingRoomWindow", {
+      id: "F03",
+      name: "livingRoomWindow",
+      x: 0.60,
+      w: 2.55
+    }),
+
+    O("masterRoomWindow", {
+      id: "F04",
+      name: "bedroom1Window",
+      x: 4.12,
+      w: 1.95
+    })
   ],
 
   /*
-    E 외곽 특징
-    왼쪽벽과 뒷벽 접속부만 한 번 계단식으로 꺾임.
-    나머지 뒷면은 직선.
+    REAR PROFILE
+    E형은 A계열과 비슷하게
+    좌우가 약간 꺾이는 형태로 설정
   */
-  rearProfile:[
-    {xMin:-4.70,xMax:-3.15,offset:.85},
-    {xMin:-3.15,xMax:4.70,offset:0}
+  rearProfile: [
+    {
+      xMin: -6.24,
+      xMax: -4.70,
+      offset: 1.85
+    },
+    {
+      xMin: -4.70,
+      xMax: -2.10,
+      offset: 0.45
+    },
+    {
+      xMin: -2.10,
+      xMax: 1.55,
+      offset: 0.00
+    },
+    {
+      xMin: 1.55,
+      xMax: 3.85,
+      offset: 0.35
+    },
+    {
+      xMin: 3.85,
+      xMax: 6.24,
+      offset: 1.95
+    }
   ],
 
-  // REAR: A와 동일
-  // 드레스룸창 → 루버 → 주방창 → 다용도실창
-  rearOpenings:[
-    {id:"R01",name:"dressRoomWindow",type:"window",x:3.60,w:.82,h:.82,sill:1.15},
-    {id:"R02",name:"outdoorUnitLouver",type:"louver",x:2.15,w:.72,h:1.45,sill:.68},
-    {id:"R03",name:"kitchenWindow",type:"kitchenWindow",x:.85,w:.72,h:.56,sill:1.24},
-    {id:"R04",name:"utilityRoomWindow",type:"window",x:-.59,w:.72,h:.78,sill:1.13}
+  /*
+    REAR
+    왼쪽 → 오른쪽
+    루버 / 주방창 / 다용도실창 / 드레스룸창
+  */
+  rearOpenings: [
+    O("outdoorUnitLouver", {
+      id: "R01",
+      name: "outdoorUnitLouver",
+      x: -5.05,
+      w: 1.00
+    }),
+
+    O("kitchenWindow", {
+      id: "R02",
+      name: "kitchenWindow",
+      x: -1.45,
+      w: 0.95
+    }),
+
+    O("utilityRoomWindow", {
+      id: "R03",
+      name: "utilityRoomWindow",
+      x: 1.35,
+      w: 0.85
+    }),
+
+    O("dressRoomWindow", {
+      id: "R04",
+      name: "dressRoomWindow",
+      x: 4.45,
+      w: 0.95
+    })
   ],
 
-  leftOpenings:[],
-  rightOpenings:[]
+  leftOpenings: [],
+  rightOpenings: []
 };
