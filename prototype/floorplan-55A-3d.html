@@ -16,44 +16,39 @@
 
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:linear-gradient(180deg,#eef3fb,#f7f9fc);color:#2f3d56;font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif}
-button{font:inherit}
-.wrap{max-width:980px;margin:auto;padding:28px 18px 48px}
-.hero{text-align:center;margin-bottom:22px}
-.hero h1{margin:0 0 10px;font-size:clamp(2rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;color:#394969}
-.hero p{margin:0;font-size:clamp(1rem,2vw,1.18rem);color:#79859b;line-height:1.7}
-
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:760px;margin:22px auto 28px}
-.tab-btn{border:1px solid rgba(100,124,170,.15);background:#fff;color:#55647f;border-radius:18px;min-height:58px;font-size:1.08rem;font-weight:700;box-shadow:0 10px 18px rgba(65,89,128,.06)}
-.tab-btn.active{background:linear-gradient(135deg,#82a9eb,#7296d6);color:#fff}
-
-.card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.72);border-radius:30px;box-shadow:0 18px 40px rgba(52,73,94,.12);padding:24px}
-.viewer-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap}
-.viewer-title h2{margin:0 0 8px;font-size:clamp(1.8rem,3vw,2.4rem);color:#405174;letter-spacing:-.03em}
-.viewer-title p{margin:0;color:#6b7890;font-size:1.04rem;line-height:1.6}
-
-.viewer-actions{display:flex;gap:10px;flex-wrap:wrap}
-.control-btn{border:0;border-radius:14px;padding:12px 18px;background:#fff;color:#425271;font-weight:700;box-shadow:0 8px 16px rgba(63,82,118,.09)}
-.control-btn.primary{background:linear-gradient(135deg,#8db3ef,#789de0);color:#fff}
-
-.viewer-box{position:relative;width:100%;height:560px;border-radius:26px;overflow:hidden;background:radial-gradient(circle at 50% 0,#fff,#edf2f8);border:1px solid rgba(186,200,220,.4);touch-action:none}
-.viewer-box canvas{display:block;width:100%;height:100%;touch-action:none}
-
-.viewer-badge{position:absolute;z-index:5;left:18px;top:18px;background:rgba(255,255,255,.9);border-radius:18px;padding:12px 16px;box-shadow:0 10px 24px rgba(59,83,119,.12);pointer-events:none}
-.viewer-badge strong{display:block;font-size:1.05rem;color:#33445f;margin-bottom:4px}
-.viewer-badge span{display:block;color:#6b7890;font-size:.9rem;line-height:1.45}
-
-.error-box{position:absolute;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;padding:16px 20px;border-radius:15px;background:#fff;color:#a34d48;box-shadow:0 10px 30px rgba(0,0,0,.12);font-size:13px;line-height:1.6;display:none}
-
-.meta{margin-top:22px}
-.meta h3{margin:0 0 8px;font-size:clamp(1.85rem,3vw,2.5rem);color:#425273}
-.meta p{margin:0;font-size:1.1rem;color:#7a869a}
-
-@media(max-width:760px){
-  .wrap{padding:22px 14px 36px}
-  .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .card{padding:18px;border-radius:24px}
-  .viewer-box{height:430px;border-radius:22px}
+html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#edf3fc,#f8f9fc);font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;color:#34445f;-webkit-text-size-adjust:100%}
+button{font:inherit;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:980px;margin:auto;padding:28px 18px 50px}
+.hero{text-align:center;margin-bottom:24px}
+.hero h1{margin:0 0 10px;font-size:clamp(32px,5vw,44px);letter-spacing:-.045em;color:#3c4c69}
+.hero p{margin:0;color:#7c8799;font-size:clamp(15px,2vw,18px);line-height:1.7}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:24px auto 30px;max-width:780px}
+.tab{min-height:62px;border:1px solid rgba(110,130,165,.12);border-radius:19px;background:#fff;color:#53627d;font-weight:800;font-size:17px;box-shadow:0 10px 22px rgba(70,91,125,.07)}
+.tab.active{background:linear-gradient(135deg,#80a9ea,#7098dc);color:#fff}
+.card{padding:25px;border-radius:31px;background:rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.7);box-shadow:0 20px 48px rgba(55,76,110,.12);backdrop-filter:blur(16px)}
+.viewer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:17px}
+.viewer-title h2{margin:0 0 8px;font-size:clamp(27px,4vw,39px);letter-spacing:-.045em;color:#3e4f70}
+.viewer-title p{margin:0;color:#78859b;line-height:1.65;font-size:15px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.action{border:0;border-radius:14px;padding:12px 18px;background:#fff;color:#40506d;font-weight:800;box-shadow:0 7px 17px rgba(65,83,115,.09)}
+.action.active{background:linear-gradient(135deg,#83aeef,#759be0);color:#fff}
+.viewer{position:relative;height:600px;border-radius:26px;overflow:hidden;border:1px solid rgba(176,194,218,.38);background:radial-gradient(circle at 50% 25%,#fff 0,#f2f6fb 60%,#e9eff6 100%);touch-action:none}
+.viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+.badge{position:absolute;z-index:4;top:17px;left:17px;padding:11px 14px;border-radius:16px;background:rgba(255,255,255,.87);box-shadow:0 8px 22px rgba(51,70,100,.1);backdrop-filter:blur(10px);pointer-events:none}
+.badge strong{display:block;font-size:14px;margin-bottom:4px}
+.badge span{font-size:11px;color:#78859a}
+.meta{padding:22px 2px 4px}
+.meta h3{margin:0 0 7px;font-size:clamp(28px,4vw,38px);letter-spacing:-.04em;color:#405171}
+.meta p{margin:0;color:#7c899e;font-size:17px}
+.guide{margin-top:20px;padding-top:18px;border-top:1px solid #e5eaf1;color:#8290a4;font-size:13px;line-height:1.7}
+@media(max-width:700px){
+  .wrap{padding:20px 12px 38px}
+  .tabs{grid-template-columns:repeat(2,1fr);gap:10px}
+  .tab{min-height:56px;font-size:16px}
+  .card{padding:16px;border-radius:25px}
+  .viewer{height:470px;border-radius:21px}
+  .viewer-title h2{font-size:28px}
+  .badge{top:12px;left:12px}
 }
 </style>
 </head>
@@ -61,45 +56,40 @@ button{font:inherit}
 <body>
 <div class="wrap">
 
-<div class="hero">
+<header class="hero">
 <h1>세대 평면도</h1>
-<p>역곡지구 하우스토리 55타입 세대별 평면도를 확인하고 의견을 나눠보세요.</p>
-</div>
+<p>역곡지구 하우스토리 55타입 세대별 평면도를 입체적으로 확인해보세요.</p>
+</header>
 
-<div class="tabs">
-<button class="tab-btn active">55A 타입</button>
-<button class="tab-btn" disabled>55B 타입</button>
-<button class="tab-btn" disabled>55C 타입</button>
-<button class="tab-btn" disabled>55D 타입</button>
-<button class="tab-btn" disabled>55E 타입</button>
-<button class="tab-btn" disabled>55F 타입</button>
-</div>
+<nav class="tabs">
+<button class="tab active">55A 타입</button>
+<button class="tab" disabled>55B 타입</button>
+<button class="tab" disabled>55C 타입</button>
+<button class="tab" disabled>55D 타입</button>
+<button class="tab" disabled>55E 타입</button>
+<button class="tab" disabled>55F 타입</button>
+</nav>
 
 <section class="card">
 
 <div class="viewer-head">
 <div class="viewer-title">
 <h2>55A 타입 3D 평면도</h2>
-<p>평면도를 바닥에 적용하고 벽체를 입체화한 시험 버전입니다.</p>
+<p>손가락이나 마우스로 회전하고 확대하여 공간 구성을 확인할 수 있습니다.</p>
 </div>
 
-<div class="viewer-actions">
-<button class="control-btn primary" id="btn3d">3D</button>
-<button class="control-btn" id="btnTop">TOP</button>
-<button class="control-btn" id="btnReset">초기화</button>
+<div class="actions">
+<button class="action active" id="btn3d">3D</button>
+<button class="action" id="btnTop">TOP</button>
+<button class="action" id="btnReset">초기화</button>
 </div>
 </div>
 
-<div class="viewer-box" id="viewerBox">
-
-<div class="viewer-badge">
-<strong>UNIT_A · 055.9200A</strong>
-<span>손가락/마우스로 회전</span>
-<span>핀치/휠로 확대·축소</span>
+<div class="viewer" id="viewer">
+<div class="badge">
+<strong>55A · 55.92㎡</strong>
+<span>드래그 회전 · 핀치 확대/축소</span>
 </div>
-
-<div class="error-box" id="errorBox"></div>
-
 </div>
 
 <div class="meta">
@@ -107,97 +97,57 @@ button{font:inherit}
 <p>55.92㎡ / 642세대</p>
 </div>
 
+<div class="guide">
+천장이 없는 돌하우스 방식으로 내부 공간을 확인할 수 있습니다.
+</div>
+
 </section>
 </div>
 
 <script type="module">
 
-import * as THREE from "three";
+import * as THREE from"three";
 import{OrbitControls}from"three/addons/controls/OrbitControls.js";
 
-/* =========================================================
-   IMPORTANT
-   HTML = prototype/floorplan-55A-3d.html
-   IMAGE = assets/images/floorplans/55A.PNG
-========================================================= */
-
-const PLAN_IMAGE="../assets/images/floorplans/55A.PNG";
-
-const PLAN={
-  width:12.48,
-  wallHeight:1.35,
-  wallThickness:.12
-};
-
-const WALL_SEGMENTS=[
-  /* OUTER */
-  [.03,.18,.03,.90],
-  [.03,.90,.97,.90],
-  [.97,.90,.97,.20],
-  [.97,.20,.80,.20],
-  [.80,.20,.80,.12],
-  [.80,.12,.55,.12],
-  [.55,.12,.55,.20],
-  [.55,.20,.38,.20],
-  [.38,.20,.38,.12],
-  [.38,.12,.17,.12],
-  [.17,.12,.17,.21],
-  [.17,.21,.03,.21],
-
-  /* INNER */
-  [.16,.20,.16,.53],
-  [.03,.52,.17,.52],
-
-  [.30,.60,.30,.90],
-  [.43,.60,.43,.90],
-  [.70,.60,.70,.90],
-
-  [.26,.43,.42,.43],
-  [.26,.30,.26,.43],
-  [.42,.31,.42,.43],
-
-  [.77,.24,.77,.57],
-  [.77,.57,.90,.57],
-  [.86,.24,.86,.57],
-  [.90,.20,.90,.57],
-  [.77,.31,.90,.31],
-
-  [.70,.28,.73,.28],
-  [.73,.28,.73,.34]
-];
-
-const viewer=document.getElementById("viewerBox");
-const errorBox=document.getElementById("errorBox");
-
-const IS_MOBILE=
-  matchMedia("(pointer:coarse)").matches||
-  innerWidth<=820;
+const $=s=>document.querySelector(s);
+const viewer=$("#viewer");
+const MOBILE=matchMedia("(pointer:coarse)").matches||innerWidth<800;
 
 /* =========================================================
-   SCENE
+   UNIT
 ========================================================= */
+
+const W=12.48;
+const D=8.45;
+const WALL_H=1.55;
+const OUTER_T=.18;
+const INNER_T=.12;
+
+/*
+ FRONT = 화면 기준 아래쪽 = +Z
+ REAR  = 위쪽 = -Z
+*/
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xf2f5fa);
+scene.background=new THREE.Color(0xf2f5f9);
 
-const camera=
-  new THREE.PerspectiveCamera(
-    42,
-    viewer.clientWidth/viewer.clientHeight,
-    .1,
-    100
-  );
+const camera=new THREE.PerspectiveCamera(
+  38,
+  viewer.clientWidth/viewer.clientHeight,
+  .1,
+  100
+);
 
-const renderer=
-  new THREE.WebGLRenderer({
-    antialias:!IS_MOBILE,
-    powerPreference:IS_MOBILE?"low-power":"default"
-  });
+const renderer=new THREE.WebGLRenderer({
+  antialias:true,
+  powerPreference:"high-performance"
+});
 
 renderer.setPixelRatio(
-  IS_MOBILE
-    ?1
-    :Math.min(devicePixelRatio,1.5)
+  Math.min(
+    devicePixelRatio,
+    MOBILE?1.75:2
+  )
 );
 
 renderer.setSize(
@@ -205,10 +155,47 @@ renderer.setSize(
   viewer.clientHeight
 );
 
-renderer.outputColorSpace=
-  THREE.SRGBColorSpace;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.08;
+
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
 viewer.appendChild(renderer.domElement);
+
+/* =========================================================
+   ON DEMAND RENDER
+========================================================= */
+
+let queued=false;
+
+function render(){
+  if(queued)return;
+  queued=true;
+  requestAnimationFrame(()=>{
+    queued=false;
+    renderer.render(scene,camera);
+  });
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+const controls=new OrbitControls(
+  camera,
+  renderer.domElement
+);
+
+controls.enableDamping=false;
+controls.enablePan=false;
+controls.minDistance=7;
+controls.maxDistance=27;
+controls.minPolarAngle=.08;
+controls.maxPolarAngle=Math.PI/2-.025;
+controls.target.set(0,.45,0);
+controls.addEventListener("change",render);
 
 /* =========================================================
    LIGHT
@@ -217,349 +204,1195 @@ viewer.appendChild(renderer.domElement);
 scene.add(
   new THREE.HemisphereLight(
     0xffffff,
-    0xaab2bd,
-    2.5
+    0xc5ccd4,
+    2
   )
 );
 
-const sun=
-  new THREE.DirectionalLight(
-    0xffffff,
-    2
-  );
+const sun=new THREE.DirectionalLight(
+  0xfffdf8,
+  3.2
+);
 
 sun.position.set(
-  8,
-  15,
-  10
+  -8,
+  13,
+  9
 );
+
+sun.castShadow=true;
+sun.shadow.mapSize.set(
+  MOBILE?1024:2048,
+  MOBILE?1024:2048
+);
+
+sun.shadow.camera.left=-12;
+sun.shadow.camera.right=12;
+sun.shadow.camera.top=12;
+sun.shadow.camera.bottom=-12;
+sun.shadow.camera.near=.5;
+sun.shadow.camera.far=40;
+sun.shadow.bias=-.00035;
+sun.shadow.normalBias=.025;
 
 scene.add(sun);
 
-/* =========================================================
-   CAMERA CONTROL
-========================================================= */
-
-const controls=
-  new OrbitControls(
-    camera,
-    renderer.domElement
-  );
-
-controls.enableDamping=false;
-controls.enablePan=false;
-
-controls.minDistance=7;
-controls.maxDistance=26;
-
-controls.minPolarAngle=.08;
-controls.maxPolarAngle=
-  Math.PI/2-.03;
-
-controls.target.set(
-  0,
-  .5,
-  0
+const fill=new THREE.DirectionalLight(
+  0xddeaff,
+  .75
 );
 
-controls.addEventListener(
-  "change",
-  requestRender
+fill.position.set(
+  8,
+  7,
+  -8
 );
 
-/* =========================================================
-   ON DEMAND RENDER
-========================================================= */
-
-let renderPending=false;
-
-function requestRender(){
-
-  if(renderPending)return;
-
-  renderPending=true;
-
-  requestAnimationFrame(()=>{
-    renderPending=false;
-    renderer.render(scene,camera);
-  });
-
-}
+scene.add(fill);
 
 /* =========================================================
    MODEL
 ========================================================= */
 
-const model=
-  new THREE.Group();
-
-scene.add(model);
-
-let planDepth=8.8;
+const home=new THREE.Group();
+scene.add(home);
 
 /* =========================================================
-   BACKGROUND FLOOR
+   PROCEDURAL TEXTURES
 ========================================================= */
 
-const ground=
-  new THREE.Mesh(
-    new THREE.PlaneGeometry(50,50),
-    new THREE.MeshBasicMaterial({
-      color:0xe8edf4
+function woodTexture(){
+  const c=document.createElement("canvas");
+  c.width=1024;
+  c.height=1024;
+  const x=c.getContext("2d");
+
+  x.fillStyle="#e7e2d8";
+  x.fillRect(0,0,1024,1024);
+
+  const row=46;
+
+  for(let y=0;y<1024;y+=row){
+    x.strokeStyle="rgba(151,133,110,.18)";
+    x.lineWidth=2;
+    x.beginPath();
+    x.moveTo(0,y);
+    x.lineTo(1024,y);
+    x.stroke();
+
+    let offset=(Math.floor(y/row)%2)*80;
+
+    for(let xx=-offset;xx<1100;xx+=210){
+      x.strokeStyle="rgba(160,140,113,.15)";
+      x.beginPath();
+      x.moveTo(xx,y);
+      x.lineTo(xx,y+row);
+      x.stroke();
+    }
+
+    for(let n=0;n<3;n++){
+      x.strokeStyle="rgba(178,159,132,.06)";
+      x.beginPath();
+      x.moveTo(0,y+10+n*9);
+      x.lineTo(1024,y+10+n*9);
+      x.stroke();
+    }
+  }
+
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(3.2,2.2);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=Math.min(
+    renderer.capabilities.getMaxAnisotropy(),
+    8
+  );
+
+  return t;
+}
+
+function tileTexture(color="#d8d4cc"){
+  const c=document.createElement("canvas");
+  c.width=512;
+  c.height=512;
+  const x=c.getContext("2d");
+
+  x.fillStyle=color;
+  x.fillRect(0,0,512,512);
+
+  x.strokeStyle="rgba(255,255,255,.55)";
+  x.lineWidth=3;
+
+  for(let i=0;i<=512;i+=85){
+    x.beginPath();
+    x.moveTo(i,0);
+    x.lineTo(i,512);
+    x.stroke();
+
+    x.beginPath();
+    x.moveTo(0,i);
+    x.lineTo(512,i);
+    x.stroke();
+  }
+
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(2,2);
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+
+/* =========================================================
+   MATERIALS
+========================================================= */
+
+const MAT={
+  wall:new THREE.MeshStandardMaterial({
+    color:0xf7f6f2,
+    roughness:.82
+  }),
+
+  floor:new THREE.MeshStandardMaterial({
+    map:woodTexture(),
+    roughness:.88
+  }),
+
+  tile:new THREE.MeshStandardMaterial({
+    map:tileTexture(),
+    roughness:.8
+  }),
+
+  utilityTile:new THREE.MeshStandardMaterial({
+    map:tileTexture("#d3d0c8"),
+    roughness:.88
+  }),
+
+  glass:new THREE.MeshPhysicalMaterial({
+    color:0xa9c6d7,
+    roughness:.08,
+    transmission:.25,
+    transparent:true,
+    opacity:.55,
+    metalness:0
+  }),
+
+  frame:new THREE.MeshStandardMaterial({
+    color:0xf0f2f1,
+    roughness:.4,
+    metalness:.15
+  }),
+
+  darkFrame:new THREE.MeshStandardMaterial({
+    color:0x555e61,
+    roughness:.45,
+    metalness:.22
+  }),
+
+  cabinet:new THREE.MeshStandardMaterial({
+    color:0xe8e4db,
+    roughness:.72
+  }),
+
+  cabinetWhite:new THREE.MeshStandardMaterial({
+    color:0xf5f3ed,
+    roughness:.67
+  }),
+
+  counter:new THREE.MeshStandardMaterial({
+    color:0xd2cec5,
+    roughness:.52
+  }),
+
+  steel:new THREE.MeshStandardMaterial({
+    color:0xaeb7ba,
+    roughness:.3,
+    metalness:.65
+  }),
+
+  cooktop:new THREE.MeshStandardMaterial({
+    color:0x353b3e,
+    roughness:.18,
+    metalness:.22
+  }),
+
+  sanitary:new THREE.MeshStandardMaterial({
+    color:0xf8f8f5,
+    roughness:.32
+  }),
+
+  door:new THREE.MeshStandardMaterial({
+    color:0xe5dfd4,
+    roughness:.7
+  }),
+
+  appliance:new THREE.MeshStandardMaterial({
+    color:0xe4e7e7,
+    roughness:.5,
+    metalness:.1
+  })
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function box(
+  w,h,d,
+  x,y,z,
+  mat,
+  shadow=true
+){
+  const m=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    mat
+  );
+
+  m.position.set(x,y,z);
+
+  if(shadow){
+    m.castShadow=true;
+    m.receiveShadow=true;
+  }
+
+  home.add(m);
+  return m;
+}
+
+function wall(
+  x1,z1,
+  x2,z2,
+  h=WALL_H,
+  t=INNER_T
+){
+  const dx=x2-x1;
+  const dz=z2-z1;
+  const len=Math.hypot(dx,dz);
+
+  const m=box(
+    len,h,t,
+    (x1+x2)/2,
+    h/2,
+    (z1+z2)/2,
+    MAT.wall
+  );
+
+  m.rotation.y=
+    -Math.atan2(dz,dx);
+
+  return m;
+}
+
+function floorRect(
+  w,d,
+  x,z,
+  mat=MAT.floor,
+  y=.015
+){
+  return box(
+    w,.045,d,
+    x,y,z,
+    mat,
+    false
+  );
+}
+
+/* =========================================================
+   BASE FLOOR
+========================================================= */
+
+box(
+  W,.10,D,
+  0,-.05,0,
+  new THREE.MeshStandardMaterial({
+    color:0xf5f3ee,
+    roughness:.9
+  })
+);
+
+/*
+ 큰 생활공간
+*/
+floorRect(
+  11.95,
+  7.95,
+  0,
+  .05,
+  MAT.floor
+);
+
+/*
+ 욕실 타일
+*/
+floorRect(
+  1.65,
+  2.35,
+  -5.18,
+  -1.85,
+  MAT.tile,
+  .045
+);
+
+floorRect(
+  1.65,
+  2.15,
+  3.62,
+  -1.55,
+  MAT.tile,
+  .045
+);
+
+/*
+ 다용도실
+*/
+floorRect(
+  1.85,
+  1.85,
+  -3.85,
+  -3.25,
+  MAT.utilityTile,
+  .045
+);
+
+/* =========================================================
+   EXTERIOR WALLS
+========================================================= */
+
+/*
+ FRONT
+ 하단 창문 사이 벽체를 분리해서 배치
+*/
+
+const FZ=D/2;
+
+const frontWindows=[
+  {x:-4.72,w:1.42},
+  {x:-2.22,w:1.22},
+  {x:.95,w:2.35},
+  {x:4.43,w:1.52}
+];
+
+function frontWallWithWindows(){
+
+  const left=-W/2;
+  const right=W/2;
+
+  const sill=.26;
+  const wh=.87;
+
+  let cursor=left;
+
+  frontWindows.forEach(o=>{
+
+    const a=o.x-o.w/2;
+    const b=o.x+o.w/2;
+
+    if(a>cursor){
+      wall(
+        cursor,FZ,
+        a,FZ,
+        WALL_H,
+        OUTER_T
+      );
+    }
+
+    box(
+      o.w,
+      sill,
+      OUTER_T,
+      o.x,
+      sill/2,
+      FZ,
+      MAT.wall
+    );
+
+    const upperY=
+      sill+wh;
+
+    box(
+      o.w,
+      WALL_H-upperY,
+      OUTER_T,
+      o.x,
+      upperY+(WALL_H-upperY)/2,
+      FZ,
+      MAT.wall
+    );
+
+    createWindow(
+      o.x,
+      sill,
+      FZ+.01,
+      o.w,
+      wh,
+      "front"
+    );
+
+    cursor=b;
+  });
+
+  if(cursor<right){
+    wall(
+      cursor,FZ,
+      right,FZ,
+      WALL_H,
+      OUTER_T
+    );
+  }
+}
+
+frontWallWithWindows();
+
+/*
+ LEFT / RIGHT
+*/
+wall(
+  -W/2,-3.42,
+  -W/2,FZ,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  W/2,-3.15,
+  W/2,FZ,
+  WALL_H,
+  OUTER_T
+);
+
+/*
+ REAR 윤곽 - A타입 평면 형태를 단순화한 단차형 외벽
+*/
+wall(
+  -W/2,-3.42,
+  -4.65,-3.42,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  -4.65,-3.42,
+  -4.65,-4.05,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  -4.65,-4.05,
+  -2.50,-4.05,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  -2.50,-4.05,
+  -2.50,-3.42,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  -2.50,-3.42,
+  .45,-3.42,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  .45,-3.42,
+  .45,-4.20,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  .45,-4.20,
+  3.12,-4.20,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  3.12,-4.20,
+  3.12,-3.15,
+  WALL_H,
+  OUTER_T
+);
+
+wall(
+  3.12,-3.15,
+  W/2,-3.15,
+  WALL_H,
+  OUTER_T
+);
+
+/* =========================================================
+   INTERNAL WALLS
+========================================================= */
+
+/* 좌측 욕실 */
+wall(-4.32,-3.35,-4.32,-.95);
+wall(-W/2,-.95,-4.25,-.95);
+
+/* 현관 / 팬트리 */
+wall(-3.05,-3.38,-3.05,-1.50);
+wall(-3.05,-1.50,-1.70,-1.50);
+wall(-1.70,-1.50,-1.70,-2.60);
+
+/* 침실 */
+wall(-3.32,.55,-3.32,FZ);
+wall(-1.30,.55,-1.30,FZ);
+
+/* 거실-안방 */
+wall(2.72,.55,2.72,FZ);
+
+/* 주방 쪽 */
+wall(-1.70,-2.52,-.10,-2.52);
+wall(-.10,-2.52,-.10,-3.35);
+
+/* 욕실2 */
+wall(2.72,-3.05,2.72,-.55);
+wall(2.72,-.55,4.38,-.55);
+wall(4.38,-3.05,4.38,-.55);
+
+/* 드레스룸 */
+wall(4.38,-3.05,W/2,-3.05);
+
+/* 작은 수납부 */
+wall(1.85,-3.38,1.85,-2.42);
+wall(1.85,-2.42,2.55,-2.42);
+
+/* =========================================================
+   WINDOWS
+========================================================= */
+
+function createWindow(
+  x,
+  sill,
+  z,
+  w,
+  h,
+  face="front"
+){
+
+  const depth=.055;
+
+  /*
+   유리
+  */
+  box(
+    w-.09,
+    h-.09,
+    depth,
+    x,
+    sill+h/2,
+    z,
+    MAT.glass,
+    false
+  );
+
+  /*
+   상하 프레임
+  */
+  box(
+    w,.055,.075,
+    x,
+    sill,
+    z,
+    MAT.frame
+  );
+
+  box(
+    w,.055,.075,
+    x,
+    sill+h,
+    z,
+    MAT.frame
+  );
+
+  /*
+   좌우 프레임
+  */
+  box(
+    .055,h,.075,
+    x-w/2,
+    sill+h/2,
+    z,
+    MAT.frame
+  );
+
+  box(
+    .055,h,.075,
+    x+w/2,
+    sill+h/2,
+    z,
+    MAT.frame
+  );
+
+  /*
+   중앙 분할
+  */
+  box(
+    .04,h-.08,.07,
+    x,
+    sill+h/2,
+    z,
+    MAT.frame
+  );
+
+  if(w>1.8){
+    box(
+      .04,h-.08,.07,
+      x-w/4,
+      sill+h/2,
+      z,
+      MAT.frame
+    );
+
+    box(
+      .04,h-.08,.07,
+      x+w/4,
+      sill+h/2,
+      z,
+      MAT.frame
+    );
+  }
+}
+
+/*
+ 후면 창호
+*/
+createRearWindow(-3.58,-4.065,1.00,.66);
+createRearWindow(-.92,-3.435,1.18,.58);
+createRearWindow(2.05,-4.215,.88,.65);
+createRearWindow(4.80,-3.165,.92,.65);
+
+function createRearWindow(
+  x,z,w,h
+){
+  const sill=.64;
+
+  /*
+   벽 앞에 깊이감을 주는 어두운 recess
+  */
+  box(
+    w+.12,
+    h+.12,
+    .045,
+    x,
+    sill+h/2,
+    z+.02,
+    MAT.darkFrame
+  );
+
+  box(
+    w,
+    h,
+    .055,
+    x,
+    sill+h/2,
+    z+.045,
+    MAT.glass,
+    false
+  );
+
+  box(
+    w+.08,
+    .045,
+    .07,
+    x,
+    sill,
+    z+.065,
+    MAT.frame
+  );
+
+  box(
+    w+.08,
+    .045,
+    .07,
+    x,
+    sill+h,
+    z+.065,
+    MAT.frame
+  );
+
+  box(
+    .045,
+    h,
+    .07,
+    x-w/2,
+    sill+h/2,
+    z+.065,
+    MAT.frame
+  );
+
+  box(
+    .045,
+    h,
+    .07,
+    x+w/2,
+    sill+h/2,
+    z+.065,
+    MAT.frame
+  );
+}
+
+/* =========================================================
+   KITCHEN
+========================================================= */
+
+/*
+ 후면 긴 주방
+*/
+box(
+  3.05,
+  .78,
+  .60,
+  -.65,
+  .39,
+  -3.02,
+  MAT.cabinet
+);
+
+box(
+  3.13,
+  .055,
+  .68,
+  -.65,
+  .81,
+  -3.02,
+  MAT.counter
+);
+
+/*
+ ㄱ자 오른쪽 부분
+*/
+box(
+  .62,
+  .78,
+  2.00,
+  .61,
+  .39,
+  -2.15,
+  MAT.cabinet
+);
+
+box(
+  .70,
+  .055,
+  2.08,
+  .61,
+  .81,
+  -2.15,
+  MAT.counter
+);
+
+/*
+ 싱크볼
+*/
+box(
+  .62,
+  .035,
+  .37,
+  -.25,
+  .845,
+  -3.04,
+  MAT.steel,
+  false
+);
+
+box(
+  .45,
+  .035,
+  .27,
+  -.25,
+  .86,
+  -3.04,
+  new THREE.MeshStandardMaterial({
+    color:0x68787e,
+    roughness:.25,
+    metalness:.6
+  }),
+  false
+);
+
+/*
+ 수전
+*/
+const faucet=new THREE.Mesh(
+  new THREE.TorusGeometry(
+    .11,
+    .018,
+    8,
+    18,
+    Math.PI
+  ),
+  MAT.steel
+);
+
+faucet.rotation.z=Math.PI/2;
+faucet.position.set(
+  -.25,
+  .99,
+  -3.25
+);
+
+home.add(faucet);
+
+/*
+ 쿡탑
+*/
+box(
+  .56,
+  .025,
+  .40,
+  -1.42,
+  .855,
+  -3.04,
+  MAT.cooktop,
+  false
+);
+
+/*
+ 냉장고/키큰장
+*/
+box(
+  .72,
+  1.35,
+  .68,
+  .95,
+  .675,
+  -2.98,
+  MAT.cabinetWhite
+);
+
+/* =========================================================
+   BUILT-IN STORAGE
+========================================================= */
+
+/* 우측 드레스룸 붙박이장 */
+box(
+  .52,
+  1.25,
+  2.10,
+  5.62,
+  .625,
+  -1.90,
+  MAT.cabinetWhite
+);
+
+/* 현관 수납 */
+box(
+  .48,
+  1.20,
+  1.08,
+  -2.72,
+  .60,
+  -2.00,
+  MAT.cabinetWhite
+);
+
+/* 좌측 작은 수납 */
+box(
+  .45,
+  1.05,
+  .80,
+  -4.55,
+  .525,
+  -.35,
+  MAT.cabinetWhite
+);
+
+/* =========================================================
+   BATHROOM FIXTURES
+========================================================= */
+
+function toilet(x,z,rot=0){
+
+  const bowl=new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      .28,
+      .25,
+      .25,
+      24
+    ),
+    MAT.sanitary
+  );
+
+  bowl.scale.z=1.28;
+  bowl.position.set(
+    x,.15,z
+  );
+  bowl.rotation.y=rot;
+  bowl.castShadow=true;
+  home.add(bowl);
+
+  const tank=box(
+    .48,
+    .40,
+    .20,
+    x,
+    .32,
+    z-.32,
+    MAT.sanitary
+  );
+
+  tank.rotation.y=rot;
+}
+
+function basin(x,z,w=.55){
+
+  box(
+    w,
+    .16,
+    .38,
+    x,
+    .63,
+    z,
+    MAT.sanitary
+  );
+
+  box(
+    w-.10,
+    .035,
+    .26,
+    x,
+    .72,
+    z,
+    MAT.steel,
+    false
+  );
+}
+
+function bath(x,z,w=1.35,d=.62){
+
+  box(
+    w,
+    .43,
+    d,
+    x,
+    .215,
+    z,
+    MAT.sanitary
+  );
+
+  box(
+    w-.13,
+    .035,
+    d-.13,
+    x,
+    .44,
+    z,
+    new THREE.MeshStandardMaterial({
+      color:0xcbd9de,
+      roughness:.22
+    }),
+    false
+  );
+}
+
+/* 욕실 1 */
+bath(
+  -5.38,
+  -2.75,
+  1.20,
+  .62
+);
+
+toilet(
+  -5.35,
+  -1.52
+);
+
+basin(
+  -4.78,
+  -2.05,
+  .48
+);
+
+/* 욕실 2 */
+toilet(
+  3.35,
+  -1.02
+);
+
+basin(
+  3.35,
+  -2.15,
+  .52
+);
+
+box(
+  1.10,
+  .08,
+  .82,
+  3.80,
+  .04,
+  -2.66,
+  MAT.tile,
+  false
+);
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+function washer(x,z){
+
+  const body=box(
+    .62,
+    .74,
+    .62,
+    x,
+    .37,
+    z,
+    MAT.appliance
+  );
+
+  const drum=new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      .20,
+      .20,
+      .025,
+      28
+    ),
+    new THREE.MeshStandardMaterial({
+      color:0x627078,
+      roughness:.3,
+      metalness:.25
     })
   );
+
+  drum.rotation.x=Math.PI/2;
+  drum.position.set(
+    x,
+    .37,
+    z+.325
+  );
+
+  home.add(drum);
+}
+
+washer(
+  -3.85,
+  -3.35
+);
+
+/* =========================================================
+   DOORS
+========================================================= */
+
+function door(
+  x,z,
+  w=.75,
+  rot=0
+){
+
+  const m=box(
+    w,
+    1.22,
+    .045,
+    x,
+    .61,
+    z,
+    MAT.door
+  );
+
+  m.rotation.y=rot;
+  return m;
+}
+
+/*
+ 살짝 열린 상태로 표현
+*/
+door(
+  -4.27,
+  -1.18,
+  .70,
+  Math.PI/5
+);
+
+door(
+  -2.30,
+  -.02,
+  .76,
+  -Math.PI/3
+);
+
+door(
+  -.92,
+  .18,
+  .76,
+  Math.PI/3
+);
+
+door(
+  3.02,
+  -.68,
+  .70,
+  -Math.PI/4
+);
+
+door(
+  4.50,
+  -.28,
+  .72,
+  Math.PI/4
+);
+
+/* =========================================================
+   GROUND / SHADOW RECEIVER
+========================================================= */
+
+const ground=new THREE.Mesh(
+  new THREE.PlaneGeometry(
+    35,
+    35
+  ),
+  new THREE.MeshStandardMaterial({
+    color:0xe8edf3,
+    roughness:1
+  })
+);
 
 ground.rotation.x=
   -Math.PI/2;
 
 ground.position.y=
-  -.04;
+  -.115;
+
+ground.receiveShadow=true;
 
 scene.add(ground);
 
 /* =========================================================
-   PLAN TEXTURE
+   CAMERA
 ========================================================= */
 
-new THREE.TextureLoader().load(
-
-  PLAN_IMAGE,
-
-  texture=>{
-
-    texture.colorSpace=
-      THREE.SRGBColorSpace;
-
-    texture.anisotropy=
-      Math.min(
-        renderer.capabilities
-          .getMaxAnisotropy(),
-        8
-      );
-
-    const image=
-      texture.image;
-
-    planDepth=
-      PLAN.width*
-      (
-        image.height/
-        image.width
-      );
-
-    createPlan(texture);
-    createWalls();
-    set3DView();
-
-    requestRender();
-
-  },
-
-  undefined,
-
-  error=>{
-
-    console.error(
-      "55A 이미지 로드 실패",
-      PLAN_IMAGE,
-      error
-    );
-
-    errorBox.style.display="block";
-
-    errorBox.innerHTML=
-      "55A.PNG를 불러오지 못했습니다.<br>"+
-      "확인 경로:<br>"+
-      "<b>assets/images/floorplans/55A.PNG</b>";
-
-    /*
-      이미지가 없어도 THREE 자체가
-      정상 작동하는지 확인하기 위해
-      임시 바닥/벽은 생성한다.
-    */
-
-    createFallback();
-    createWalls();
-    set3DView();
-
-    requestRender();
-
-  }
-
-);
-
-/* =========================================================
-   FLOOR PLAN
-========================================================= */
-
-function createPlan(texture){
-
-  const mesh=
-    new THREE.Mesh(
-      new THREE.PlaneGeometry(
-        PLAN.width,
-        planDepth
-      ),
-      new THREE.MeshBasicMaterial({
-        map:texture,
-        side:THREE.DoubleSide
-      })
-    );
-
-  mesh.rotation.x=
-    -Math.PI/2;
-
-  mesh.position.y=.005;
-
-  model.add(mesh);
-}
-
-function createFallback(){
-
-  const mesh=
-    new THREE.Mesh(
-      new THREE.PlaneGeometry(
-        PLAN.width,
-        planDepth
-      ),
-      new THREE.MeshBasicMaterial({
-        color:0xffffff,
-        side:THREE.DoubleSide
-      })
-    );
-
-  mesh.rotation.x=
-    -Math.PI/2;
-
-  model.add(mesh);
-}
-
-/* =========================================================
-   WALLS
-========================================================= */
-
-const wallMaterial=
-  new THREE.MeshStandardMaterial({
-    color:0xfafafa,
-    roughness:.72
-  });
-
-function normalToWorld(
-  nx,
-  nz
-){
-
-  return{
-    x:
-      (nx-.5)*
-      PLAN.width,
-
-    z:
-      (nz-.5)*
-      planDepth
-  };
-
-}
-
-function createWalls(){
-
-  WALL_SEGMENTS.forEach(
-    wall=>{
-      createWall(
-        ...wall
-      );
-    }
-  );
-
-}
-
-function createWall(
-  x1,
-  z1,
-  x2,
-  z2
-){
-
-  const a=
-    normalToWorld(
-      x1,
-      z1
-    );
-
-  const b=
-    normalToWorld(
-      x2,
-      z2
-    );
-
-  const dx=
-    b.x-a.x;
-
-  const dz=
-    b.z-a.z;
-
-  const length=
-    Math.hypot(
-      dx,
-      dz
-    );
-
-  const mesh=
-    new THREE.Mesh(
-      new THREE.BoxGeometry(
-        length,
-        PLAN.wallHeight,
-        PLAN.wallThickness
-      ),
-      wallMaterial
-    );
-
-  mesh.position.set(
-    (a.x+b.x)/2,
-    PLAN.wallHeight/2,
-    (a.z+b.z)/2
-  );
-
-  mesh.rotation.y=
-    -Math.atan2(
-      dz,
-      dx
-    );
-
-  model.add(mesh);
-
-}
-
-/* =========================================================
-   CAMERA PRESETS
-========================================================= */
-
-function set3DView(){
+function set3D(){
 
   camera.up.set(
-    0,
-    1,
-    0
+    0,1,0
   );
 
   camera.position.set(
-    9,
-    10,
-    11
+    10.8,
+    11.8,
+    12.4
   );
 
   controls.target.set(
     0,
-    .45,
-    0
+    .38,
+    -.15
   );
 
   controls.update();
 
-  requestRender();
+  setButton("btn3d");
+  render();
 }
 
-function setTopView(){
+function setTop(){
 
   camera.up.set(
     0,
@@ -569,7 +1402,7 @@ function setTopView(){
 
   camera.position.set(
     0,
-    20,
+    21,
     .001
   );
 
@@ -581,27 +1414,31 @@ function setTopView(){
 
   controls.update();
 
-  requestRender();
+  setButton("btnTop");
+  render();
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+function setButton(id){
 
-document
-  .getElementById("btn3d")
-  .onclick=
-    set3DView;
+  document
+    .querySelectorAll(".action")
+    .forEach(
+      b=>b.classList.remove("active")
+    );
 
-document
-  .getElementById("btnTop")
-  .onclick=
-    setTopView;
+  if(id){
+    document
+      .getElementById(id)
+      ?.classList.add("active");
+  }
+}
 
-document
-  .getElementById("btnReset")
-  .onclick=
-    set3DView;
+$("#btn3d").onclick=set3D;
+$("#btnTop").onclick=setTop;
+
+$("#btnReset").onclick=()=>{
+  set3D();
+};
 
 /* =========================================================
    RESIZE
@@ -618,40 +1455,52 @@ addEventListener(
     camera
       .updateProjectionMatrix();
 
+    renderer.setPixelRatio(
+      Math.min(
+        devicePixelRatio,
+        MOBILE?1.75:2
+      )
+    );
+
     renderer.setSize(
       viewer.clientWidth,
       viewer.clientHeight
     );
 
-    requestRender();
-
+    render();
   }
 );
 
 /* =========================================================
-   START TEST RENDER
+   DOUBLE TAP BLOCK
 ========================================================= */
 
-/*
-  텍스처가 로드되기 전에도
-  WebGL이 정상 작동하면 배경은 즉시 나타난다.
-*/
+let lastTouch=0;
 
-camera.position.set(
-  9,
-  10,
-  11
+viewer.addEventListener(
+  "touchend",
+  e=>{
+
+    const now=Date.now();
+
+    if(
+      now-lastTouch<
+      280
+    ){
+      e.preventDefault();
+    }
+
+    lastTouch=now;
+  },
+  {passive:false}
 );
 
-camera.lookAt(
-  0,
-  0,
-  0
-);
+/* =========================================================
+   START
+========================================================= */
 
-requestRender();
+set3D();
 
 </script>
-
 </body>
 </html>
